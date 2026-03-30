@@ -1,0 +1,350 @@
+// Wak Cars — Prisma Schema
+// Provider : MySQL (MariaDB on Hostinger — co-located)
+// Generated from wakcars_schema.sql v1.0
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum CarStatus {
+  AVAILABLE
+  RENTED
+  MAINTENANCE
+  INACTIVE
+}
+
+enum TransmissionType {
+  MANUAL
+  AUTOMATIC
+}
+
+enum FuelType {
+  ESSENCE
+  DIESEL
+  HYBRID
+  ELECTRIC
+}
+
+enum AdminRole {
+  ADMIN
+  STAFF
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum PaymentStatus {
+  UNPAID
+  PARTIAL
+  PAID
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  CARD
+}
+
+enum InsuranceStatus {
+  expired
+  active
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model car_categories {
+  id         Int      @id @default(autoincrement())
+  name_fr    String   @db.VarChar(100)
+  name_ar    String   @db.VarChar(100)
+  slug       String   @unique @db.VarChar(100)
+  desc_fr    String?  @db.Text
+  desc_ar    String?  @db.Text
+  sort_order Int      @default(0)
+  is_active  Boolean  @default(true)
+
+  cars       cars[]
+}
+
+model cars {
+  id             Int              @id @default(autoincrement())
+  brand          String           @db.VarChar(100)
+  model          String           @db.VarChar(100)
+  slug           String           @unique @db.VarChar(150)
+  year           Int
+  license_plate  String           @unique @db.VarChar(20)
+  status         CarStatus        @default(AVAILABLE)
+  transmission   TransmissionType @default(MANUAL)
+  fuel_type      FuelType         @default(DIESEL)
+  seats          Int              @default(5)
+  doors          Int              @default(4)
+  price_per_day  Decimal          @db.Decimal(10, 2)
+  deposit_amount Decimal          @db.Decimal(10, 2)
+  description_fr String?          @db.Text
+  description_ar String?          @db.Text
+  is_active      Boolean          @default(true)
+  is_featured    Boolean          @default(false)
+  category_id    Int
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @updatedAt
+
+  category           car_categories       @relation(fields: [category_id], references: [id])
+  images             car_images[]
+  reservations       reservations[]
+  insurance_policies insurance_policies[]
+  technical_visits   technical_visits[]
+  damage_reports     damage_reports[]
+
+  @@index([status])
+  @@index([category_id])
+  @@index([slug])
+}
+
+model car_images {
+  id         Int      @id @default(autoincrement())
+  car_id     Int
+  url        String   @db.VarChar(500)
+  public_id  String   @db.VarChar(200)
+  alt_fr     String?  @db.VarChar(200)
+  alt_ar     String?  @db.VarChar(200)
+  is_primary Boolean  @default(false)
+  sort_order Int      @default(0)
+  created_at DateTime @default(now())
+
+  car cars @relation(fields: [car_id], references: [id], onDelete: Cascade)
+
+  @@index([car_id])
+}
+
+model locations {
+  id         Int      @id @default(autoincrement())
+  name_fr    String   @db.VarChar(150)
+  name_ar    String   @db.VarChar(150)
+  slug       String   @unique @db.VarChar(150)
+  address_fr String   @db.VarChar(255)
+  address_ar String   @db.VarChar(255)
+  city       String   @default("Marrakech") @db.VarChar(100)
+  created_at DateTime @default(now())
+
+  pickup_reservations  reservations[] @relation("PickupLocation")
+  dropoff_reservations reservations[] @relation("DropoffLocation")
+}
+
+model customers {
+  id              Int      @id @default(autoincrement())
+  first_name      String   @db.VarChar(100)
+  last_name       String   @db.VarChar(100)
+  email           String?  @db.VarChar(255)
+  phone           String   @unique @db.VarChar(30)
+  nationality     String?  @db.VarChar(100)
+  licence_country String?  @db.VarChar(100)
+  licence_number  String?  @db.VarChar(50)
+  passport_number String?  @db.VarChar(50)
+  notes           String?  @db.Text
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  reservations reservations[]
+
+  @@index([phone])
+  @@index([email])
+}
+
+model admins {
+  id            Int       @id @default(autoincrement())
+  name          String    @db.VarChar(150)
+  email         String    @unique @db.VarChar(255)
+  password_hash String    @db.VarChar(255)
+  role          AdminRole @default(STAFF)
+  refresh_token String?   @db.Text
+  is_active     Boolean   @default(true)
+  last_login_at DateTime?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  payments       payments[]
+  damage_reports damage_reports[]
+  blog_posts     blog_posts[]
+}
+
+model reservations {
+  id                  Int               @id @default(autoincrement())
+  status              ReservationStatus @default(PENDING)
+  pickup_date         DateTime
+  dropoff_date        DateTime
+  actual_return_date  DateTime?
+  pickup_location_id  Int
+  dropoff_location_id Int
+  car_id              Int
+  customer_id         Int?
+  total_amount        Decimal           @db.Decimal(10, 2)
+  has_gps             Boolean           @default(false)
+  has_child_seat      Boolean           @default(false)
+  payment_status      PaymentStatus     @default(UNPAID)
+  confirmed_at        DateTime?
+  created_at          DateTime          @default(now())
+  updated_at          DateTime          @updatedAt
+
+  car              cars          @relation(fields: [car_id], references: [id])
+  customer         customers?    @relation(fields: [customer_id], references: [id])
+  pickup_location  locations     @relation("PickupLocation", fields: [pickup_location_id], references: [id])
+  dropoff_location locations     @relation("DropoffLocation", fields: [dropoff_location_id], references: [id])
+  payments         payments[]
+  damage_reports   damage_reports[]
+
+  @@index([car_id])
+  @@index([status])
+  @@index([dropoff_date])
+  @@index([pickup_date])
+  @@index([customer_id])
+}
+
+model payments {
+  id             Int           @id @default(autoincrement())
+  reservation_id Int
+  amount         Decimal       @db.Decimal(10, 2)
+  method         PaymentMethod
+  status         PaymentStatus @default(PAID)
+  reference      String?       @db.VarChar(100)
+  notes          String?       @db.Text
+  recorded_by_id Int?
+  created_at     DateTime      @default(now())
+
+  reservation  reservations @relation(fields: [reservation_id], references: [id])
+  recorded_by  admins?      @relation(fields: [recorded_by_id], references: [id])
+
+  @@index([reservation_id])
+}
+
+model insurance_policies {
+  id            Int             @id @default(autoincrement())
+  car_id        Int
+  provider      String          @db.VarChar(150)
+  policy_number String          @db.VarChar(100)
+  start_date    DateTime        @db.Date
+  expiry_date   DateTime        @db.Date
+  status        InsuranceStatus @default(active)
+  notes         String?         @db.Text
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+
+  car cars @relation(fields: [car_id], references: [id])
+
+  @@index([expiry_date])
+}
+
+model technical_visits {
+  id              Int       @id @default(autoincrement())
+  car_id          Int
+  cost            Decimal?  @db.Decimal(10, 2)
+  visit_date      DateTime  @db.Date
+  expiration_date DateTime? @db.Date
+  created_at      DateTime  @default(now())
+
+  car cars @relation(fields: [car_id], references: [id])
+
+  @@index([car_id])
+}
+
+model damage_reports {
+  id                Int      @id @default(autoincrement())
+  car_id            Int
+  reservation_id    Int?
+  description       String   @db.Text
+  estimated_cost    Decimal? @db.Decimal(10, 2)
+  customer_notified Boolean  @default(false)
+  resolved          Boolean  @default(false)
+  reported_by_id    Int?
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  car         cars          @relation(fields: [car_id], references: [id])
+  reservation reservations? @relation(fields: [reservation_id], references: [id])
+  reported_by admins?       @relation(fields: [reported_by_id], references: [id])
+  images      damage_images[]
+
+  @@index([car_id])
+  @@index([reservation_id])
+}
+
+model damage_images {
+  id               Int      @id @default(autoincrement())
+  damage_report_id Int
+  url              String   @db.VarChar(500)
+  public_id        String   @db.VarChar(200)
+  created_at       DateTime @default(now())
+
+  damage_report damage_reports @relation(fields: [damage_report_id], references: [id], onDelete: Cascade)
+
+  @@index([damage_report_id])
+}
+
+model blog_posts {
+  id            Int       @id @default(autoincrement())
+  slug_fr       String    @unique @db.VarChar(200)
+  slug_ar       String    @unique @db.VarChar(200)
+  title_fr      String    @db.VarChar(250)
+  title_ar      String    @db.VarChar(250)
+  excerpt_fr    String?   @db.Text
+  excerpt_ar    String?   @db.Text
+  content_fr    String    @db.LongText
+  content_ar    String    @db.LongText
+  cover_image   String?   @db.VarChar(500)
+  cover_alt     String?   @db.VarChar(200)
+  meta_title_fr String?   @db.VarChar(70)
+  meta_title_ar String?   @db.VarChar(70)
+  meta_desc_fr  String?   @db.VarChar(165)
+  meta_desc_ar  String?   @db.VarChar(165)
+  category      String?   @db.VarChar(100)
+  tags          String?   @db.VarChar(500)
+  is_published  Boolean   @default(false)
+  is_featured   Boolean   @default(false)
+  published_at  DateTime?
+  author_id     Int?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  author admins? @relation(fields: [author_id], references: [id])
+
+  @@index([is_published])
+  @@index([slug_fr])
+  @@index([slug_ar])
+}
+
+model faqs {
+  id          Int      @id @default(autoincrement())
+  question_fr String   @db.VarChar(500)
+  question_ar String   @db.VarChar(500)
+  answer_fr   String   @db.Text
+  answer_ar   String   @db.Text
+  category    String   @db.VarChar(100)
+  sort_order  Int      @default(0)
+  is_published Boolean @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([category])
+  @@index([is_published])
+}
+
+model site_settings {
+  id          Int      @id @default(autoincrement())
+  settingKey  String   @unique @map("key") @db.VarChar(100)
+  value_fr    String?  @db.Text
+  value_ar    String?  @db.Text
+  description String?  @db.VarChar(255)
+  updated_at  DateTime @updatedAt
+}
