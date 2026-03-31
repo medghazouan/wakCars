@@ -34,13 +34,33 @@ const getAlerts = async (req, res, next) => {
           status: 'active',
           expiry_date: { gte: now, lte: in30Days },
         },
-        include: { car: { select: { id: true, brand: true, model: true, license_plate: true } } },
+        include: {
+          car: {
+            select: {
+              id: true,
+              brand: true,
+              model: true,
+              license_plate: true,
+              images: { take: 1, orderBy: { sort_order: 'asc' } },
+            },
+          },
+        },
         orderBy: { expiry_date: 'asc' },
       }),
 
       prisma.insurance_policies.findMany({
         where: { status: 'expired' },
-        include: { car: { select: { id: true, brand: true, model: true, license_plate: true } } },
+        include: {
+          car: {
+            select: {
+              id: true,
+              brand: true,
+              model: true,
+              license_plate: true,
+              images: { take: 1, orderBy: { sort_order: 'asc' } },
+            },
+          },
+        },
         orderBy: { expiry_date: 'desc' },
         take: 20,
       }),
@@ -49,7 +69,17 @@ const getAlerts = async (req, res, next) => {
         where: {
           expiration_date: { gte: now, lte: in30Days },
         },
-        include: { car: { select: { id: true, brand: true, model: true, license_plate: true } } },
+        include: {
+          car: {
+            select: {
+              id: true,
+              brand: true,
+              model: true,
+              license_plate: true,
+              images: { take: 1, orderBy: { sort_order: 'asc' } },
+            },
+          },
+        },
         orderBy: { expiration_date: 'asc' },
       }),
 

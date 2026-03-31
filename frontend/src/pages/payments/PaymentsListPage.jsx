@@ -35,7 +35,7 @@ export default function PaymentsListPage() {
     },
     { key: 'method', label: 'Method', render: (p) => p.method },
     { key: 'status', label: 'Status', render: (p) => <StatusBadge status={p.status} /> },
-    { key: 'date', label: 'Date', render: (p) => formatDate(p.payment_date) },
+    { key: 'date', label: 'Date', render: (p) => formatDate(p.created_at) },
   ]
 
   return (

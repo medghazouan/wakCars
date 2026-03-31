@@ -17,6 +17,8 @@ export const statusMap = {
   PARTIAL: { label: 'Deposit Paid', variant: 'warning' },
   PAID: { label: 'Paid in Full', variant: 'success' },
   REFUNDED: { label: 'Refunded', variant: 'default' },
+  URGENT: { label: 'Urgent', variant: 'danger' },
+  READY: { label: 'Ready', variant: 'success' },
 }
 
 export function StatusBadge({ status, type = 'default' }) {

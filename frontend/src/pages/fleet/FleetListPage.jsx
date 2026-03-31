@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { Car, Wrench, AlertCircle, TrendingUp, Info, Sparkles, Filter } from 'lucide-react'
 import { carsApi } from '@/api/cars.api'
+import { dashboardApi } from '@/api/dashboard.api'
 import { pageTransition } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { StatsCard } from '@/components/ui/StatsCard'
@@ -25,14 +26,23 @@ export default function FleetListPage() {
     }),
   })
 
-  // We fetch dashboard stats here briefly to populate the top cards, or mock them based on the list if API doesn't provide them yet.
-  // For the mockup we'll mock the counts.
+  const { data: dashData, isLoading: dashLoading } = useQuery({
+    queryKey: ['dashboard'],
+    queryFn: () => dashboardApi.getStats(),
+  })
+
+  const fleet = dashData?.data?.fleet || {}
   const stats = {
-    total: 128,
-    available: 84,
-    maintenance: 12,
-    reviewPending: 6
+    total: fleet.total ?? 0,
+    available: fleet.available ?? 0,
+    maintenance: fleet.maintenance ?? 0,
+    reviewPending: fleet.reviewPending ?? 0,
   }
+  const growth = fleet.monthOverMonthPct ?? 0
+  const totalBadge =
+    growth > 0 ? `+${growth}%` : growth < 0 ? `${growth}%` : '—'
+  const availRatio = stats.total > 0 ? stats.available / stats.total : 0
+  const availableBadge = availRatio >= 0.35 ? 'Optimal' : availRatio > 0 ? 'Low' : '—'
 
   const columns = [
     {
@@ -80,7 +90,12 @@ export default function FleetListPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-secondary mb-2">Vehicle Fleet</h1>
-          <p className="text-gray-400">Managing {stats.total} active units across regions.</p>
+          <p className="text-gray-400">
+            Managing {dashLoading ? '…' : stats.total} active units
+            {fleet.locationsCount != null
+              ? ` across ${fleet.locationsCount} location${fleet.locationsCount === 1 ? '' : 's'}.`
+              : ' across regions.'}
+          </p>
         </div>
         <Button onClick={() => navigate('/fleet/new')}>
           + Add New Vehicle
@@ -88,10 +103,28 @@ export default function FleetListPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatsCard title="Total Fleet" value={stats.total} icon={Car} badgeText="+4%" />
-        <StatsCard title="Available" value={stats.available} icon={TrendingUp} badgeText="Optimal" badgeVariant="success" />
-        <StatsCard title="In Maintenance" value={stats.maintenance} icon={Wrench} />
-        <StatsCard title="Review Pending" value={stats.reviewPending} icon={AlertCircle} badgeText="!" badgeVariant="danger" />
+        <StatsCard
+          title="Total Fleet"
+          value={dashLoading ? '…' : stats.total}
+          icon={Car}
+          badgeText={dashLoading ? undefined : totalBadge}
+          badgeVariant={growth >= 0 ? 'success' : 'warning'}
+        />
+        <StatsCard
+          title="Available"
+          value={dashLoading ? '…' : stats.available}
+          icon={TrendingUp}
+          badgeText={dashLoading ? undefined : availableBadge}
+          badgeVariant="success"
+        />
+        <StatsCard title="In Maintenance" value={dashLoading ? '…' : stats.maintenance} icon={Wrench} />
+        <StatsCard
+          title="Review Pending"
+          value={dashLoading ? '…' : stats.reviewPending}
+          icon={AlertCircle}
+          badgeText={stats.reviewPending > 0 ? '!' : undefined}
+          badgeVariant="danger"
+        />
       </div>
 
       <div className="flex flex-col gap-4">

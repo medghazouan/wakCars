@@ -16,11 +16,24 @@ export default function DashboardPage() {
   })
 
   const stats = data?.data || {
-    revenue: { monthly: 0 },
+    revenue: { monthly: 0, monthOverMonthPct: 0, monthLabel: '' },
     reservations: { active: 0, pending: 0 },
-    fleet: { total: 0, maintenance: 0 },
-    alerts: { overdueReturns: 0 }
+    fleet: { total: 0, maintenance: 0, reviewPending: 0 },
+    alerts: { overdueReturns: 0 },
+    occupancy: { ratePct: 0 },
+    fleetHealthScore: 0,
   }
+
+  const revMom = stats.revenue?.monthOverMonthPct ?? 0
+  const revBadge =
+    revMom > 0 ? `+${revMom}%` : revMom < 0 ? `${revMom}%` : '—'
+  const revBadgeVariant = revMom >= 0 ? 'success' : 'danger'
+
+  const occ = stats.occupancy?.ratePct ?? 0
+  const fleetGrowth = stats.fleet?.monthOverMonthPct ?? 0
+  const fleetGrowthBadge =
+    fleetGrowth > 0 ? `+${fleetGrowth}%` : fleetGrowth < 0 ? `${fleetGrowth}%` : '—'
+  const techPending = stats.fleet?.reviewPending ?? 0
 
   return (
     <motion.div
@@ -46,32 +59,32 @@ export default function DashboardPage() {
           value={isLoading ? '...' : formatCurrency(stats.revenue.monthly)}
           icon={Activity}
           iconClassName="bg-red-50 text-primary"
-          badgeText="+12.4%" // Mocked trend
-          badgeVariant="success"
+          badgeText={isLoading ? '…' : revBadge}
+          badgeVariant={revBadgeVariant}
         />
         <StatsCard
           title="Active Reservations"
           value={isLoading ? '...' : stats.reservations.active}
           icon={Calendar}
           iconClassName="bg-green-50 text-success"
-          badgeText="85% Occupancy" // Mocked
+          badgeText={isLoading ? '…' : `${occ}% occupancy`}
           badgeVariant="warning"
         />
         <StatsCard
           title="Fleet Status"
-          value={isLoading ? '...' : `${stats.fleet.maintenance} Maintenance`}
+          value={isLoading ? '...' : `${stats.fleet.maintenance ?? 0} Maintenance`}
           icon={Car}
           iconClassName="bg-blue-50 text-info"
-          badgeText={`${stats.fleet.total} Total`}
+          badgeText={isLoading ? '…' : `${stats.fleet.total} Total · ${fleetGrowthBadge}`}
           badgeVariant="neutral"
         />
         <StatsCard
           title="Pending Technical Reviews"
-          value={isLoading ? '...' : stats.alerts.overdueReturns} // Approximated
+          value={isLoading ? '...' : techPending}
           icon={Wrench}
           iconClassName="bg-purple-50 text-purple-600"
-          badgeText="Urgent"
-          badgeVariant="danger"
+          badgeText={techPending > 0 ? 'Action needed' : 'Clear'}
+          badgeVariant={techPending > 0 ? 'danger' : 'success'}
         />
       </div>
 
@@ -84,7 +97,7 @@ export default function DashboardPage() {
 
         {/* Right Column */}
         <div className="space-y-6">
-          <FleetHealthCard />
+          <FleetHealthCard score={stats.fleetHealthScore} isLoading={isLoading} />
           <ReviewQueue />
         </div>
       </div>

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Wrench, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { technicalVisitsApi } from '@/api/insurance.api' // exported from the same api file
+import { dashboardApi } from '@/api/dashboard.api'
 import { pageTransition } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -14,13 +15,20 @@ export default function TechnicalReviewsListPage() {
     queryFn: () => technicalVisitsApi.getList({ limit: 10 }),
   })
 
+  const { data: dashData, isLoading: dashLoading } = useQuery({
+    queryKey: ['dashboard'],
+    queryFn: () => dashboardApi.getStats(),
+  })
+
+  const tech = dashData?.data?.technical || {}
   const stats = {
-    compliant: 142,
-    compliantPct: 88,
-    dueSoon: 14,
-    dueSoonPct: 9,
-    critical: 5,
-    criticalPct: 3
+    compliant: tech.compliant ?? 0,
+    compliantPct: tech.compliantPct ?? 0,
+    dueSoon: tech.dueSoon ?? 0,
+    dueSoonPct: tech.dueSoonPct ?? 0,
+    critical: tech.critical ?? 0,
+    criticalPct: tech.criticalPct ?? 0,
+    qualityScore: tech.qualityScore ?? 0,
   }
 
   return (
@@ -40,8 +48,8 @@ export default function TechnicalReviewsListPage() {
             <div>
               <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Compliant</p>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-secondary">{stats.compliant}</span>
-                <span className="text-sm font-bold text-success">{stats.compliantPct}%</span>
+                <span className="text-3xl font-black text-secondary">{dashLoading ? '…' : stats.compliant}</span>
+                <span className="text-sm font-bold text-success">{dashLoading ? '…' : `${stats.compliantPct}%`}</span>
               </div>
             </div>
             <div>
@@ -54,8 +62,8 @@ export default function TechnicalReviewsListPage() {
             <div>
               <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Critical</p>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-secondary">{stats.critical}</span>
-                <span className="text-sm font-bold text-danger">{stats.criticalPct}%</span>
+                <span className="text-3xl font-black text-secondary">{dashLoading ? '…' : stats.critical}</span>
+                <span className="text-sm font-bold text-danger">{dashLoading ? '…' : `${stats.criticalPct}%`}</span>
               </div>
             </div>
           </div>
@@ -79,11 +87,13 @@ export default function TechnicalReviewsListPage() {
             Premium Fleet
           </div>
           <div>
-            <h3 className="font-bold text-secondary text-lg mb-2">Technical Review Quality Score</h3>
+            <h3 className="font-bold text-secondary text-lg mb-2">Technical review quality score</h3>
             <div className="flex items-end gap-3">
-              <span className="text-5xl font-black text-secondary">9.8</span>
+              <span className="text-5xl font-black text-secondary">
+                {dashLoading ? '…' : Number(stats.qualityScore).toFixed(1)}
+              </span>
               <p className="text-[10px] font-medium text-gray-600 leading-tight pb-1">
-                Excellent technical health maintained across VIP segment.
+                0–10 from the share of active vehicles classified as technically compliant (visit not expired, not due within 30 days).
               </p>
             </div>
           </div>

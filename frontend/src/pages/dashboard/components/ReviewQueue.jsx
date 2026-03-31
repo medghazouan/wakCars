@@ -9,7 +9,6 @@ export function ReviewQueue() {
     queryFn: () => alertsApi.getAlerts(),
   })
 
-  // We'll mock a few if alerts endpoint doesn't return car images easily
   const queue = data?.data?.expiringTechVisits?.slice(0, 3) || []
 
   return (

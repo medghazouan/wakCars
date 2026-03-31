@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { format } from 'date-fns'
 import { Calendar as CalendarIcon, CheckCircle, Clock, TrendingUp } from 'lucide-react'
 import { reservationsApi } from '@/api/reservations.api'
+import { dashboardApi } from '@/api/dashboard.api'
 import { pageTransition } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { StatsCard } from '@/components/ui/StatsCard'
@@ -21,13 +22,23 @@ export default function ReservationsListPage() {
     queryFn: () => reservationsApi.getList({ page, limit: 10 }),
   })
 
-  // Mocked stats
+  const { data: dashData, isLoading: dashLoading } = useQuery({
+    queryKey: ['dashboard'],
+    queryFn: () => dashboardApi.getStats(),
+  })
+
+  const res = dashData?.data?.reservations || {}
+  const rev = dashData?.data?.revenue || {}
   const stats = {
-    active: 124,
-    pending: 18,
-    new: 42,
-    revenue: 12450
+    active: res.activeBookings ?? res.active ?? 0,
+    pending: res.pending ?? 0,
+    new: res.newLast24h ?? 0,
+    revenue: rev.monthly ?? 0,
   }
+  const revMom = rev.monthOverMonthPct ?? 0
+  const revBadge = revMom > 0 ? `+${revMom}%` : revMom < 0 ? `${revMom}%` : '—'
+  const timeline = res.timeline || []
+  const weekendCount = res.weekendPickupCount ?? 0
 
   const columns = [
     {
@@ -100,10 +111,34 @@ export default function ReservationsListPage() {
       className="max-w-7xl mx-auto space-y-8"
     >
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <StatsCard title="Active Bookings" value={stats.active} icon={CalendarIcon} badgeText="+12%" />
-        <StatsCard title="Pending Conf." value={stats.pending} icon={Clock} badgeText="Critical" badgeVariant="danger" />
-        <StatsCard title="New (24H)" value={stats.new} icon={CheckCircle} badgeText="Stable" badgeVariant="neutral" />
-        <StatsCard title="Revenue (OCT)" value={formatCurrency(stats.revenue)} icon={TrendingUp} badgeText="+5.4%" badgeVariant="success" />
+        <StatsCard
+          title="Active Bookings"
+          value={dashLoading ? '…' : stats.active}
+          icon={CalendarIcon}
+          badgeText={dashLoading ? '…' : `${stats.pending} pending`}
+          badgeVariant="neutral"
+        />
+        <StatsCard
+          title="Pending Conf."
+          value={dashLoading ? '…' : stats.pending}
+          icon={Clock}
+          badgeText={stats.pending > 5 ? 'High' : stats.pending > 0 ? 'Open' : 'Clear'}
+          badgeVariant={stats.pending > 5 ? 'danger' : 'warning'}
+        />
+        <StatsCard
+          title="New (24H)"
+          value={dashLoading ? '…' : stats.new}
+          icon={CheckCircle}
+          badgeText="Created"
+          badgeVariant="neutral"
+        />
+        <StatsCard
+          title={`Revenue (${rev.monthLabel || 'MTD'})`}
+          value={dashLoading ? '…' : formatCurrency(stats.revenue)}
+          icon={TrendingUp}
+          badgeText={dashLoading ? '…' : revBadge}
+          badgeVariant={revMom >= 0 ? 'success' : 'danger'}
+        />
       </div>
 
       <div className="flex flex-col gap-4">
@@ -135,39 +170,51 @@ export default function ReservationsListPage() {
           </div>
           
           <div className="space-y-6 relative before:absolute before:inset-0 before:ml-12 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gray-100">
-            {/* Timeline Item Mock */}
-            <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-50 text-primary border-4 border-white z-10 font-bold text-xs shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm">
-                09:00
-              </div>
-              <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-gray-100 bg-white shadow-sm flex items-center justify-between border-l-4 border-l-danger">
-                <div>
-                  <h4 className="font-bold text-sm text-secondary">Porsche 911 Carrera Delivery</h4>
-                  <p className="text-xs text-gray-500">Julianne Devis • Airport Terminal 2</p>
-                </div>
-                <StatusBadge status="URGENT" type="danger" />
-              </div>
-            </div>
-
-            <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-50 text-gray-500 border-4 border-white z-10 font-bold text-xs shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm">
-                11:30
-              </div>
-              <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-gray-100 bg-white shadow-sm flex items-center justify-between border-l-4 border-l-success">
-                <div>
-                  <h4 className="font-bold text-sm text-secondary">Range Rover Return Inspection</h4>
-                  <p className="text-xs text-gray-500">Sam Peterson • Central Office</p>
-                </div>
-                <StatusBadge status="READY" type="success" />
-              </div>
-            </div>
+            {dashLoading ? (
+              <p className="text-sm text-gray-400 pl-14">Loading timeline…</p>
+            ) : timeline.length === 0 ? (
+              <p className="text-sm text-gray-400 pl-14">No pickups scheduled in the next 7 days.</p>
+            ) : (
+              timeline.map((item, i) => {
+                const urgent = item.badge === 'URGENT'
+                return (
+                  <div
+                    key={item.id ?? i}
+                    className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active"
+                  >
+                    <div
+                      className={`flex items-center justify-center w-10 h-10 rounded-full border-4 border-white z-10 font-bold text-xs shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm ${
+                        urgent ? 'bg-red-50 text-primary' : 'bg-gray-50 text-gray-500'
+                      }`}
+                    >
+                      {item.timeLabel}
+                    </div>
+                    <div
+                      className={`w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-gray-100 bg-white shadow-sm flex items-center justify-between border-l-4 ${
+                        urgent ? 'border-l-danger' : 'border-l-success'
+                      }`}
+                    >
+                      <div>
+                        <h4 className="font-bold text-sm text-secondary">{item.title}</h4>
+                        <p className="text-xs text-gray-500">{item.subtitle}</p>
+                      </div>
+                      <StatusBadge status={item.badge} />
+                    </div>
+                  </div>
+                )
+              })
+            )}
           </div>
         </div>
 
         <div className="bg-primary rounded-xl p-6 text-white h-fit shadow-lg bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
-          <h3 className="text-xl font-bold mb-2">Weekend Surge Expected</h3>
+          <h3 className="text-xl font-bold mb-2">Weekend pickups</h3>
           <p className="text-sm text-red-100 mb-6 leading-relaxed">
-            Reservations for premium SUVs are up 40% this weekend. Ensure all technical reviews are completed by Friday evening.
+            {dashLoading
+              ? 'Loading…'
+              : weekendCount > 0
+                ? `${weekendCount} reservation${weekendCount === 1 ? '' : 's'} with pickup this weekend. Plan staffing and vehicle prep accordingly.`
+                : 'No weekend pickups scheduled yet. Promote availability or confirm pending bookings.'}
           </p>
           <ul className="space-y-3 mb-8">
             <li className="flex items-center gap-2 text-sm font-medium">

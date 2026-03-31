@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Shield, ShieldAlert, ShieldCheck } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { insuranceApi } from '@/api/insurance.api'
+import { dashboardApi } from '@/api/dashboard.api'
 import { pageTransition } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -14,13 +15,20 @@ export default function InsuranceListPage() {
     queryFn: () => insuranceApi.getList({ limit: 10 }),
   })
 
+  const { data: dashData, isLoading: dashLoading } = useQuery({
+    queryKey: ['dashboard'],
+    queryFn: () => dashboardApi.getStats(),
+  })
+
+  const ins = dashData?.data?.insurance || {}
   const stats = {
-    compliant: 142,
-    compliantPct: 88,
-    dueSoon: 14,
-    dueSoonPct: 9,
-    critical: 5,
-    criticalPct: 3
+    compliant: ins.compliant ?? 0,
+    compliantPct: ins.compliantPct ?? 0,
+    dueSoon: ins.dueSoon ?? 0,
+    dueSoonPct: ins.dueSoonPct ?? 0,
+    critical: ins.critical ?? 0,
+    criticalPct: ins.criticalPct ?? 0,
+    qualityScore: ins.qualityScore ?? 0,
   }
 
   return (
@@ -40,22 +48,22 @@ export default function InsuranceListPage() {
             <div>
               <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Compliant</p>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-secondary">{stats.compliant}</span>
-                <span className="text-sm font-bold text-success">{stats.compliantPct}%</span>
+                <span className="text-3xl font-black text-secondary">{dashLoading ? '…' : stats.compliant}</span>
+                <span className="text-sm font-bold text-success">{dashLoading ? '…' : `${stats.compliantPct}%`}</span>
               </div>
             </div>
             <div>
               <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Due Soon</p>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-secondary">{stats.dueSoon}</span>
-                <span className="text-sm font-bold text-warning">{stats.dueSoonPct}%</span>
+                <span className="text-3xl font-black text-secondary">{dashLoading ? '…' : stats.dueSoon}</span>
+                <span className="text-sm font-bold text-warning">{dashLoading ? '…' : `${stats.dueSoonPct}%`}</span>
               </div>
             </div>
             <div>
               <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Critical</p>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-secondary">{stats.critical}</span>
-                <span className="text-sm font-bold text-danger">{stats.criticalPct}%</span>
+                <span className="text-3xl font-black text-secondary">{dashLoading ? '…' : stats.critical}</span>
+                <span className="text-sm font-bold text-danger">{dashLoading ? '…' : `${stats.criticalPct}%`}</span>
               </div>
             </div>
           </div>
@@ -79,11 +87,13 @@ export default function InsuranceListPage() {
             Premium Fleet
           </div>
           <div>
-            <h3 className="font-bold text-secondary text-lg mb-2">Technical Review Quality Score</h3>
+            <h3 className="font-bold text-secondary text-lg mb-2">Insurance coverage score</h3>
             <div className="flex items-end gap-3">
-              <span className="text-5xl font-black text-secondary">9.8</span>
+              <span className="text-5xl font-black text-secondary">
+                {dashLoading ? '…' : Number(stats.qualityScore).toFixed(1)}
+              </span>
               <p className="text-[10px] font-medium text-gray-600 leading-tight pb-1">
-                Excellent technical health maintained across VIP segment.
+                Derived from share of fleet with valid policies (10 = all compliant).
               </p>
             </div>
           </div>
