@@ -6,6 +6,8 @@ export const reservationsApi = {
   create: (data) => apiClient.post('/api/reservations', data),
   update: (id, data) => apiClient.put(`/api/reservations/${id}`, data),
   updateStatus: (id, status) => apiClient.patch(`/api/reservations/${id}/status`, { status }),
+  updatePaymentStatus: (id, payment_status) =>
+    apiClient.patch(`/api/reservations/${id}/payment`, { payment_status }),
   reassign: (id, car_id) => apiClient.patch(`/api/reservations/${id}/reassign`, { car_id }),
   confirm: (id) => apiClient.patch(`/api/reservations/${id}/confirm`),
 }

@@ -1,29 +1,34 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useMemo, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import { Car, Wrench, AlertCircle, TrendingUp, Info, Sparkles, Filter } from 'lucide-react'
+import { Car, TrendingUp, KeyRound, CircleSlash, Filter, Eye } from 'lucide-react'
+import toast from 'react-hot-toast'
 import { carsApi } from '@/api/cars.api'
 import { dashboardApi } from '@/api/dashboard.api'
 import { pageTransition } from '@/animations/variants'
 import { Button } from '@/components/ui/Button'
 import { StatsCard } from '@/components/ui/StatsCard'
 import { DataTable } from '@/components/ui/DataTable'
-import { StatusBadge } from '@/components/ui/StatusBadge'
 import { formatDate } from '@/utils/formatters'
+import { cn } from '@/utils/cn'
+
+const CAR_STATUSES = ['AVAILABLE', 'RENTED', 'MAINTENANCE', 'INACTIVE']
 
 export default function FleetListPage() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [page, setPage] = useState(1)
-  const [statusFilter, setStatusFilter] = useState('ALL') // ALL, AVAILABLE, MAINTENANCE
+  const [statusFilter, setStatusFilter] = useState('ALL')
 
   const { data, isLoading } = useQuery({
     queryKey: ['cars', page, statusFilter],
-    queryFn: () => carsApi.getList({ 
-      page, 
-      limit: 10,
-      ...(statusFilter !== 'ALL' && { status: statusFilter })
-    }),
+    queryFn: () =>
+      carsApi.getList({
+        page,
+        limit: 10,
+        ...(statusFilter !== 'ALL' && { status: statusFilter }),
+      }),
   })
 
   const { data: dashData, isLoading: dashLoading } = useQuery({
@@ -31,52 +36,132 @@ export default function FleetListPage() {
     queryFn: () => dashboardApi.getStats(),
   })
 
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }) => carsApi.updateStatus(id, status),
+    onSuccess: (_, { id: carId }) => {
+      queryClient.invalidateQueries({ queryKey: ['cars'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      queryClient.invalidateQueries({ queryKey: ['car', String(carId)] })
+      toast.success('Status updated')
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.error || 'Could not update status')
+    },
+  })
+
   const fleet = dashData?.data?.fleet || {}
   const stats = {
     total: fleet.total ?? 0,
     available: fleet.available ?? 0,
-    maintenance: fleet.maintenance ?? 0,
-    reviewPending: fleet.reviewPending ?? 0,
+    rented: fleet.rented ?? 0,
+    inactive: fleet.inactive ?? 0,
   }
   const growth = fleet.monthOverMonthPct ?? 0
-  const totalBadge =
-    growth > 0 ? `+${growth}%` : growth < 0 ? `${growth}%` : '—'
+  const totalBadge = growth > 0 ? `+${growth}%` : growth < 0 ? `${growth}%` : '—'
   const availRatio = stats.total > 0 ? stats.available / stats.total : 0
   const availableBadge = availRatio >= 0.35 ? 'Optimal' : availRatio > 0 ? 'Low' : '—'
+
+  const pagination = useMemo(() => {
+    const m = data?.meta
+    if (!m || m.total == null || !m.limit) return undefined
+    return {
+      ...m,
+      totalPages: Math.max(1, Math.ceil(m.total / m.limit)),
+    }
+  }, [data?.meta])
 
   const columns = [
     {
       key: 'vehicle',
       label: 'Vehicle Details',
       render: (car) => (
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-12 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
+        <Link
+          to={`/fleet/${car.id}`}
+          className="group -m-2 flex max-w-max items-center gap-4 rounded-lg p-2 text-left transition-colors hover:bg-gray-50"
+        >
+          <div className="h-12 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
             {car.images?.[0]?.url && (
-              <img src={car.images[0].url} alt={car.brand} className="w-full h-full object-cover" />
+              <img src={car.images[0].url} alt={car.brand} className="h-full w-full object-cover" />
             )}
           </div>
           <div>
-            <p className="font-bold text-secondary">{car.brand} {car.model}</p>
-            <p className="text-xs text-gray-500">{car.category?.name_fr || 'Luxury'} • {car.year}</p>
+            <p className="font-bold text-secondary group-hover:text-primary">
+              {car.brand} {car.model}
+            </p>
+            <p className="text-xs text-gray-500">
+              {car.category?.name_fr || '—'} • {car.year}
+            </p>
           </div>
-        </div>
-      )
+        </Link>
+      ),
     },
     {
       key: 'license_plate',
       label: 'Plate Number',
-      render: (car) => <span className="font-mono text-gray-600">{car.license_plate}</span>
+      render: (car) => <span className="font-mono text-gray-600">{car.license_plate}</span>,
     },
     {
       key: 'status',
       label: 'Status',
-      render: (car) => <StatusBadge status={car.status} />
+      render: (car) => (
+        <select
+          className={cn(
+            'max-w-[140px] rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs font-semibold text-secondary',
+            'focus:outline-none focus:ring-2 focus:ring-primary/25'
+          )}
+          value={car.status}
+          onChange={(e) =>
+            statusMutation.mutate({ id: car.id, status: e.target.value })
+          }
+          disabled={
+            statusMutation.isPending && statusMutation.variables?.id === car.id
+          }
+        >
+          {CAR_STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {s.replace('_', ' ')}
+            </option>
+          ))}
+        </select>
+      ),
     },
     {
-      key: 'last_service',
-      label: 'Last Service',
-      render: (car) => <span className="text-gray-600">{car.last_service_date ? formatDate(car.last_service_date) : 'N/A'}</span>
-    }
+      key: 'last_rental',
+      label: 'Last rental',
+      render: (car) => {
+        if (car.status === 'RENTED') {
+          return <span className="font-medium text-primary">En cours</span>
+        }
+        if (car.last_rental_pickup_at) {
+          return (
+            <span className="text-gray-600">
+              {formatDate(car.last_rental_pickup_at)}
+            </span>
+          )
+        }
+        return <span className="text-gray-400">—</span>
+      },
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      headerClassName: 'text-left',
+      cellClassName: 'text-left align-middle',
+      render: (car) => (
+        <div className="flex flex-wrap items-center justify-start">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="h-8 gap-1 px-3"
+            onClick={() => navigate(`/fleet/${car.id}`)}
+          >
+            <Eye size={14} />
+            See
+          </Button>
+        </div>
+      ),
+    },
   ]
 
   return (
@@ -85,11 +170,11 @@ export default function FleetListPage() {
       animate="animate"
       exit="exit"
       variants={pageTransition}
-      className="max-w-7xl mx-auto space-y-8"
+      className="mx-auto max-w-7xl space-y-8"
     >
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-secondary mb-2">Vehicle Fleet</h1>
+          <h1 className="mb-2 text-3xl font-bold text-secondary">Vehicle Fleet</h1>
           <p className="text-gray-400">
             Managing {dashLoading ? '…' : stats.total} active units
             {fleet.locationsCount != null
@@ -97,12 +182,10 @@ export default function FleetListPage() {
               : ' across regions.'}
           </p>
         </div>
-        <Button onClick={() => navigate('/fleet/new')}>
-          + Add New Vehicle
-        </Button>
+        <Button onClick={() => navigate('/fleet/new')}>+ Add New Vehicle</Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
           title="Total Fleet"
           value={dashLoading ? '…' : stats.total}
@@ -117,40 +200,84 @@ export default function FleetListPage() {
           badgeText={dashLoading ? undefined : availableBadge}
           badgeVariant="success"
         />
-        <StatsCard title="In Maintenance" value={dashLoading ? '…' : stats.maintenance} icon={Wrench} />
         <StatsCard
-          title="Review Pending"
-          value={dashLoading ? '…' : stats.reviewPending}
-          icon={AlertCircle}
-          badgeText={stats.reviewPending > 0 ? '!' : undefined}
-          badgeVariant="danger"
+          title="Rented"
+          value={dashLoading ? '…' : stats.rented}
+          icon={KeyRound}
+          badgeVariant="neutral"
+        />
+        <StatsCard
+          title="Inactive"
+          value={dashLoading ? '…' : stats.inactive}
+          icon={CircleSlash}
+          badgeVariant="neutral"
         />
       </div>
 
       <div className="flex flex-col gap-4">
-        {/* Tabs */}
         <div className="flex items-center justify-between border-b border-gray-200">
-          <div className="flex gap-6">
-            <button 
-              onClick={() => { setStatusFilter('ALL'); setPage(1) }}
-              className={`pb-4 text-sm font-semibold transition-colors border-b-2 ${statusFilter === 'ALL' ? 'text-primary border-primary' : 'text-gray-500 border-transparent hover:text-gray-800'}`}
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
+            <button
+              type="button"
+              onClick={() => {
+                setStatusFilter('ALL')
+                setPage(1)
+              }}
+              className={`border-b-2 pb-4 text-sm font-semibold transition-colors ${
+                statusFilter === 'ALL'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-500 hover:text-gray-800'
+              }`}
             >
               All Vehicles
             </button>
-            <button 
-              onClick={() => { setStatusFilter('AVAILABLE'); setPage(1) }}
-              className={`pb-4 text-sm font-semibold transition-colors border-b-2 ${statusFilter === 'AVAILABLE' ? 'text-primary border-primary' : 'text-gray-500 border-transparent hover:text-gray-800'}`}
+            <button
+              type="button"
+              onClick={() => {
+                setStatusFilter('AVAILABLE')
+                setPage(1)
+              }}
+              className={`border-b-2 pb-4 text-sm font-semibold transition-colors ${
+                statusFilter === 'AVAILABLE'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-500 hover:text-gray-800'
+              }`}
             >
               Available Only
             </button>
-            <button 
-              onClick={() => { setStatusFilter('MAINTENANCE'); setPage(1) }}
-              className={`pb-4 text-sm font-semibold transition-colors border-b-2 ${statusFilter === 'MAINTENANCE' ? 'text-primary border-primary' : 'text-gray-500 border-transparent hover:text-gray-800'}`}
+            <button
+              type="button"
+              onClick={() => {
+                setStatusFilter('RENTED')
+                setPage(1)
+              }}
+              className={`border-b-2 pb-4 text-sm font-semibold transition-colors ${
+                statusFilter === 'RENTED'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-500 hover:text-gray-800'
+              }`}
             >
-              Need Service
+              Rented
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setStatusFilter('INACTIVE')
+                setPage(1)
+              }}
+              className={`border-b-2 pb-4 text-sm font-semibold transition-colors ${
+                statusFilter === 'INACTIVE'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              Inactive
             </button>
           </div>
-          <button className="flex items-center gap-2 text-sm text-gray-500 hover:text-secondary pb-4">
+          <button
+            type="button"
+            className="flex items-center gap-2 pb-4 text-sm text-gray-500 hover:text-secondary"
+          >
             <Filter size={16} />
             Filter
           </button>
@@ -160,31 +287,9 @@ export default function FleetListPage() {
           columns={columns}
           data={data?.data || []}
           isLoading={isLoading}
-          pagination={data?.meta}
+          pagination={pagination}
           onPageChange={setPage}
         />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-        <div className="bg-red-50/50 p-6 rounded-xl flex gap-4 items-start border border-red-100">
-          <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center flex-shrink-0">
-            <Info size={16} />
-          </div>
-          <div>
-            <h4 className="font-bold text-secondary mb-1">System Tip</h4>
-            <p className="text-sm text-gray-600">Vehicles requiring technical reviews are automatically flagged 30 days before the expiration date.</p>
-          </div>
-        </div>
-        
-        <div className="bg-[#FFC107]/10 p-6 rounded-xl flex gap-4 items-start border border-[#FFC107]/20">
-          <div className="w-8 h-8 bg-tertiary text-white rounded-full flex items-center justify-center flex-shrink-0">
-            <Sparkles size={16} />
-          </div>
-          <div>
-            <h4 className="font-bold text-secondary mb-1">Smart Analytics</h4>
-            <p className="text-sm text-gray-600">Based on current reservations, we recommend increasing the available luxury fleet by 15% for next month.</p>
-          </div>
-        </div>
       </div>
     </motion.div>
   )

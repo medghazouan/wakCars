@@ -1,5 +1,6 @@
 import { Card } from './Card'
 import { Pagination } from './Pagination'
+import { cn } from '@/utils/cn'
 
 export function DataTable({ 
   columns, 
@@ -16,7 +17,15 @@ export function DataTable({
           <thead className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider font-semibold">
             <tr>
               {columns.map((col, i) => (
-                <th key={col.key || i} className={`px-6 py-4 ${i === 0 ? 'rounded-tl-xl' : ''} ${i === columns.length - 1 ? 'rounded-tr-xl' : ''}`}>
+                <th
+                  key={col.key || i}
+                  className={cn(
+                    'px-6 py-4',
+                    i === 0 && 'rounded-tl-xl',
+                    i === columns.length - 1 && 'rounded-tr-xl',
+                    col.headerClassName
+                  )}
+                >
                   {col.label}
                 </th>
               ))}
@@ -39,7 +48,7 @@ export function DataTable({
               data.map((row, i) => (
                 <tr key={row.id || i} className="hover:bg-gray-50/50 transition-colors">
                   {columns.map((col) => (
-                    <td key={col.key} className="px-6 py-4">
+                    <td key={col.key} className={cn('px-6 py-4', col.cellClassName)}>
                       {col.render ? col.render(row) : row[col.key]}
                     </td>
                   ))}

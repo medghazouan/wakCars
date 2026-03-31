@@ -5,6 +5,7 @@ export const statusMap = {
   AVAILABLE: { label: 'Available', variant: 'success' },
   RENTED: { label: 'Rented', variant: 'info' },
   MAINTENANCE: { label: 'Maintenance', variant: 'warning' },
+  INACTIVE: { label: 'Inactive', variant: 'default' },
   OUT_OF_SERVICE: { label: 'Out of Service', variant: 'danger' },
   // Reservations
   PENDING: { label: 'Pending', variant: 'warning' },

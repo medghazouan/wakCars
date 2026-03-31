@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useForm, useWatch } from 'react-hook-form'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
@@ -41,6 +41,13 @@ export default function FleetFormPage() {
   const { register, handleSubmit, reset, control, formState: { errors } } = useForm({
     defaultValues: {
       deposit_amount: '0',
+      status: 'AVAILABLE',
+      transmission: 'MANUAL',
+      fuel_type: 'DIESEL',
+      seats: 5,
+      doors: 4,
+      is_active: true,
+      is_featured: false,
     },
   })
 
@@ -80,6 +87,13 @@ export default function FleetFormPage() {
         deposit_amount: c.deposit_amount != null ? String(c.deposit_amount) : '0',
         description_fr: c.description_fr || '',
         description_ar: c.description_ar || '',
+        status: c.status || 'AVAILABLE',
+        transmission: c.transmission || 'MANUAL',
+        fuel_type: c.fuel_type || 'DIESEL',
+        seats: c.seats ?? 5,
+        doors: c.doors ?? 4,
+        is_active: Boolean(c.is_active),
+        is_featured: Boolean(c.is_featured),
       })
       setNewImageFiles([])
     }
@@ -125,8 +139,23 @@ export default function FleetFormPage() {
       const files = newImageFiles.map((i) => i.file)
       if (isEdit) {
         await carsApi.update(id, values)
-        for (const file of files) {
-          await carsApi.addImage(id, file, {})
+        if (files.length === 0) return
+
+        let cached = queryClient.getQueryData(['car', id])
+        if (!cached?.data?.images?.length) {
+          cached = await carsApi.getById(id)
+        }
+        const previousImages = cached?.data?.images || []
+        for (const img of previousImages) {
+          await carsApi.deleteImage(id, img.id)
+        }
+
+        const uploaded = await Promise.all(
+          files.map((file) => carsApi.addImage(id, file, {}))
+        )
+        const firstNewId = uploaded[0]?.data?.id
+        if (firstNewId != null) {
+          await carsApi.setPrimaryImage(id, firstNewId)
         }
         return
       }
@@ -155,6 +184,13 @@ export default function FleetFormPage() {
       deposit_amount: data.deposit_amount,
       description_fr: data.description_fr || undefined,
       description_ar: data.description_ar || undefined,
+      status: data.status,
+      transmission: data.transmission,
+      fuel_type: data.fuel_type,
+      seats: parseInt(data.seats, 10),
+      doors: parseInt(data.doors, 10),
+      is_active: Boolean(data.is_active),
+      is_featured: Boolean(data.is_featured),
     }
     if (slugTrimmed) payload.slug = slugTrimmed
     mutation.mutate(payload)
@@ -172,8 +208,23 @@ export default function FleetFormPage() {
     >
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-secondary mb-2">{isEdit ? 'Edit Vehicle' : 'Add New Vehicle'}</h1>
-          <p className="text-gray-400">Enter the vehicle details below.</p>
+          {isEdit && (
+            <Link
+              to="/fleet"
+              className="mb-2 inline-block text-sm font-medium text-gray-500 hover:text-primary"
+            >
+              ← Back to fleet
+            </Link>
+          )}
+          <h1 className="mb-2 text-3xl font-bold text-secondary">
+            {isEdit ? `Edit vehicle` : 'Add New Vehicle'}
+            {isEdit && id ? (
+              <span className="ml-2 font-mono text-xl font-semibold text-gray-500">#{id}</span>
+            ) : null}
+          </h1>
+          <p className="text-gray-400">
+            {isEdit ? 'Update information and save changes below.' : 'Enter the vehicle details below.'}
+          </p>
         </div>
       </div>
 
@@ -250,6 +301,74 @@ export default function FleetFormPage() {
             </div>
 
             <div className="space-y-1.5">
+              <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">Status</label>
+              <select
+                {...register('status')}
+                className="flex h-10 w-full rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <option value="AVAILABLE">Available</option>
+                <option value="RENTED">Rented</option>
+                <option value="MAINTENANCE">Maintenance</option>
+                <option value="INACTIVE">Inactive</option>
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">Transmission</label>
+              <select
+                {...register('transmission')}
+                className="flex h-10 w-full rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <option value="MANUAL">Manual</option>
+                <option value="AUTOMATIC">Automatic</option>
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">Fuel type</label>
+              <select
+                {...register('fuel_type')}
+                className="flex h-10 w-full rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <option value="ESSENCE">Essence</option>
+                <option value="DIESEL">Diesel</option>
+                <option value="HYBRID">Hybrid</option>
+                <option value="ELECTRIC">Electric</option>
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">Seats</label>
+              <Input
+                type="number"
+                {...register('seats', { valueAsNumber: true, min: 1, max: 20 })}
+                min={1}
+                max={20}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">Doors</label>
+              <Input
+                type="number"
+                {...register('doors', { valueAsNumber: true, min: 2, max: 6 })}
+                min={2}
+                max={6}
+              />
+            </div>
+
+            <div className="flex flex-col gap-3 md:col-span-2 sm:flex-row sm:items-center">
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+                <input type="checkbox" className="rounded border-gray-300 text-primary focus:ring-primary" {...register('is_active')} />
+                Active in fleet (visible for rental)
+              </label>
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+                <input type="checkbox" className="rounded border-gray-300 text-primary focus:ring-primary" {...register('is_featured')} />
+                Featured on site
+              </label>
+            </div>
+
+            <div className="space-y-1.5">
               <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">Price per Day (USD)</label>
               <Input
                 type="number"
@@ -274,15 +393,33 @@ export default function FleetFormPage() {
 
           <div className="space-y-3">
             <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest block">
-              Vehicle pictures {!isEdit && <span className="font-normal normal-case text-gray-400">(optional, up to 10)</span>}
+              Vehicle pictures{' '}
+              {!isEdit && (
+                <span className="font-normal normal-case text-gray-400">(optional, up to 10)</span>
+              )}
             </label>
 
+            {isEdit && (
+              <p className="text-xs text-gray-500">
+                {existingImages.length > 0
+                  ? 'Save without new files keeps these photos. If you add new photos, all previous images are removed and replaced with your new set; the first new file becomes the primary image.'
+                  : 'No photos yet. Add images below (optional).'}
+              </p>
+            )}
+
             {isEdit && existingImages.length > 0 && (
-              <div className="flex flex-wrap gap-3 mb-2">
-                <p className="text-xs text-gray-500 w-full">Current photos (manage on vehicle detail page):</p>
+              <div className="mb-2 flex flex-wrap gap-3">
                 {existingImages.map((img) => (
-                  <div key={img.id} className="relative w-24 h-20 rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
-                    <img src={img.url} alt="" className="w-full h-full object-cover" />
+                  <div
+                    key={img.id}
+                    className="relative h-20 w-24 overflow-hidden rounded-lg border border-gray-200 bg-gray-100"
+                  >
+                    <img src={img.url} alt="" className="h-full w-full object-cover" />
+                    {img.is_primary && (
+                      <span className="absolute bottom-1 left-1 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                        Primary
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>

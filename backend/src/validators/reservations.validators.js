@@ -1,6 +1,7 @@
 const { body, param } = require('express-validator');
 
 const STATUSES = ['PENDING', 'CONFIRMED', 'ACTIVE', 'COMPLETED', 'CANCELLED', 'NO_SHOW'];
+const PAYMENT_STATUSES = ['UNPAID', 'PARTIAL', 'PAID', 'REFUNDED'];
 
 const createRules = [
   body('car_id').isInt({ min: 1 }).withMessage('Valid car_id required'),
@@ -36,4 +37,18 @@ const reassignRules = [
 
 const idParam = [param('id').isInt({ min: 1 }).withMessage('Valid reservation id required')];
 
-module.exports = { createRules, updateRules, statusRules, reassignRules, idParam };
+const paymentRules = [
+  param('id').isInt({ min: 1 }),
+  body('payment_status')
+    .isIn(PAYMENT_STATUSES)
+    .withMessage(`payment_status must be one of: ${PAYMENT_STATUSES.join(', ')}`),
+];
+
+module.exports = {
+  createRules,
+  updateRules,
+  statusRules,
+  reassignRules,
+  paymentRules,
+  idParam,
+};

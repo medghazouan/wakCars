@@ -15,11 +15,17 @@ export function RecentReservationsTable() {
   const reservations = data?.data || []
 
   return (
-    <Card className="flex-1">
-      <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-        <h3 className="font-bold text-lg text-secondary">Recent Reservations</h3>
-        <Link to="/reservations" className="text-primary text-sm font-semibold hover:underline">
-          View All
+    <Card className="w-full">
+      <div className="flex flex-col gap-1 border-b border-gray-100 p-6 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h3 className="text-lg font-bold text-secondary">Recent reservations</h3>
+          <p className="text-sm text-gray-400">Last five bookings, newest first.</p>
+        </div>
+        <Link
+          to="/reservations"
+          className="text-sm font-semibold text-primary hover:underline sm:shrink-0"
+        >
+          View all
         </Link>
       </div>
       <div className="overflow-x-auto">
@@ -57,7 +63,7 @@ export function RecentReservationsTable() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="font-medium text-secondary">{res.car?.brand} {res.car?.model}</div>
-                    <div className="text-xs text-gray-500">{res.car?.category?.name_en || 'Luxury'}</div>
+                    <div className="text-xs text-gray-500">{res.car?.category?.name_fr || '—'}</div>
                   </td>
                   <td className="px-6 py-4 text-gray-600">
                     {format(new Date(res.pickup_date), 'MMM dd')} - {format(new Date(res.dropoff_date), 'MMM dd')}

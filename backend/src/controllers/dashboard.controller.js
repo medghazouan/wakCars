@@ -43,6 +43,188 @@ function techBucket(visits, today, in30) {
   return 'compliant';
 }
 
+function dateKeyLocal(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function endOfLocalDay(d) {
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  x.setHours(23, 59, 59, 999);
+  return x;
+}
+
+/** Sum PAID payment amounts per local calendar day */
+function paymentsByDayMap(payments) {
+  const map = new Map();
+  for (const p of payments) {
+    const key = dateKeyLocal(new Date(p.created_at));
+    const amt = Number(p.amount);
+    map.set(key, (map.get(key) || 0) + amt);
+  }
+  return map;
+}
+
+function sumPaymentsBetween(map, startDay, endDay) {
+  let s = 0;
+  for (let d = new Date(startDay); d <= endDay; d = addDays(d, 1)) {
+    s += map.get(dateKeyLocal(d)) || 0;
+  }
+  return s;
+}
+
+function countReservationsBetween(rows, start, endInclusive) {
+  const end = endOfLocalDay(endInclusive);
+  return rows.filter((r) => {
+    const c = new Date(r.created_at);
+    return c >= start && c <= end;
+  }).length;
+}
+
+/**
+ * Build chart payloads: daily (7d), weekly (4×7d), monthly (6 cal. months).
+ */
+function buildRevenueChart(payments, reservations, today) {
+  const map = paymentsByDayMap(payments);
+
+  // —— Daily: last 7 days ——
+  const dailyPoints = [];
+  for (let i = 6; i >= 0; i -= 1) {
+    const d = addDays(today, -i);
+    const label = d.toLocaleDateString('en-US', { weekday: 'short' });
+    const amount = map.get(dateKeyLocal(d)) || 0;
+    dailyPoints.push({ label, amount });
+  }
+  const dailyTotal = dailyPoints.reduce((a, p) => a + p.amount, 0);
+  const dailyStart = addDays(today, -6);
+  const dailyEnd = today;
+  const dailyBookings = countReservationsBetween(reservations, dailyStart, dailyEnd);
+  const dailyAvg = dailyBookings > 0 ? dailyTotal / dailyBookings : dailyTotal;
+  let peakDay = '—';
+  let peakAmt = -1;
+  for (const p of dailyPoints) {
+    if (p.amount > peakAmt) {
+      peakAmt = p.amount;
+      peakDay = p.label;
+    }
+  }
+  if (peakAmt <= 0) peakDay = '—';
+
+  const prevWeekStart = addDays(today, -13);
+  const prevWeekEnd = addDays(today, -7);
+  const thisWeekTotal = sumPaymentsBetween(map, dailyStart, dailyEnd);
+  const prevWeekTotal = sumPaymentsBetween(map, prevWeekStart, prevWeekEnd);
+  const dailyVsPrevPct =
+    prevWeekTotal > 0
+      ? Math.round(((thisWeekTotal - prevWeekTotal) / prevWeekTotal) * 1000) / 10
+      : thisWeekTotal > 0
+        ? 100
+        : 0;
+
+  // —— Weekly: last 4 weeks (each 7 days, oldest first) ——
+  const weeklyPoints = [];
+  for (let w = 3; w >= 0; w -= 1) {
+    const weekEnd = addDays(today, -w * 7);
+    const weekStart = addDays(weekEnd, -6);
+    const amount = sumPaymentsBetween(map, weekStart, weekEnd);
+    const label = `W${4 - w}`;
+    weeklyPoints.push({ label, amount });
+  }
+  const weeklyRangeStart = addDays(today, -27);
+  const last4Total = sumPaymentsBetween(map, weeklyRangeStart, today);
+  const weeklyBookings = countReservationsBetween(reservations, weeklyRangeStart, today);
+  const weeklyAvg = weeklyBookings > 0 ? last4Total / weeklyBookings : last4Total;
+  let peakWeek = '—';
+  let peakW = -1;
+  for (const p of weeklyPoints) {
+    if (p.amount > peakW) {
+      peakW = p.amount;
+      peakWeek = p.label;
+    }
+  }
+  if (peakW <= 0) peakWeek = '—';
+
+  const prior4Start = addDays(today, -55);
+  const prior4End = addDays(today, -28);
+  const prior4Total = sumPaymentsBetween(map, prior4Start, prior4End);
+  const weeklyVsPrevPct =
+    prior4Total > 0
+      ? Math.round(((last4Total - prior4Total) / prior4Total) * 1000) / 10
+      : last4Total > 0
+        ? 100
+        : 0;
+
+  // —— Monthly: last 6 calendar months (oldest first) ——
+  const monthlyPoints = [];
+  for (let i = 5; i >= 0; i -= 1) {
+    const ref = new Date(today.getFullYear(), today.getMonth() - i, 1);
+    const mStart = new Date(ref.getFullYear(), ref.getMonth(), 1);
+    const mEnd = new Date(ref.getFullYear(), ref.getMonth() + 1, 0);
+    const amount = sumPaymentsBetween(map, mStart, mEnd);
+    const label = mStart.toLocaleDateString('en-US', { month: 'short' });
+    monthlyPoints.push({ label, amount });
+  }
+  const monthlyTotal = monthlyPoints.reduce((a, p) => a + p.amount, 0);
+  const sixMoStart = new Date(today.getFullYear(), today.getMonth() - 5, 1);
+  const monthlyBookings = countReservationsBetween(reservations, sixMoStart, today);
+  const monthlyAvg = monthlyBookings > 0 ? monthlyTotal / monthlyBookings : monthlyTotal;
+  let peakMonth = '—';
+  let peakM = -1;
+  for (const p of monthlyPoints) {
+    if (p.amount > peakM) {
+      peakM = p.amount;
+      peakMonth = p.label;
+    }
+  }
+  if (peakM <= 0) peakMonth = '—';
+
+  let priorSixTotal = 0;
+  for (let i = 11; i >= 6; i -= 1) {
+    const ref = new Date(today.getFullYear(), today.getMonth() - i, 1);
+    const mStart = new Date(ref.getFullYear(), ref.getMonth(), 1);
+    const mEnd = new Date(ref.getFullYear(), ref.getMonth() + 1, 0);
+    priorSixTotal += sumPaymentsBetween(map, mStart, mEnd);
+  }
+  const monthlyVsPrevPct =
+    priorSixTotal > 0
+      ? Math.round(((monthlyTotal - priorSixTotal) / priorSixTotal) * 1000) / 10
+      : monthlyTotal > 0
+        ? 100
+        : 0;
+
+  return {
+    daily: {
+      points: dailyPoints,
+      total: thisWeekTotal,
+      bookings: dailyBookings,
+      avgPerBooking: dailyAvg,
+      peakLabel: peakDay,
+      vsPreviousPct: dailyVsPrevPct,
+      compareLabel: 'last week',
+    },
+    weekly: {
+      points: weeklyPoints,
+      total: last4Total,
+      bookings: weeklyBookings,
+      avgPerBooking: weeklyAvg,
+      peakLabel: peakWeek,
+      vsPreviousPct: weeklyVsPrevPct,
+      compareLabel: 'prior 4 weeks',
+    },
+    monthly: {
+      points: monthlyPoints,
+      total: monthlyTotal,
+      bookings: monthlyBookings,
+      avgPerBooking: monthlyAvg,
+      peakLabel: peakMonth,
+      vsPreviousPct: monthlyVsPrevPct,
+      compareLabel: 'prior 6 months',
+    },
+  };
+}
+
 const getStats = async (req, res, next) => {
   try {
     const now = new Date();
@@ -160,6 +342,19 @@ const getStats = async (req, res, next) => {
       },
     });
 
+    const chartLookback = addDays(today, -370);
+    const [chartPayments, chartReservationDates] = await Promise.all([
+      prisma.payments.findMany({
+        where: { status: 'PAID', created_at: { gte: chartLookback } },
+        select: { amount: true, created_at: true },
+      }),
+      prisma.reservations.findMany({
+        where: { created_at: { gte: chartLookback } },
+        select: { created_at: true },
+      }),
+    ]);
+    const revenueChart = buildRevenueChart(chartPayments, chartReservationDates, today);
+
     const carsForCompliance = await prisma.cars.findMany({
       where: { is_active: true },
       select: {
@@ -186,6 +381,21 @@ const getStats = async (req, res, next) => {
       if (tb === 'compliant') techCompliant += 1;
       else if (tb === 'dueSoon') techDueSoon += 1;
       else techCritical += 1;
+    }
+
+    /** Earliest current inspection expiry: per car = latest visit expiration; fleet = minimum of those. */
+    let soonestTechExpiration = null;
+    for (const car of carsForCompliance) {
+      const withExp = car.technical_visits.filter((v) => v.expiration_date != null);
+      if (!withExp.length) continue;
+      const latestMs = withExp.reduce((max, v) => {
+        const t = new Date(v.expiration_date).getTime();
+        return t > max ? t : max;
+      }, 0);
+      const d = new Date(latestMs);
+      if (soonestTechExpiration === null || d.getTime() < soonestTechExpiration.getTime()) {
+        soonestTechExpiration = d;
+      }
     }
 
     const fleetTotal = totalCars;
@@ -235,6 +445,8 @@ const getStats = async (req, res, next) => {
       const pickup = new Date(r.pickup_date);
       const hours = pickup.getHours().toString().padStart(2, '0');
       const mins = pickup.getMinutes().toString().padStart(2, '0');
+      const dayOfMonth = pickup.getDate();
+      const monthShort = pickup.toLocaleString('en-US', { month: 'short' });
       const loc =
         r.pickup_location?.name_fr ||
         r.pickup_location?.name_ar ||
@@ -248,6 +460,7 @@ const getStats = async (req, res, next) => {
       const badge = within48h ? 'URGENT' : 'READY';
       return {
         id: r.id,
+        dateLabel: `${dayOfMonth} ${monthShort}`,
         timeLabel: `${hours}:${mins}`,
         title,
         subtitle: `${guest} • ${loc}`,
@@ -302,8 +515,10 @@ const getStats = async (req, res, next) => {
         dueSoonPct: pct(techDueSoon, techTotalClassified),
         criticalPct: pct(techCritical, techTotalClassified),
         qualityScore: techQualityScore,
+        soonestExpiration: soonestTechExpiration ? soonestTechExpiration.toISOString() : null,
       },
       fleetHealthScore,
+      revenueChart,
     });
   } catch (err) {
     next(err);

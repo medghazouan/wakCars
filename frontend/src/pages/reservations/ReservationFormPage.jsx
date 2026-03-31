@@ -47,6 +47,7 @@ export default function ReservationFormPage() {
   const { data: customersRes } = useQuery({
     queryKey: ['customers', 'dropdown'],
     queryFn: () => customersApi.getList({ limit: 200 }),
+    enabled: !isEdit,
   })
 
   const reservation = reservationRes?.data
@@ -76,6 +77,7 @@ export default function ReservationFormPage() {
 
   useEffect(() => {
     if (!reservation) return
+    const c = reservation.customer
     reset({
       car_id: reservation.car_id,
       customer_id: reservation.customer_id ?? '',
@@ -85,19 +87,42 @@ export default function ReservationFormPage() {
       dropoff_date: toDatetimeLocal(reservation.dropoff_date),
       has_gps: reservation.has_gps,
       has_child_seat: reservation.has_child_seat,
+      ...(c && {
+        cust_first_name: c.first_name ?? '',
+        cust_last_name: c.last_name ?? '',
+        cust_email: c.email ?? '',
+        cust_phone: c.phone ?? '',
+        cust_nationality: c.nationality ?? '',
+        cust_licence_country: c.licence_country ?? '',
+        cust_licence_number: c.licence_number ?? '',
+        cust_passport_number: c.passport_number ?? '',
+        cust_notes: c.notes ?? '',
+      }),
     })
   }, [reservation, reset])
 
   const mutation = useMutation({
-    mutationFn: async (payload) => {
+    mutationFn: async (vars) => {
       if (isEdit) {
-        return reservationsApi.update(id, payload)
+        const { resPayload, customerPatch, customerId } = vars
+        if (customerId && customerPatch) {
+          await customersApi.update(customerId, customerPatch)
+        }
+        return reservationsApi.update(id, resPayload)
       }
-      return reservationsApi.create(payload)
+      return reservationsApi.create(vars)
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['reservations'] })
-      if (isEdit) queryClient.invalidateQueries({ queryKey: ['reservation', id] })
+      if (isEdit) {
+        queryClient.invalidateQueries({ queryKey: ['reservation', id] })
+        if (variables?.customerId) {
+          queryClient.invalidateQueries({ queryKey: ['customers'] })
+          queryClient.invalidateQueries({
+            queryKey: ['customer', String(variables.customerId)],
+          })
+        }
+      }
       toast.success(isEdit ? 'Reservation updated' : 'Reservation created')
       navigate('/reservations')
     },
@@ -115,15 +140,35 @@ export default function ReservationFormPage() {
     }
 
     if (isEdit) {
-      mutation.mutate({
+      const resPayload = {
         pickup_date: pickup.toISOString(),
         dropoff_date: dropoff.toISOString(),
         pickup_location_id: Number(data.pickup_location_id),
         dropoff_location_id: Number(data.dropoff_location_id),
         has_gps: Boolean(data.has_gps),
         has_child_seat: Boolean(data.has_child_seat),
-        ...(data.customer_id ? { customer_id: Number(data.customer_id) } : {}),
-      })
+      }
+      const customerId = reservation.customer_id
+      let customerPatch = null
+      if (customerId && reservation.customer) {
+        if (!data.cust_first_name?.trim() || !data.cust_last_name?.trim() || !data.cust_phone?.trim()) {
+          toast.error('Customer first name, last name, and phone are required')
+          return
+        }
+        customerPatch = {
+          first_name: data.cust_first_name.trim(),
+          last_name: data.cust_last_name.trim(),
+          phone: data.cust_phone.trim(),
+          nationality: data.cust_nationality?.trim() || null,
+          licence_country: data.cust_licence_country?.trim() || null,
+          licence_number: data.cust_licence_number?.trim() || null,
+          passport_number: data.cust_passport_number?.trim() || null,
+          notes: data.cust_notes?.trim() || null,
+        }
+        const em = data.cust_email?.trim()
+        if (em) customerPatch.email = em
+      }
+      mutation.mutate({ resPayload, customerPatch, customerId })
       return
     }
 
@@ -169,7 +214,9 @@ export default function ReservationFormPage() {
           {isEdit ? `Edit reservation #${id}` : 'New reservation'}
         </h1>
         <p className="text-gray-400">
-          {isEdit ? 'Update dates, locations, options, or linked customer.' : 'Create a booking for a guest or customer.'}
+          {isEdit
+            ? 'Update booking details. Edits to the linked customer are saved to the Customers directory (you cannot switch to a different customer here).'
+            : 'Create a booking for a guest or customer.'}
         </p>
       </div>
 
@@ -258,20 +305,93 @@ export default function ReservationFormPage() {
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">Customer (optional)</label>
-            <select
-              {...register('customer_id')}
-              className="flex h-10 w-full rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              <option value="">Guest / no linked customer</option>
-              {customers.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.first_name} {c.last_name} · {c.phone}
-                </option>
-              ))}
-            </select>
-          </div>
+          {!isEdit && (
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">
+                Customer (optional)
+              </label>
+              <select
+                {...register('customer_id')}
+                className="flex h-10 w-full rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <option value="">Guest / no linked customer</option>
+                {customers.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.first_name} {c.last_name} · {c.phone}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {isEdit && reservation?.customer && (
+            <div className="space-y-4 rounded-lg border border-gray-100 bg-gray-50/80 p-4">
+              <div>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                  Linked customer
+                </span>
+                <p className="mt-1 text-sm text-secondary">
+                  Customer #{reservation.customer.id} — edit fields below; changes update the global customer record.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">
+                    First name
+                  </label>
+                  <Input {...register('cust_first_name', { required: 'Required' })} error={errors.cust_first_name?.message} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">
+                    Last name
+                  </label>
+                  <Input {...register('cust_last_name', { required: 'Required' })} error={errors.cust_last_name?.message} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">Email</label>
+                  <Input type="email" {...register('cust_email')} error={errors.cust_email?.message} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">Phone</label>
+                  <Input {...register('cust_phone', { required: 'Required' })} error={errors.cust_phone?.message} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">
+                    Nationality
+                  </label>
+                  <Input {...register('cust_nationality')} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">
+                    Licence country
+                  </label>
+                  <Input {...register('cust_licence_country')} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">
+                    Licence number
+                  </label>
+                  <Input {...register('cust_licence_number')} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">
+                    Passport number
+                  </label>
+                  <Input {...register('cust_passport_number')} />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">Notes</label>
+                <Input {...register('cust_notes')} />
+              </div>
+            </div>
+          )}
+
+          {isEdit && reservation && !reservation.customer && (
+            <div className="rounded-lg bg-gray-100 px-4 py-3 text-sm text-gray-600">
+              No linked customer on this reservation. Customer cannot be reassigned from this form.
+            </div>
+          )}
 
           <div className="flex flex-wrap gap-6">
             <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-700">

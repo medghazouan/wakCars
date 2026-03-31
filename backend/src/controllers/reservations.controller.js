@@ -46,7 +46,17 @@ const list = async (req, res, next) => {
       prisma.reservations.findMany({
         where,
         include: {
-          car: { select: { id: true, brand: true, model: true, year: true, license_plate: true } },
+          car: {
+            select: {
+              id: true,
+              brand: true,
+              model: true,
+              year: true,
+              license_plate: true,
+              category: { select: { name_fr: true } },
+              images: { orderBy: [{ is_primary: 'desc' }, { sort_order: 'asc' }], take: 1 },
+            },
+          },
           customer: { select: { id: true, first_name: true, last_name: true, phone: true } },
           pickup_location: { select: { id: true, name_fr: true } },
           dropoff_location: { select: { id: true, name_fr: true } },
@@ -122,7 +132,7 @@ const update = async (req, res, next) => {
     const exists = await prisma.reservations.findUnique({ where: { id } });
     if (!exists) return notFound(res, 'Reservation');
 
-    const { pickup_date, dropoff_date, has_gps, has_child_seat, pickup_location_id, dropoff_location_id, customer_id } = req.body;
+    const { pickup_date, dropoff_date, has_gps, has_child_seat, pickup_location_id, dropoff_location_id } = req.body;
     const data = {};
 
     if (pickup_date) data.pickup_date = new Date(pickup_date);
@@ -131,7 +141,6 @@ const update = async (req, res, next) => {
     if (has_child_seat !== undefined) data.has_child_seat = Boolean(has_child_seat);
     if (pickup_location_id) data.pickup_location_id = parseInt(pickup_location_id);
     if (dropoff_location_id) data.dropoff_location_id = parseInt(dropoff_location_id);
-    if (customer_id) data.customer_id = parseInt(customer_id);
 
     if ((pickup_date || dropoff_date || has_gps !== undefined || has_child_seat !== undefined)) {
       const pd = data.pickup_date || exists.pickup_date;
@@ -210,6 +219,40 @@ const reassign = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+const updatePaymentStatus = async (req, res, next) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { payment_status } = req.body;
+    const exists = await prisma.reservations.findUnique({ where: { id } });
+    if (!exists) return notFound(res, 'Reservation');
+
+    const updated = await prisma.reservations.update({
+      where: { id },
+      data: { payment_status },
+      include: {
+        car: {
+          select: {
+            id: true,
+            brand: true,
+            model: true,
+            year: true,
+            license_plate: true,
+            category: { select: { name_fr: true } },
+            images: { orderBy: [{ is_primary: 'desc' }, { sort_order: 'asc' }], take: 1 },
+          },
+        },
+        customer: { select: { id: true, first_name: true, last_name: true, phone: true } },
+        pickup_location: { select: { id: true, name_fr: true } },
+        dropoff_location: { select: { id: true, name_fr: true } },
+        _count: { select: { payments: true } },
+      },
+    });
+    return success(res, updated);
+  } catch (err) {
+    next(err);
+  }
+};
+
 const confirm = async (req, res, next) => {
   try {
     const id = parseInt(req.params.id);
@@ -230,4 +273,13 @@ const confirm = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { list, getById, create, update, updateStatus, reassign, confirm };
+module.exports = {
+  list,
+  getById,
+  create,
+  update,
+  updateStatus,
+  updatePaymentStatus,
+  reassign,
+  confirm,
+};

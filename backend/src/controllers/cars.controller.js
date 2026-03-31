@@ -33,6 +33,10 @@ async function resolveCarSlug({ slug: slugInput, brand, model, year, license_pla
 }
 
 const PRIMARY_IMAGE_INCLUDE = { images: { where: { is_primary: true }, take: 1 } };
+/** Prefer primary image for list thumbnails, then sort order */
+const LIST_IMAGE_INCLUDE = {
+  images: { orderBy: [{ is_primary: 'desc' }, { sort_order: 'asc' }], take: 1 },
+};
 const FULL_INCLUDE = {
   category: { select: { id: true, name_fr: true, name_ar: true, slug: true } },
   images: { orderBy: { sort_order: 'asc' } },
@@ -58,7 +62,7 @@ const list = async (req, res, next) => {
         where,
         include: {
           category: { select: { id: true, name_fr: true, name_ar: true } },
-          ...PRIMARY_IMAGE_INCLUDE,
+          ...LIST_IMAGE_INCLUDE,
         },
         skip,
         take: parseInt(limit),
@@ -66,7 +70,29 @@ const list = async (req, res, next) => {
       }),
       prisma.cars.count({ where }),
     ]);
-    return success(res, cars, 200, { total, page: parseInt(page), limit: parseInt(limit) });
+
+    const ids = cars.map((c) => c.id);
+    const lastRentalByCar = new Map();
+    if (ids.length > 0) {
+      const grouped = await prisma.reservations.groupBy({
+        by: ['car_id'],
+        where: {
+          car_id: { in: ids },
+          status: { in: ['PENDING', 'CONFIRMED', 'ACTIVE', 'COMPLETED'] },
+        },
+        _max: { pickup_date: true },
+      });
+      for (const row of grouped) {
+        lastRentalByCar.set(row.car_id, row._max.pickup_date);
+      }
+    }
+
+    const enriched = cars.map((c) => ({
+      ...c,
+      last_rental_pickup_at: lastRentalByCar.get(c.id) ?? null,
+    }));
+
+    return success(res, enriched, 200, { total, page: parseInt(page), limit: parseInt(limit) });
   } catch (err) { next(err); }
 };
 

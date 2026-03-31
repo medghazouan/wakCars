@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { 
-  LayoutGrid, CalendarCheck, Shield, Wrench, Settings, 
+  LayoutDashboard, LayoutGrid, CalendarCheck, Shield, Wrench, Settings, 
   Users, CreditCard, AlertTriangle, FileText, HelpCircle, 
   BarChart3, LogOut, Headset
 } from 'lucide-react'
@@ -9,6 +9,7 @@ import { cn } from '@/utils/cn'
 import { Button } from '@/components/ui/Button'
 
 const navItems = [
+  { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
   { name: 'Fleet', path: '/fleet', icon: LayoutGrid },
   { name: 'Reservations', path: '/reservations', icon: CalendarCheck },
   { name: 'Insurance', path: '/insurance', icon: Shield },
