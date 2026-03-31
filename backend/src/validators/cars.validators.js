@@ -8,8 +8,8 @@ const createRules = [
   body('brand').trim().notEmpty().withMessage('brand is required'),
   body('model').trim().notEmpty().withMessage('model is required'),
   body('slug')
+    .optional({ values: 'falsy' })
     .trim()
-    .notEmpty()
     .matches(/^[a-z0-9-]+$/)
     .withMessage('slug must be lowercase letters, numbers, and hyphens'),
   body('year')

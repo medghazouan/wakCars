@@ -2,6 +2,36 @@ const prisma = require('../utils/prisma');
 const cloudinary = require('../services/cloudinary.service');
 const { success, created, noContent, notFound, fail } = require('../utils/apiResponse');
 
+function slugifySegment(value) {
+  if (value === undefined || value === null || value === '') return '';
+  return String(value)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+async function resolveCarSlug({ slug: slugInput, brand, model, year, license_plate }) {
+  let base = slugInput && String(slugInput).trim();
+  if (base) {
+    base = slugifySegment(base);
+  }
+  if (!base) {
+    const parts = [brand, model, year, license_plate].map(slugifySegment).filter(Boolean);
+    base = parts.join('-') || `car-${Date.now()}`;
+  }
+  base = base.slice(0, 140);
+  let candidate = base;
+  for (let n = 0; n < 500; n += 1) {
+    const existing = await prisma.cars.findUnique({ where: { slug: candidate } });
+    if (!existing) return candidate.slice(0, 150);
+    const suffix = `-${n + 1}`;
+    candidate = `${base.slice(0, 150 - suffix.length)}${suffix}`;
+  }
+  return `${base.slice(0, 120)}-${Date.now()}`.slice(0, 150);
+}
+
 const PRIMARY_IMAGE_INCLUDE = { images: { where: { is_primary: true }, take: 1 } };
 const FULL_INCLUDE = {
   category: { select: { id: true, name_fr: true, name_ar: true, slug: true } },
@@ -60,9 +90,17 @@ const create = async (req, res, next) => {
       is_active = true, is_featured = false, category_id,
     } = req.body;
 
+    const resolvedSlug = await resolveCarSlug({
+      slug,
+      brand,
+      model,
+      year,
+      license_plate,
+    });
+
     const car = await prisma.cars.create({
       data: {
-        brand, model, slug, year: parseInt(year), license_plate, status,
+        brand, model, slug: resolvedSlug, year: parseInt(year), license_plate, status,
         transmission, fuel_type, seats: parseInt(seats), doors: parseInt(doors),
         price_per_day: parseFloat(price_per_day),
         deposit_amount: parseFloat(deposit_amount),
