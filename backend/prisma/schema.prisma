@@ -194,6 +194,7 @@ model reservations {
   has_gps             Boolean           @default(false)
   has_child_seat      Boolean           @default(false)
   payment_status      PaymentStatus     @default(UNPAID)
+  booking_source      String            @default("WEBSITE") @db.VarChar(50)
   confirmed_at        DateTime?
   created_at          DateTime          @default(now())
   updated_at          DateTime          @updatedAt
@@ -210,6 +211,7 @@ model reservations {
   @@index([dropoff_date])
   @@index([pickup_date])
   @@index([customer_id])
+  @@index([booking_source])
 }
 
 model payments {

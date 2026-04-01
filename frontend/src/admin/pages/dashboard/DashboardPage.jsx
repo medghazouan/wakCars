@@ -6,6 +6,7 @@ import { useAdminLanguage } from '@admin/hooks/useAdminLanguage'
 import { RecentReservationsTable } from './components/RecentReservationsTable'
 import { DashboardOverviewStrip } from './components/DashboardOverviewStrip'
 import { DashboardRevenueChart } from './components/DashboardRevenueChart'
+import { DashboardAlerts } from './components/DashboardAlerts'
 
 export default function DashboardPage() {
   const { t } = useAdminLanguage()
@@ -30,6 +31,8 @@ export default function DashboardPage() {
       </div>
 
       <DashboardOverviewStrip stats={stats} isLoading={isLoading} />
+
+      <DashboardAlerts />
 
       <RecentReservationsTable />
 

@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useQuery } from '@tanstack/react-query'
 import { useCreateReservation } from '../hooks/useReservation'
+import { normalizeBookingSource } from '../utils/bookingSource'
 import { useCars } from '../hooks/useCars'
 import { useLanguage } from '../hooks/useLanguage'
 import { formatPrice } from '../utils/formatPrice'
@@ -152,7 +153,12 @@ const Booking = () => {
 
   const onSubmit = async (data) => {
     try {
-      const result = await createReservation.mutateAsync(data)
+      const result = await createReservation.mutateAsync({
+        ...data,
+        pickup_date: new Date(data.pickup_date).toISOString(),
+        dropoff_date: new Date(data.dropoff_date).toISOString(),
+        booking_source: normalizeBookingSource(searchParams.get('source')),
+      })
       navigate('/reservation/confirmation', {
         state: {
           reservation: result.data,

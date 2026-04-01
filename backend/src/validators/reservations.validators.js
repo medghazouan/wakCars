@@ -21,6 +21,7 @@ const createRules = [
   body('has_gps').optional().isBoolean(),
   body('has_child_seat').optional().isBoolean(),
   body('status').optional().isIn(STATUSES).withMessage(`status must be one of: ${STATUSES.join(', ')}`),
+  body('booking_source').optional().isString().isLength({ max: 50 }),
 ];
 
 const updateRules = createRules.map((r) => r.optional());

@@ -1,5 +1,6 @@
 const prisma = require('../utils/prisma');
 const emailService = require('../services/email.service');
+const { normalizeBookingSource } = require('../utils/bookingSource');
 const { success, created, notFound, fail } = require('../utils/apiResponse');
 
 const LIST_IMAGE_INCLUDE = {
@@ -253,6 +254,7 @@ const guestReservation = async (req, res, next) => {
       guest_last_name,
       guest_email,
       guest_phone,
+      booking_source: rawSource,
     } = req.body;
 
     if (!guest_first_name || !guest_last_name || !guest_phone) {
@@ -299,6 +301,8 @@ const guestReservation = async (req, res, next) => {
       },
     });
 
+    const booking_source = normalizeBookingSource(rawSource);
+
     const reservation = await prisma.reservations.create({
       data: {
         car_id: carIdInt,
@@ -311,6 +315,7 @@ const guestReservation = async (req, res, next) => {
         has_child_seat: Boolean(has_child_seat),
         total_amount,
         status: 'PENDING',
+        booking_source,
       },
       include: {
         car: { include: { images: { where: { is_primary: true }, take: 1 } } },

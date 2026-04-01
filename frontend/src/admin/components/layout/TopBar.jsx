@@ -1,6 +1,9 @@
-import { Bell, HelpCircle, Settings, Search } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { HelpCircle, Settings, Search } from 'lucide-react'
 import { useAuth } from '@admin/hooks/useAuth'
 import { useAdminLanguage } from '@admin/hooks/useAdminLanguage'
+import { adminPath } from '@admin/adminPaths'
+import { NavAlertsBell } from '@admin/components/layout/NavAlertsBell'
 import { cn } from '@admin/utils/cn'
 
 export function TopBar() {
@@ -41,17 +44,22 @@ export function TopBar() {
           {currentLanguage === 'fr' ? t('topbar.langAr') : t('topbar.langFr')}
         </button>
 
-        <div className="flex items-center gap-4 text-gray-500">
-          <button type="button" className="relative transition-colors hover:text-secondary">
-            <Bell size={20} />
-            <span className="absolute end-0 top-0 h-2 w-2 rounded-full border-2 border-white bg-danger" />
-          </button>
-          <button type="button" className="transition-colors hover:text-secondary">
+        <div className="flex items-center gap-2 text-gray-500 sm:gap-4">
+          <NavAlertsBell />
+          <button
+            type="button"
+            className="rounded-lg p-1.5 transition-colors hover:bg-gray-100 hover:text-secondary"
+            aria-label="Aide"
+          >
             <HelpCircle size={20} />
           </button>
-          <button type="button" className="transition-colors hover:text-secondary">
+          <Link
+            to={adminPath('/settings')}
+            className="rounded-lg p-1.5 transition-colors hover:bg-gray-100 hover:text-secondary"
+            aria-label={t('nav.settings')}
+          >
             <Settings size={20} />
-          </button>
+          </Link>
         </div>
 
         <div className="h-8 w-px bg-gray-200" />

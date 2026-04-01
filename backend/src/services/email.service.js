@@ -1,6 +1,19 @@
 const nodemailer = require('nodemailer');
 const env = require('../config/env');
 const logger = require('../utils/logger');
+const pdfService = require('./pdf.service');
+
+const escapeHtml = (s) =>
+  String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+const extFromUrl = (url) => {
+  const m = String(url).match(/\.(jpe?g|png|webp)$/i);
+  return m ? m[0].toLowerCase() : '.jpg';
+};
 
 const transporter = nodemailer.createTransport({
   host: env.RESEND_SMTP_HOST,
@@ -13,6 +26,8 @@ const transporter = nodemailer.createTransport({
 });
 
 const from = `"${env.EMAIL_FROM_NAME}" <${env.EMAIL_FROM}>`;
+
+const mailConfigured = () => Boolean(env.RESEND_API_KEY);
 
 const send = async ({ to, subject, html, attachments = [] }) => {
   try {
@@ -28,7 +43,28 @@ const send = async ({ to, subject, html, attachments = [] }) => {
 const sendReservationConfirmation = async (reservation) => {
   const { customer, car, pickup_location, dropoff_location } = reservation;
   const customerEmail = customer?.email;
-  if (!customerEmail) return;
+  if (!customerEmail) {
+    logger.warn(`[email] No customer email — skip confirmation for reservation #${reservation.id}`);
+    return null;
+  }
+  if (!mailConfigured()) {
+    logger.warn('[email] RESEND_API_KEY is not set — cannot send confirmation email. Set it in backend/.env');
+    return null;
+  }
+
+  let attachments = [];
+  try {
+    const pdfBuffer = await pdfService.generateReservationPDF(reservation);
+    attachments = [
+      {
+        filename: `confirmation-${reservation.id}.pdf`,
+        content: pdfBuffer,
+        contentType: 'application/pdf',
+      },
+    ];
+  } catch (err) {
+    logger.error(`Reservation PDF failed for #${reservation.id}: ${err.message}`);
+  }
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -49,12 +85,20 @@ const sendReservationConfirmation = async (reservation) => {
     to: customerEmail,
     subject: `Confirmation de réservation #${reservation.id} — Wak Cars`,
     html,
+    attachments,
   });
 };
 
 const sendInvoice = async (reservation, payments, pdfBuffer) => {
   const customerEmail = reservation.customer?.email;
-  if (!customerEmail) return;
+  if (!customerEmail) {
+    logger.warn(`[email] No customer email — skip invoice for reservation #${reservation.id}`);
+    return null;
+  }
+  if (!mailConfigured()) {
+    logger.warn('[email] RESEND_API_KEY is not set — cannot send invoice email. Set it in backend/.env');
+    return null;
+  }
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -77,16 +121,27 @@ const sendInvoice = async (reservation, payments, pdfBuffer) => {
 
 const sendDamageNotification = async (damageReport, customer) => {
   if (!customer?.email) return;
+  if (!mailConfigured()) {
+    logger.warn('[email] RESEND_API_KEY is not set — cannot send damage notification.');
+    return null;
+  }
+
+  const images = damageReport.images || [];
+  const attachments = images.map((img, i) => ({
+    filename: `dommage-${damageReport.id}-${i + 1}${extFromUrl(img.url)}`,
+    path: img.url,
+  }));
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2 style="color: #c0392b;">Rapport de dommages — Wak Cars</h2>
-      <p>Bonjour <strong>${customer.first_name} ${customer.last_name}</strong>,</p>
+      <p>Bonjour <strong>${escapeHtml(customer.first_name)} ${escapeHtml(customer.last_name)}</strong>,</p>
       <p>Suite au retour du véhicule, nous avons constaté les dommages suivants :</p>
       <blockquote style="border-left: 4px solid #c0392b; padding-left: 16px; color: #333;">
-        ${damageReport.description}
+        ${escapeHtml(damageReport.description)}
       </blockquote>
       ${damageReport.estimated_cost ? `<p><strong>Coût estimé :</strong> ${Number(damageReport.estimated_cost).toFixed(2)} MAD</p>` : ''}
+      ${attachments.length ? `<p><strong>Photos :</strong> ${attachments.length} image(s) jointe(s) à cet e-mail.</p>` : ''}
       <p>Notre équipe vous contactera pour les démarches de règlement.</p>
       <p>Pour toute question : <a href="https://wa.me/${env.WHATSAPP_BUSINESS_PHONE.replace('+', '')}">${env.WHATSAPP_BUSINESS_PHONE}</a></p>
       <p style="color: #666; font-size: 12px;">Wak Cars — Location de voiture à Marrakech</p>
@@ -96,6 +151,7 @@ const sendDamageNotification = async (damageReport, customer) => {
     to: customer.email,
     subject: `Rapport de dommages — Réservation #${damageReport.reservation_id || 'N/A'} — Wak Cars`,
     html,
+    attachments,
   });
 };
 

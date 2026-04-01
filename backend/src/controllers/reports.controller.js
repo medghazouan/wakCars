@@ -115,6 +115,26 @@ const reservationAnalytics = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+/** PRD: booking source report — group counts by reservations.booking_source */
+const bookingSources = async (req, res, next) => {
+  try {
+    const { from, to } = req.query;
+    const where = {};
+    if (from && to) where.created_at = { gte: new Date(from), lte: new Date(to) };
+
+    const rows = await prisma.reservations.groupBy({
+      by: ['booking_source'],
+      where,
+      _count: { id: true },
+    });
+    const total = await prisma.reservations.count({ where });
+    const bySource = rows
+      .map((r) => ({ source: r.booking_source, count: r._count.id }))
+      .sort((a, b) => b.count - a.count);
+    return success(res, { total, bySource });
+  } catch (err) { next(err); }
+};
+
 const exportReport = async (req, res, next) => {
   try {
     const { type = 'revenue', format = 'csv', period = 'monthly', from, to } = req.query;
@@ -204,8 +224,50 @@ const exportReport = async (req, res, next) => {
       }
     }
 
+    if (type === 'booking_sources') {
+      const reservations = await prisma.reservations.findMany({
+        where: { created_at: dateRange },
+        select: {
+          id: true,
+          booking_source: true,
+          created_at: true,
+          status: true,
+          car: { select: { brand: true, model: true, license_plate: true } },
+          customer: { select: { first_name: true, last_name: true, phone: true } },
+        },
+        orderBy: { created_at: 'desc' },
+      });
+
+      const rows = reservations.map((r) => ({
+        ID: r.id,
+        Source: r.booking_source,
+        Statut: r.status,
+        Véhicule: r.car ? `${r.car.brand} ${r.car.model}` : '—',
+        Immatriculation: r.car?.license_plate || '—',
+        Client: r.customer ? `${r.customer.first_name} ${r.customer.last_name}` : '—',
+        Téléphone: r.customer?.phone || '—',
+        Date: r.created_at.toLocaleDateString('fr-FR'),
+      }));
+
+      if (format === 'csv') {
+        const csv = stringify(rows, { header: true });
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="sources-reservations-${period}.csv"`);
+        return res.send('\uFEFF' + csv);
+      }
+
+      if (format === 'pdf') {
+        const columns = ['ID', 'Source', 'Statut', 'Véhicule', 'Immatriculation', 'Client', 'Téléphone', 'Date'];
+        const rowArrays = rows.map((r) => columns.map((c) => r[c]));
+        const pdf = await pdfService.generateReportPDF(`Origine des réservations — ${period}`, rowArrays, columns);
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="booking-sources-${period}.pdf"`);
+        return res.send(pdf);
+      }
+    }
+
     return fail(res, `Unknown report type: ${type}`, 400);
   } catch (err) { next(err); }
 };
 
-module.exports = { revenue, utilization, reservationAnalytics, exportReport };
+module.exports = { revenue, utilization, reservationAnalytics, bookingSources, exportReport };

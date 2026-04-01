@@ -1,7 +1,14 @@
 const env = require('../config/env');
 
+/** Normalizes Moroccan-style numbers (leading 0 → 212…) for wa.me links. */
+const normalizePhoneForWa = (phone) => {
+  let d = String(phone).replace(/\D/g, '');
+  if (d.startsWith('0')) d = `212${d.slice(1)}`;
+  return d;
+};
+
 const buildLink = (phone, message) => {
-  const cleaned = phone.replace(/[^0-9]/g, '');
+  const cleaned = normalizePhoneForWa(phone);
   const encoded = encodeURIComponent(message);
   return `https://wa.me/${cleaned}?text=${encoded}`;
 };
@@ -39,6 +46,8 @@ const customerSupport = (reservationId) => {
 };
 
 module.exports = {
+  normalizePhoneForWa,
+  buildLink,
   pickupReminder,
   returnReminder,
   overdueReturn,

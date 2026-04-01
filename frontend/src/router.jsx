@@ -18,8 +18,11 @@ import TechnicalVisitsFormPage from '@admin/pages/technical-reviews/TechnicalVis
 import CustomersListPage from '@admin/pages/customers/CustomersListPage'
 import PaymentsListPage from '@admin/pages/payments/PaymentsListPage'
 import DamagesListPage from '@admin/pages/damages/DamagesListPage'
+import DamageFormPage from '@admin/pages/damages/DamageFormPage'
 import BlogListPage from '@admin/pages/blog/BlogListPage'
+import BlogFormPage from '@admin/pages/blog/BlogFormPage'
 import FaqsListPage from '@admin/pages/faqs/FaqsListPage'
+import FaqFormPage from '@admin/pages/faqs/FaqFormPage'
 import SettingsPage from '@admin/pages/settings/SettingsPage'
 import ReportsPage from '@admin/pages/reports/ReportsPage'
 import AdminNotFound from '@admin/pages/AdminNotFound'
@@ -104,8 +107,14 @@ export const router = createBrowserRouter([
           { path: 'customers', element: <CustomersListPage /> },
           { path: 'payments', element: <PaymentsListPage /> },
           { path: 'damages', element: <DamagesListPage /> },
+          { path: 'damages/new', element: <DamageFormPage /> },
+          { path: 'damages/:id/edit', element: <DamageFormPage /> },
           { path: 'blog', element: <BlogListPage /> },
+          { path: 'blog/new', element: <BlogFormPage /> },
+          { path: 'blog/:id/edit', element: <BlogFormPage /> },
           { path: 'faqs', element: <FaqsListPage /> },
+          { path: 'faqs/new', element: <FaqFormPage /> },
+          { path: 'faqs/:id/edit', element: <FaqFormPage /> },
           { path: 'settings', element: <SettingsPage /> },
           { path: 'reports', element: <ReportsPage /> },
           { path: '*', element: <AdminNotFound /> },

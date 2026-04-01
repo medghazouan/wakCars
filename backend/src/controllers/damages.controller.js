@@ -70,19 +70,21 @@ const create = async (req, res, next) => {
       );
     }
 
+    const full = await prisma.damage_reports.findUnique({ where: { id: report.id }, include: FULL_INCLUDE });
+
     if (customer_notified && reservation_id) {
       const reservation = await prisma.reservations.findUnique({
         where: { id: parseInt(reservation_id) },
         include: { customer: true },
       });
       if (reservation?.customer?.email) {
-        emailService.sendDamageNotification(report, reservation.customer).catch(() => {});
+        emailService.sendDamageNotification(full, reservation.customer).catch(() => {});
         await prisma.damage_reports.update({ where: { id: report.id }, data: { customer_notified: true } });
       }
     }
 
-    const full = await prisma.damage_reports.findUnique({ where: { id: report.id }, include: FULL_INCLUDE });
-    return created(res, full);
+    const out = await prisma.damage_reports.findUnique({ where: { id: report.id }, include: FULL_INCLUDE });
+    return created(res, out);
   } catch (err) { next(err); }
 };
 
@@ -135,7 +137,10 @@ const notifyCustomer = async (req, res, next) => {
     const id = parseInt(req.params.id);
     const report = await prisma.damage_reports.findUnique({
       where: { id },
-      include: { reservation: { include: { customer: true } } },
+      include: {
+        reservation: { include: { customer: true } },
+        images: true,
+      },
     });
     if (!report) return notFound(res, 'Damage report');
     if (!report.reservation?.customer?.email) {

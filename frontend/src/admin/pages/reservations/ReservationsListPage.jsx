@@ -19,6 +19,16 @@ import { ReservationsCalendarMonth } from './ReservationsCalendarMonth'
 
 const PAYMENT_STATUSES = ['UNPAID', 'PARTIAL', 'PAID', 'REFUNDED']
 
+/** Matches backend reservation status enum — order follows typical rental lifecycle */
+const RESERVATION_STATUSES = [
+  'PENDING',
+  'CONFIRMED',
+  'ACTIVE',
+  'COMPLETED',
+  'CANCELLED',
+  'NO_SHOW',
+]
+
 export default function ReservationsListPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -75,6 +85,19 @@ export default function ReservationsListPage() {
     },
     onError: (err) => {
       toast.error(err.response?.data?.error || 'Could not confirm')
+    },
+  })
+
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }) => reservationsApi.updateStatus(id, status),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['reservations'] })
+      queryClient.invalidateQueries({ queryKey: ['reservation', String(id)] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      toast.success('Booking status updated')
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.error || 'Could not update booking status')
     },
   })
 
@@ -159,6 +182,43 @@ export default function ReservationsListPage() {
             Days Total
           </p>
         </div>
+      ),
+    },
+    {
+      key: 'booking_source',
+      label: 'Source',
+      render: (r) => (
+        <span className="text-xs font-semibold uppercase tracking-wide text-gray-600">
+          {r.booking_source || '—'}
+        </span>
+      ),
+    },
+    {
+      key: 'booking_status',
+      label: 'Booking status',
+      render: (r) => (
+        <select
+          className={cn(
+            'max-w-[160px] rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs font-semibold text-secondary',
+            'focus:outline-none focus:ring-2 focus:ring-primary/25'
+          )}
+          value={r.status}
+          onChange={(e) =>
+            statusMutation.mutate({
+              id: r.id,
+              status: e.target.value,
+            })
+          }
+          disabled={
+            statusMutation.isPending && statusMutation.variables?.id === r.id
+          }
+        >
+          {RESERVATION_STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {s.replace(/_/g, ' ')}
+            </option>
+          ))}
+        </select>
       ),
     },
     {

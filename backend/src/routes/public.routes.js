@@ -22,6 +22,7 @@ const guestReservationRules = [
   body('guest_email').optional().isEmail(),
   body('has_gps').optional().isBoolean(),
   body('has_child_seat').optional().isBoolean(),
+  body('booking_source').optional().isString().isLength({ max: 50 }),
 ];
 
 const contactRules = [

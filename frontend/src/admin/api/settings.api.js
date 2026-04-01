@@ -11,5 +11,6 @@ export const reportsApi = {
   getRevenue: (params) => apiClient.get('/api/reports/revenue', { params }),
   getUtilization: (params) => apiClient.get('/api/reports/utilization', { params }),
   getReservations: (params) => apiClient.get('/api/reports/reservations', { params }),
+  getBookingSources: (params) => apiClient.get('/api/reports/booking-sources', { params }),
   exportReport: (params) => apiClient.get('/api/reports/export', { params, responseType: 'blob' }),
 }

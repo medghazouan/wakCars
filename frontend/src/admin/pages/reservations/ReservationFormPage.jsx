@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -14,6 +14,15 @@ import { pageTransition } from '@admin/animations/variants'
 import { Input } from '@admin/components/ui/Input'
 import { Button } from '@admin/components/ui/Button'
 import { Card } from '@admin/components/ui/Card'
+import { BOOKING_SOURCE_OPTIONS } from '@admin/constants/bookingSource'
+import {
+  pickupReminder,
+  returnReminder,
+  overdueReturn,
+  paymentIssue,
+  customerInquiry,
+  customerSupport,
+} from '@admin/utils/whatsappLinks'
 
 function toDatetimeLocal(iso) {
   if (!iso) return ''
@@ -27,7 +36,11 @@ export default function ReservationFormPage() {
   const queryClient = useQueryClient()
   const isEdit = Boolean(id)
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm()
+  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+    defaultValues: { booking_source: 'WEBSITE' },
+  })
+
+  const [reassignCarId, setReassignCarId] = useState('')
 
   const { data: reservationRes, isLoading: loadingReservation } = useQuery({
     queryKey: ['reservation', id],
@@ -79,6 +92,7 @@ export default function ReservationFormPage() {
   useEffect(() => {
     if (!reservation) return
     const c = reservation.customer
+    setReassignCarId(String(reservation.car_id))
     reset({
       car_id: reservation.car_id,
       customer_id: reservation.customer_id ?? '',
@@ -88,6 +102,7 @@ export default function ReservationFormPage() {
       dropoff_date: toDatetimeLocal(reservation.dropoff_date),
       has_gps: reservation.has_gps,
       has_child_seat: reservation.has_child_seat,
+      booking_source: reservation.booking_source || 'WEBSITE',
       ...(c && {
         cust_first_name: c.first_name ?? '',
         cust_last_name: c.last_name ?? '',
@@ -101,6 +116,19 @@ export default function ReservationFormPage() {
       }),
     })
   }, [reservation, reset])
+
+  const reassignMutation = useMutation({
+    mutationFn: (car_id) => reservationsApi.reassign(id, car_id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reservation', id] })
+      queryClient.invalidateQueries({ queryKey: ['reservations'] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      toast.success('Vehicle reassigned')
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.error || 'Could not reassign vehicle')
+    },
+  })
 
   const mutation = useMutation({
     mutationFn: async (vars) => {
@@ -148,6 +176,7 @@ export default function ReservationFormPage() {
         dropoff_location_id: Number(data.dropoff_location_id),
         has_gps: Boolean(data.has_gps),
         has_child_seat: Boolean(data.has_child_seat),
+        booking_source: data.booking_source || 'WEBSITE',
       }
       const customerId = reservation.customer_id
       let customerPatch = null
@@ -181,8 +210,16 @@ export default function ReservationFormPage() {
       dropoff_date: dropoff.toISOString(),
       has_gps: Boolean(data.has_gps),
       has_child_seat: Boolean(data.has_child_seat),
+      booking_source: data.booking_source || 'WEBSITE',
       ...(data.customer_id ? { customer_id: Number(data.customer_id) } : {}),
     })
+  }
+
+  const handleReassign = () => {
+    if (!isEdit || !reservation) return
+    const cid = Number(reassignCarId)
+    if (!cid || cid === reservation.car_id) return
+    reassignMutation.mutate(cid)
   }
 
   if (isEdit && loadingReservation) {
@@ -243,14 +280,44 @@ export default function ReservationFormPage() {
           )}
 
           {isEdit && reservation?.car && (
-            <div className="rounded-lg bg-gray-100 px-4 py-3 text-sm">
-              <span className="text-gray-500 uppercase text-[10px] font-semibold tracking-wider">Vehicle</span>
-              <p className="font-semibold text-secondary mt-1">
-                {reservation.car.brand} {reservation.car.model} · {reservation.car.license_plate}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                To assign a different car, use Reassign from the API or add a control that calls PATCH /reassign.
-              </p>
+            <div className="space-y-3 rounded-lg bg-gray-100 px-4 py-3 text-sm">
+              <div>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">Vehicle</span>
+                <p className="mt-1 font-semibold text-secondary">
+                  {reservation.car.brand} {reservation.car.model} · {reservation.car.license_plate}
+                </p>
+              </div>
+              <div className="rounded-md border border-amber-200 bg-amber-50/80 p-3">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-900">
+                  Reassign vehicle
+                </p>
+                <p className="mt-1 text-xs text-gray-600">
+                  Select another available vehicle. Dates, options and total are recalculated on the server.
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <select
+                    value={reassignCarId}
+                    onChange={(e) => setReassignCarId(e.target.value)}
+                    className="flex h-10 min-w-[220px] rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  >
+                    {carsForSelect.map((car) => (
+                      <option key={car.id} value={car.id}>
+                        {car.brand} {car.model} · {car.license_plate}
+                        {car.status && car.status !== 'AVAILABLE' ? ` (${car.status})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                  <Button
+                    type="button"
+                    variant="primary"
+                    isLoading={reassignMutation.isPending}
+                    disabled={Number(reassignCarId) === reservation.car_id}
+                    onClick={handleReassign}
+                  >
+                    Apply reassignment
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
 
@@ -394,12 +461,89 @@ export default function ReservationFormPage() {
             </div>
           )}
 
+          {isEdit && reservation?.customer?.phone && (
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50/40 px-4 py-4">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-900">
+                WhatsApp — messages pré-remplis
+              </p>
+              <p className="mt-1 text-xs text-gray-600">
+                Ouvre une conversation avec le texte défini (même logique que le backend).
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <a
+                  href={pickupReminder(reservation.customer, reservation)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center rounded-md border border-emerald-300 bg-white px-2.5 py-1.5 text-xs font-medium text-emerald-900 hover:bg-emerald-50"
+                >
+                  Veille · prise en charge
+                </a>
+                <a
+                  href={returnReminder(reservation.customer, reservation)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center rounded-md border border-emerald-300 bg-white px-2.5 py-1.5 text-xs font-medium text-emerald-900 hover:bg-emerald-50"
+                >
+                  Jour J · retour
+                </a>
+                <a
+                  href={overdueReturn(reservation.customer, reservation)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center rounded-md border border-emerald-300 bg-white px-2.5 py-1.5 text-xs font-medium text-emerald-900 hover:bg-emerald-50"
+                >
+                  Retour en retard
+                </a>
+                <a
+                  href={paymentIssue(reservation.customer, reservation)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center rounded-md border border-emerald-300 bg-white px-2.5 py-1.5 text-xs font-medium text-emerald-900 hover:bg-emerald-50"
+                >
+                  Problème de paiement
+                </a>
+                <a
+                  href={customerSupport(reservation.id)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center rounded-md border border-emerald-300 bg-white px-2.5 py-1.5 text-xs font-medium text-emerald-900 hover:bg-emerald-50"
+                >
+                  Aide réservation
+                </a>
+                <a
+                  href={customerInquiry()}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-800 hover:bg-gray-50"
+                >
+                  Demande d&apos;infos (vers l&apos;agence)
+                </a>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-600">
+              Booking source
+            </label>
+            <select
+              {...register('booking_source')}
+              className="flex h-10 w-full max-w-md rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              {BOOKING_SOURCE_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="flex flex-wrap gap-6">
-            <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
               <input type="checkbox" className="rounded border-gray-300 text-primary focus:ring-primary" {...register('has_gps')} />
               GPS add-on
             </label>
-            <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
               <input type="checkbox" className="rounded border-gray-300 text-primary focus:ring-primary" {...register('has_child_seat')} />
               Child seat
             </label>

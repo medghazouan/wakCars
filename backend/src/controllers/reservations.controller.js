@@ -1,5 +1,8 @@
 const prisma = require('../utils/prisma');
 const emailService = require('../services/email.service');
+const pdfService = require('../services/pdf.service');
+const logger = require('../utils/logger');
+const { normalizeBookingSource } = require('../utils/bookingSource');
 const { success, created, notFound, fail } = require('../utils/apiResponse');
 
 const FULL_INCLUDE = {
@@ -88,6 +91,7 @@ const create = async (req, res, next) => {
     const {
       car_id, customer_id, pickup_location_id, dropoff_location_id,
       pickup_date, dropoff_date, has_gps = false, has_child_seat = false, status = 'PENDING',
+      booking_source: rawSource,
     } = req.body;
 
     const carIdInt = parseInt(car_id);
@@ -118,6 +122,7 @@ const create = async (req, res, next) => {
         has_child_seat: Boolean(has_child_seat),
         total_amount,
         status,
+        booking_source: normalizeBookingSource(rawSource),
       },
       include: FULL_INCLUDE,
     });
@@ -132,7 +137,10 @@ const update = async (req, res, next) => {
     const exists = await prisma.reservations.findUnique({ where: { id } });
     if (!exists) return notFound(res, 'Reservation');
 
-    const { pickup_date, dropoff_date, has_gps, has_child_seat, pickup_location_id, dropoff_location_id } = req.body;
+    const {
+      pickup_date, dropoff_date, has_gps, has_child_seat,
+      pickup_location_id, dropoff_location_id, booking_source: rawSource,
+    } = req.body;
     const data = {};
 
     if (pickup_date) data.pickup_date = new Date(pickup_date);
@@ -141,6 +149,7 @@ const update = async (req, res, next) => {
     if (has_child_seat !== undefined) data.has_child_seat = Boolean(has_child_seat);
     if (pickup_location_id) data.pickup_location_id = parseInt(pickup_location_id);
     if (dropoff_location_id) data.dropoff_location_id = parseInt(dropoff_location_id);
+    if (rawSource !== undefined) data.booking_source = normalizeBookingSource(rawSource);
 
     if ((pickup_date || dropoff_date || has_gps !== undefined || has_child_seat !== undefined)) {
       const pd = data.pickup_date || exists.pickup_date;
@@ -168,7 +177,9 @@ const updateStatus = async (req, res, next) => {
       data.confirmed_at = new Date();
       if (reservation.customer?.email) {
         const full = await prisma.reservations.findUnique({ where: { id }, include: FULL_INCLUDE });
-        emailService.sendReservationConfirmation(full).catch(() => {});
+        emailService
+          .sendReservationConfirmation(full)
+          .catch((err) => logger.error(`Confirmation email failed for #${id}: ${err.message}`));
       }
     }
     if (status === 'ACTIVE') {
@@ -185,6 +196,19 @@ const updateStatus = async (req, res, next) => {
     }
 
     const updated = await prisma.reservations.update({ where: { id }, data, include: FULL_INCLUDE });
+
+    if (
+      status === 'COMPLETED' &&
+      reservation.status !== 'COMPLETED' &&
+      reservation.customer?.email
+    ) {
+      const payments = updated.payments || [];
+      pdfService
+        .generateInvoicePDF(updated, payments)
+        .then((pdfBuffer) => emailService.sendInvoice(updated, payments, pdfBuffer))
+        .catch((err) => logger.error(`Invoice email failed for #${id}: ${err.message}`));
+    }
+
     return success(res, updated);
   } catch (err) { next(err); }
 };
@@ -267,7 +291,9 @@ const confirm = async (req, res, next) => {
       include: FULL_INCLUDE,
     });
     if (reservation.customer?.email) {
-      emailService.sendReservationConfirmation(updated).catch(() => {});
+      emailService
+        .sendReservationConfirmation(updated)
+        .catch((err) => logger.error(`Confirmation email failed for #${id}: ${err.message}`));
     }
     return success(res, updated);
   } catch (err) { next(err); }

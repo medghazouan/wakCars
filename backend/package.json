@@ -4,6 +4,7 @@
   "description": "Wak Cars — Car Rental Admin API (Express.js + Prisma + MariaDB)",
   "main": "src/server.js",
   "scripts": {
+    "test": "node --test src/services/whatsapp.service.test.js src/services/pdf.service.test.js",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "prisma:generate": "prisma generate",
