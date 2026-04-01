@@ -1,0 +1,85 @@
+{
+  "brand": {
+    "title": "Wak Admin",
+    "subtitle": "GESTION DE FLOTTE"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "fleet": "Flotte",
+    "reservations": "Réservations",
+    "insurance": "Assurance",
+    "technicalReviews": "Visites techniques",
+    "settings": "Paramètres"
+  },
+  "management": {
+    "section": "Gestion",
+    "customers": "Clients",
+    "payments": "Paiements",
+    "damages": "Sinistres",
+    "blog": "Blog",
+    "faqs": "FAQ",
+    "reports": "Rapports"
+  },
+  "sidebar": {
+    "newReservation": "Nouvelle réservation",
+    "support": "Assistance",
+    "logout": "Déconnexion"
+  },
+  "topbar": {
+    "searchPlaceholder": "Rechercher véhicule, réservation ou client…",
+    "profile": "Profil administrateur",
+    "roleSuper": "Accès super administrateur",
+    "roleStaff": "Accès personnel",
+    "langSwitchAria": "Passer en arabe",
+    "langFr": "FR",
+    "langAr": "عربي"
+  },
+  "login": {
+    "title": "Espace administrateur",
+    "subtitle": "Gestion précise de votre flotte.",
+    "emailLabel": "E-mail administrateur",
+    "passwordLabel": "Mot de passe",
+    "submit": "Se connecter",
+    "footer": "Accès réservé au personnel autorisé.",
+    "forgotPassword": "Mot de passe oublié ?",
+    "rememberMe": "Se souvenir de moi",
+    "secureBadge": "Connexion sécurisée",
+    "footerNote": "Accès autorisé uniquement. Les sessions sont journalisées.",
+    "success": "Connexion réussie",
+    "error": "Échec de la connexion",
+    "errors": {
+      "email": "Adresse e-mail invalide",
+      "password": "Le mot de passe est requis"
+    }
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "subtitle": "Chiffre d’affaires, flotte, conformité et dernières réservations en un coup d’œil.",
+    "revenueMtd": "CA (mois en cours)",
+    "reservations": "Réservations",
+    "pendingHint": "{{count}} en attente de confirmation",
+    "carsAvailable": "Véhicules disponibles",
+    "fleetHint": "{{total}} véhicules dans la flotte",
+    "insurance": "Assurance",
+    "insuranceCompliant": "{{count}} conforme(s)",
+    "insuranceHint": "{{compliant}} conformes · {{critical}} critiques · {{dueSoon}} bientôt due",
+    "technical": "Visite technique",
+    "technicalHintDue": "{{pending}} véhicule(s) à contrôler · score {{score}}/10",
+    "technicalHintNone": "Aucune date d’expiration renseignée",
+    "revHintUp": "+{{pct}} % vs mois dernier",
+    "revHintDown": "{{pct}} % vs mois dernier",
+    "revHintFlat": "Mois en cours"
+  },
+  "settings": {
+    "title": "Paramètres du site",
+    "subtitle": "Configuration de l’application et contenus localisés."
+  },
+  "reports": {
+    "title": "Rapports et analyses",
+    "subtitle": "Revenus, utilisation de la flotte et export des données."
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "body": "Cette page n’existe pas dans l’administration."
+  }
+}

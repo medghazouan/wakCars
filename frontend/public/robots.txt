@@ -1,0 +1,15 @@
+# WAK Cars - Robots.txt
+# https://wakcars.ma
+
+User-agent: *
+Allow: /
+
+# Disallow API routes
+Disallow: /api/
+
+# Disallow admin/private routes
+Disallow: /admin/
+Disallow: /reservation/confirmation
+
+# Sitemap
+Sitemap: https://wakcars.ma/sitemap.xml

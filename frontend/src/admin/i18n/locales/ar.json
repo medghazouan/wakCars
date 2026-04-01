@@ -1,0 +1,85 @@
+{
+  "brand": {
+    "title": "واك للإدارة",
+    "subtitle": "إدارة الأسطول"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "fleet": "الأسطول",
+    "reservations": "الحجوزات",
+    "insurance": "التأمين",
+    "technicalReviews": "الزيارات الفنية",
+    "settings": "الإعدادات"
+  },
+  "management": {
+    "section": "الإدارة",
+    "customers": "العملاء",
+    "payments": "المدفوعات",
+    "damages": "الأضرار",
+    "blog": "المدونة",
+    "faqs": "الأسئلة الشائعة",
+    "reports": "التقارير"
+  },
+  "sidebar": {
+    "newReservation": "حجز جديد",
+    "support": "الدعم",
+    "logout": "تسجيل الخروج"
+  },
+  "topbar": {
+    "searchPlaceholder": "ابحث عن مركبة أو حجز أو عميل…",
+    "profile": "ملف المشرف",
+    "roleSuper": "صلاحيات المشرف الرئيسي",
+    "roleStaff": "صلاحيات الموظف",
+    "langSwitchAria": "التبديل إلى الفرنسية",
+    "langFr": "FR",
+    "langAr": "عربي"
+  },
+  "login": {
+    "title": "بوابة الإدارة",
+    "subtitle": "إدارة دقيقة لأسطولكم.",
+    "emailLabel": "البريد الإلكتروني",
+    "passwordLabel": "كلمة المرور",
+    "submit": "تسجيل الدخول",
+    "footer": "الوصول مخصص للموظفين المصرح لهم.",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "rememberMe": "تذكرني",
+    "secureBadge": "اتصال آمن",
+    "footerNote": "وصول مصرح فقط. يتم تسجيل الجلسات.",
+    "success": "تم تسجيل الدخول بنجاح",
+    "error": "فشل تسجيل الدخول",
+    "errors": {
+      "email": "البريد الإلكتروني غير صالح",
+      "password": "كلمة المرور مطلوبة"
+    }
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "subtitle": "الإيرادات والأسطول والامتثال وأحدث الحجوزات في لمحة.",
+    "revenueMtd": "الإيرادات (الشهر الحالي)",
+    "reservations": "الحجوزات",
+    "pendingHint": "{{count}} في انتظار التأكيد",
+    "carsAvailable": "مركبات متاحة",
+    "fleetHint": "{{total}} مركبة في الأسطول",
+    "insurance": "التأمين",
+    "insuranceCompliant": "{{count}} ملتزم بالتأمين",
+    "insuranceHint": "{{compliant}} ملتزم · {{critical}} حرج · {{dueSoon}} يقترب انتهاؤه",
+    "technical": "الزيارة الفنية",
+    "technicalHintDue": "{{pending}} مركبة مستحقة · التقييم {{score}}/10",
+    "technicalHintNone": "لا توجد تواريخ انتهاء مسجلة",
+    "revHintUp": "+{{pct}}٪ مقارنة بالشهر الماضي",
+    "revHintDown": "{{pct}}٪ مقارنة بالشهر الماضي",
+    "revHintFlat": "الشهر الحالي"
+  },
+  "settings": {
+    "title": "إعدادات الموقع",
+    "subtitle": "إعدادات التطبيق والمحتوى المحلي."
+  },
+  "reports": {
+    "title": "التقارير والتحليلات",
+    "subtitle": "الإيرادات واستخدام الأسطول وتصدير البيانات."
+  },
+  "notFound": {
+    "title": "الصفحة غير موجودة",
+    "body": "هذه الصفحة غير موجودة في لوحة الإدارة."
+  }
+}

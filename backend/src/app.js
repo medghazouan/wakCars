@@ -24,6 +24,8 @@ const alertsRoutes = require('./routes/alerts.routes');
 const reportsRoutes = require('./routes/reports.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 const cronRoutes = require('./routes/cron.routes');
+const publicRoutes = require('./routes/public.routes');
+const { publicLimiter } = require('./config/rateLimiter');
 
 const app = express();
 
@@ -38,6 +40,7 @@ app.use((req, _res, next) => {
   next();
 });
 
+app.use('/api/public', publicLimiter, publicRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', adminLimiter, categoriesRoutes);
 app.use('/api/locations', adminLimiter, locationsRoutes);

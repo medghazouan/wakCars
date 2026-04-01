@@ -99,4 +99,30 @@ const sendDamageNotification = async (damageReport, customer) => {
   });
 };
 
-module.exports = { send, sendReservationConfirmation, sendInvoice, sendDamageNotification };
+const sendContactForm = async ({ name, email, message }) => {
+  if (!env.RESEND_API_KEY) {
+    logger.info(`Contact form (email not configured): ${name} <${email}> — ${message.slice(0, 200)}`);
+    return null;
+  }
+  const html = `
+    <div style="font-family: Arial, sans-serif;">
+      <p><strong>Message du site Wak Cars</strong></p>
+      <p>De : ${name} &lt;${email}&gt;</p>
+      <hr />
+      <p>${String(message).replace(/\n/g, '<br/>')}</p>
+    </div>`;
+  return send({
+    to: env.EMAIL_FROM,
+    replyTo: email,
+    subject: `Contact site — ${name}`,
+    html,
+  });
+};
+
+module.exports = {
+  send,
+  sendReservationConfirmation,
+  sendInvoice,
+  sendDamageNotification,
+  sendContactForm,
+};

@@ -1,0 +1,509 @@
+{
+  "meta": {
+    "siteName": "WAK Cars",
+    "tagline": "Location de Voiture à Marrakech — Simple, Fiable, Abordable",
+    "description": "Louez votre voiture à Marrakech avec WAK Cars. Large choix de véhicules, prix transparents, livraison à l'aéroport et partout au Maroc."
+  },
+  "nav": {
+    "home": "Accueil",
+    "fleet": "Notre Flotte",
+    "locations": "Points de Collecte",
+    "faq": "FAQ",
+    "blog": "Blog",
+    "about": "À Propos",
+    "contact": "Contact",
+    "book": "Réserver"
+  },
+  "hero": {
+    "tagline": "— Location de voiture à Marrakech",
+    "title": "Explorez le Maroc en Toute Liberté",
+    "subtitle": "Location de voiture à Marrakech avec livraison aéroport, prix transparents et véhicules récents.",
+    "cta": "Voir la Flotte",
+    "ctaSecondary": "Nous Contacter"
+  },
+  "trust": {
+    "transparent": "Prix Transparents",
+    "transparentDesc": "Zéro frais cachés, tout est inclus",
+    "delivery": "Livraison Aéroport",
+    "deliveryDesc": "Gratuite dès 3 jours de location",
+    "support": "Support 24/7",
+    "supportDesc": "WhatsApp disponible à tout moment",
+    "recent": "Véhicules Récents",
+    "recentDesc": "Flotte renouvelée chaque année",
+    "insurance": "Assurance Incluse",
+    "insuranceDesc": "Tous risques de base incluse"
+  },
+  "categories": {
+    "title": "Nos Catégories",
+    "subtitle": "Choisissez la catégorie qui correspond à vos besoins et votre budget."
+  },
+  "fleet": {
+    "title": "Flotte de Voitures à Louer Marrakech",
+    "subtitle": "Découvrez notre flotte : citadines, SUV, automatiques, luxe. Tous véhicules récents, assurés, avec prix tout inclus. Dès 170 MAD/j.",
+    "heading": "Notre Flotte",
+    "intro": "Des citadines économiques aux SUV tout-terrain, trouvez le véhicule parfait pour votre aventure marocaine.",
+    "filterAll": "Toutes catégories",
+    "filterTransmission": "Boîte",
+    "filterManual": "Manuelle",
+    "filterAutomatic": "Auto",
+    "filterFuel": "Carburant",
+    "filterSeats": "Sièges",
+    "filterTitle": "Trouver votre voiture",
+    "sortBy": "Trier par",
+    "sortPriceAsc": "Prix: Bas → Haut",
+    "sortPriceDesc": "Prix: Haut → Bas",
+    "perDay": "/jour",
+    "seats": "places",
+    "viewDetails": "Voir détails",
+    "book": "Réserver"
+  },
+  "car": {
+    "specifications": "Caractéristiques",
+    "transmission": "Transmission",
+    "fuel": "Carburant",
+    "seats": "Places",
+    "doors": "Portes",
+    "year": "Année",
+    "deposit": "Caution",
+    "description": "Description",
+    "similar": "Véhicules Similaires",
+    "bookNow": "Réserver Maintenant",
+    "priceFrom": "À partir de",
+    "manual": "Manuelle",
+    "automatic": "Automatique",
+    "essence": "Essence",
+    "diesel": "Diesel",
+    "hybrid": "Hybride",
+    "electric": "Électrique",
+    "pricePerDay": "Prix par jour"
+  },
+  "booking": {
+    "title": "Réserver une Voiture à Marrakech",
+    "metaDesc": "Réservez votre voiture en 3 minutes. Pas de frais cachés. Confirmation immédiate par email et WhatsApp.",
+    "heading": "Réserver Votre Véhicule",
+    "step1": "Dates & Lieu",
+    "step2": "Options",
+    "step3": "Informations",
+    "pickupDate": "Date de prise en charge",
+    "dropoffDate": "Date de restitution",
+    "pickupLocation": "Point de prise en charge",
+    "dropoffLocation": "Point de restitution",
+    "sameLocation": "Même point de restitution",
+    "options": "Options Supplémentaires",
+    "gps": "GPS Navigation",
+    "childSeat": "Siège Enfant",
+    "perDayExtra": "/jour",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Email (optionnel)",
+    "phone": "Téléphone WhatsApp",
+    "summary": "Récapitulatif",
+    "days": "jours",
+    "basePrice": "Prix de base",
+    "optionsPrice": "Options",
+    "total": "Total",
+    "next": "Continuer",
+    "back": "Retour",
+    "confirm": "Confirmer la Réservation",
+    "processing": "Traitement en cours...",
+    "deposit": "Caution",
+    "cancellation": "Annulation",
+    "freeCancellation": "Gratuite",
+    "insurance": "Assurance",
+    "fullInsurance": "Tous risques",
+    "progress": "Progression"
+  },
+  "confirmation": {
+    "title": "Merci pour votre réservation !",
+    "subtitle": "Votre demande a été enregistrée avec succès. Nous sommes impatients de vous accueillir à Marrakech et de vous offrir un service exceptionnel.",
+    "reference": "Référence",
+    "whatsappCta": "Finaliser sur WhatsApp",
+    "whatsappDesc": "Notre équipe vous contactera sous peu pour confirmer votre réservation.",
+    "emailSent": "Un email de confirmation a été envoyé à",
+    "backHome": "Retour à l'accueil",
+    "vehicle": "Véhicule",
+    "pickup": "Prise en charge",
+    "dropoff": "Restitution",
+    "from": "Du",
+    "to": "Au",
+    "whatsappConfirm": "Confirmer via WhatsApp"
+  },
+  "locations": {
+    "title": "Points de Prise en Charge Voiture Marrakech",
+    "metaDesc": "Récupérez votre voiture à l'aéroport, en centre-ville ou à votre hôtel à Marrakech. Service de livraison disponible.",
+    "heading": "Où Récupérer Votre Voiture à Marrakech",
+    "subtitle": "Nous livrons votre véhicule directement au point de collecte de votre choix — aéroport, hôtel, centre-ville ou toute adresse convenue avec notre équipe.",
+    "airport": "Aéroport",
+    "airportNote": "Livraison sans surcharge pour toute location 3j+",
+    "address": "Adresse"
+  },
+  "faq": {
+    "title": "FAQ Location Voiture Marrakech",
+    "metaDesc": "Toutes les réponses : documents requis, assurance, caution, permis international, conduire au Maroc...",
+    "heading": "Questions Fréquentes",
+    "subtitle": "Tout ce que vous devez savoir avant de louer votre véhicule.",
+    "categories": {
+      "Documents": "Documents",
+      "Assurance": "Assurance",
+      "Prise en Charge": "Prise en Charge",
+      "Maroc": "Conduire au Maroc",
+      "Tarifs": "Tarifs"
+    }
+  },
+  "blog": {
+    "title": "Blog & Conseils",
+    "subtitle": "Itinéraires, conseils pratiques et bons plans pour votre road trip au Maroc.",
+    "readMore": "Lire l'article",
+    "category": "Catégorie",
+    "publishedAt": "Publié le"
+  },
+  "contact": {
+    "title": "Contactez-Nous",
+    "subtitle": "Une question ? Notre équipe est disponible pour vous aider.",
+    "form": {
+      "title": "Envoyez-nous un message",
+      "name": "Votre nom",
+      "email": "Votre email",
+      "message": "Votre message",
+      "send": "Envoyer",
+      "sending": "Envoi en cours...",
+      "success": "Message envoyé avec succès !",
+      "error": "Erreur lors de l'envoi. Veuillez réessayer."
+    },
+    "info": {
+      "title": "Nos Coordonnées",
+      "phone": "Téléphone",
+      "whatsapp": "WhatsApp",
+      "email": "Email",
+      "address": "Adresse",
+      "hours": "Horaires"
+    }
+  },
+  "footer": {
+    "description": "WAK Cars — Votre partenaire de confiance pour la location de voiture à Marrakech depuis 2018.",
+    "quickLinks": "Liens Rapides",
+    "legal": "Mentions Légales",
+    "terms": "Conditions Générales",
+    "privacy": "Politique de Confidentialité",
+    "followUs": "Suivez-Nous",
+    "copyright": "© {{year}} WAK Cars. Tous droits réservés.",
+    "craftedBy": "CRAFTED IN THE LABS OF"
+  },
+  "cta": {
+    "title": "Prêt pour l'Aventure ?",
+    "subtitle": "Réservez votre véhicule en quelques clics et partez explorer le Maroc.",
+    "primary": "Réserver Maintenant",
+    "secondary": "Voir la Flotte"
+  },
+  "stats": {
+    "cars": "Véhicules",
+    "customers": "Clients Satisfaits",
+    "years": "Années d'Expérience",
+    "rating": "Note Moyenne"
+  },
+  "whyUs": {
+    "title": "Pourquoi Choisir WAK Cars ?",
+    "subtitle": "Découvrez les avantages exclusifs qui font de WAK CARS votre partenaire de confiance.",
+    "reason1": {
+      "title": "Prix Transparents",
+      "desc": "Pas de frais cachés. Le prix affiché est le prix final, assurance et kilométrage illimité inclus."
+    },
+    "reason2": {
+      "title": "Livraison Flexible",
+      "desc": "Récupérez votre voiture à l'aéroport, à votre hôtel ou à tout point de collecte à Marrakech."
+    },
+    "reason3": {
+      "title": "Support Réactif",
+      "desc": "Notre équipe est disponible 24/7 sur WhatsApp pour répondre à toutes vos questions."
+    }
+  },
+  "reviews": {
+    "title": "Ce Que Disent Nos Clients",
+    "rating": "Basé sur {{count}} avis",
+    "items": [
+      {
+        "id": 1,
+        "name": "Thomas D.",
+        "country": "France",
+        "rating": 5,
+        "text": "Service impeccable ! La voiture était en parfait état et la livraison à l'aéroport s'est faite sans accroc. Je recommande vivement WAK Cars pour votre séjour au Maroc."
+      },
+      {
+        "id": 2,
+        "name": "Emma S.",
+        "country": "Allemagne",
+        "rating": 5,
+        "text": "Service exceptionnel ! La voiture était propre et en parfait état. La communication sur WhatsApp était très pratique. Fortement recommandé !"
+      },
+      {
+        "id": 3,
+        "name": "Youssef E.",
+        "country": "Maroc",
+        "rating": 5,
+        "text": "Service excellent et prix raisonnables. La voiture était en parfait état. Je ferai certainement appel à eux de nouveau."
+      },
+      {
+        "id": 4,
+        "name": "Sarah M.",
+        "country": "Royaume-Uni",
+        "rating": 5,
+        "text": "Une expérience fantastique du début à la fin. Le personnel était très professionnel et le véhicule très propre. Merci à toute l'équipe !"
+      },
+      {
+        "id": 5,
+        "name": "Ahmed K.",
+        "country": "Émirats Arabes Unis",
+        "rating": 5,
+        "text": "J'ai loué un SUV pour un voyage dans l'Atlas et la voiture était robuste et confortable. Le service client sur WhatsApp est super réactif."
+      },
+      {
+        "id": 6,
+        "name": "Maria G.",
+        "country": "Espagne",
+        "rating": 5,
+        "text": "Très bons prix et aucune mauvaise surprise. J'ai apprécié la transparence et la facilité de réservation. À la prochaine !"
+      }
+    ]
+  },
+  "guarantee": {
+    "title": "Notre Garantie Transparence",
+    "subtitle": "Louez en toute tranquillité avec nos engagements de transparence totale.",
+    "price": {
+      "title": "Prix Affiché = Prix Payé",
+      "desc": "Aucun supplément caché à la prise en charge"
+    },
+    "cancel": {
+      "title": "Annulation Gratuite 48h",
+      "desc": "Modifiez ou annulez sans frais jusqu'à 48h avant"
+    },
+    "whatsapp": {
+      "title": "Réponse en 15 min",
+      "desc": "Notre équipe répond sur WhatsApp en moins de 15 minutes"
+    },
+    "payment": {
+      "title": "MAD / EUR / USD",
+      "desc": "Paiement accepté en dirham, euro ou dollar"
+    }
+  },
+  "selectLocation": "Sélectionnez un point",
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur est survenue",
+    "retry": "Réessayer",
+    "close": "Fermer",
+    "yes": "Oui",
+    "no": "Non",
+    "mad": "MAD",
+    "currency": "DH"
+  },
+  "notFound": {
+    "title": "Page Non Trouvée",
+    "subtitle": "La page que vous recherchez n'existe pas ou a été déplacée.",
+    "backHome": "Retour à l'accueil"
+  },
+  "terms": {
+    "title": "Conditions Générales",
+    "metaDesc": "Conditions générales de location de véhicule chez WAK Cars à Marrakech.",
+    "lastUpdate": "Dernière mise à jour : Mars 2026",
+    "summary": "Sommaire",
+    "sections": [
+      {
+        "id": "01",
+        "title": "Conditions de Location",
+        "content": [
+          "Pour louer un véhicule chez WAK Cars, le locataire doit :",
+          "• Être âgé d'au moins 21 ans (25 ans pour les véhicules de luxe)",
+          "• Posséder un permis de conduire valide depuis au moins 2 ans",
+          "• Présenter une pièce d'identité en cours de validité (passeport pour les étrangers)",
+          "• Disposer d'une carte bancaire à son nom pour le dépôt de garantie"
+        ]
+      },
+      {
+        "id": "02",
+        "title": "Réservation et Paiement",
+        "content": [
+          "La réservation est confirmée dès réception du paiement intégral ou d'un acompte selon les conditions convenues. Le solde est dû à la prise en charge du véhicule.",
+          "Les modes de paiement acceptés sont : carte bancaire, virement bancaire et espèces."
+        ]
+      },
+      {
+        "id": "03",
+        "title": "Caution (Dépôt de Garantie)",
+        "content": [
+          "Un dépôt de garantie est requis à la prise en charge du véhicule. Le montant varie selon la catégorie du véhicule et est indiqué sur la fiche du véhicule.",
+          "La caution est restituée dans les 48 heures suivant le retour du véhicule, sous réserve qu'aucun dommage ne soit constaté."
+        ]
+      },
+      {
+        "id": "04",
+        "title": "Assurance",
+        "content": [
+          "Tous nos véhicules sont couverts par une assurance tous risques. Une franchise reste toutefois à la charge du locataire en cas de sinistre.",
+          "Une option de rachat de franchise est disponible pour une protection complète."
+        ]
+      },
+      {
+        "id": "05",
+        "title": "Utilisation du Véhicule",
+        "content": [
+          "Le locataire s'engage à :",
+          "• Utiliser le véhicule exclusivement sur le territoire marocain",
+          "• Ne pas sous-louer le véhicule",
+          "• Ne pas utiliser le véhicule pour des activités illégales",
+          "• Respecter le code de la route marocain",
+          "• Restituer le véhicule avec le même niveau de carburant qu'à la prise en charge"
+        ]
+      },
+      {
+        "id": "06",
+        "title": "Annulation",
+        "content": [
+          "L'annulation est gratuite jusqu'à 48 heures avant la date de prise en charge. Au-delà, des frais d'annulation peuvent s'appliquer selon les conditions suivantes :",
+          "• Entre 48h et 24h avant : 50% du montant total",
+          "• Moins de 24h avant : 100% du montant total"
+        ]
+      },
+      {
+        "id": "07",
+        "title": "Retard et Prolongation",
+        "content": [
+          "Tout retard de restitution non signalé à l'avance sera facturé au tarif journalier majoré de 50%. En cas de prolongation souhaitée, le locataire doit contacter WAK Cars au moins 24 heures à l'avance."
+        ]
+      },
+      {
+        "id": "08",
+        "title": "Dommages et Responsabilité",
+        "content": [
+          "Le locataire est responsable du véhicule pendant toute la durée de la location. Tout dommage constaté au retour sera évalué et facturé selon le barème en vigueur."
+        ]
+      },
+      {
+        "id": "09",
+        "title": "Litiges",
+        "content": [
+          "En cas de litige, les parties s'engagent à rechercher une solution amiable. À défaut, les tribunaux de Marrakech seront seuls compétents."
+        ]
+      },
+      {
+        "id": "10",
+        "title": "Contact",
+        "content": [
+          "Pour toute question concernant ces conditions générales, vous pouvez nous contacter :",
+          "• Email : contact@wakcars.ma",
+          "• Téléphone : +212 524 123 456",
+          "• WhatsApp : +212 661 234 567"
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "title": "Politique de Confidentialité",
+    "metaDesc": "Politique de confidentialité et protection des données personnelles chez WAK Cars.",
+    "lastUpdate": "Dernière mise à jour : Mars 2026",
+    "summary": "Sommaire",
+    "sections": [
+      {
+        "id": "01",
+        "title": "Introduction",
+        "content": [
+          "WAK Cars s'engage à protéger la vie privée de ses clients et utilisateurs. Cette politique de confidentialité décrit comment nous collectons, utilisons et protégeons vos données personnelles."
+        ]
+      },
+      {
+        "id": "02",
+        "title": "Données Collectées",
+        "content": [
+          "Nous collectons les informations suivantes :",
+          "• Données d'identification : nom, prénom, date de naissance",
+          "• Coordonnées : email, numéro de téléphone, adresse",
+          "• Documents : permis de conduire, passeport/CIN",
+          "• Données de réservation : dates, véhicules, options choisies",
+          "• Données de paiement : informations de carte bancaire (via notre prestataire sécurisé)"
+        ]
+      },
+      {
+        "id": "03",
+        "title": "Utilisation des Données",
+        "content": [
+          "Vos données sont utilisées pour :",
+          "• Traiter et gérer vos réservations",
+          "• Vous contacter concernant votre location",
+          "• Établir les contrats de location",
+          "• Respecter nos obligations légales et réglementaires",
+          "• Améliorer nos services (avec votre consentement)"
+        ]
+      },
+      {
+        "id": "04",
+        "title": "Base Légale",
+        "content": [
+          "Le traitement de vos données repose sur l'exécution du contrat de location, nos obligations légales, et votre consentement pour les communications marketing."
+        ]
+      },
+      {
+        "id": "05",
+        "title": "Partage des Données",
+        "content": [
+          "Vos données peuvent être partagées avec :",
+          "• Les compagnies d'assurance (en cas de sinistre)",
+          "• Les autorités compétentes (sur demande légale)",
+          "• Nos prestataires de services (paiement, email)",
+          "Nous ne vendons jamais vos données personnelles à des tiers."
+        ]
+      },
+      {
+        "id": "06",
+        "title": "Durée de Conservation",
+        "content": [
+          "Vos données sont conservées pendant la durée nécessaire à la gestion de notre relation commerciale, puis archivées conformément aux délais légaux (5 ans pour les documents comptables, 10 ans pour les contrats)."
+        ]
+      },
+      {
+        "id": "07",
+        "title": "Sécurité",
+        "content": [
+          "Nous mettons en œuvre des mesures techniques et organisationnelles appropriées pour protéger vos données : chiffrement SSL, accès restreint, serveurs sécurisés."
+        ]
+      },
+      {
+        "id": "08",
+        "title": "Vos Droits",
+        "content": [
+          "Conformément à la loi 09-08, vous disposez des droits suivants :",
+          "• Droit d'accès : obtenir une copie de vos données",
+          "• Droit de rectification : corriger vos données inexactes",
+          "• Droit de suppression : demander l'effacement de vos données",
+          "• Droit d'opposition : vous opposer au traitement marketing",
+          "Pour exercer ces droits, contactez-nous à : privacy@wakcars.ma"
+        ]
+      },
+      {
+        "id": "09",
+        "title": "Cookies",
+        "content": [
+          "Notre site utilise des cookies pour améliorer votre expérience de navigation. Vous pouvez gérer vos préférences de cookies dans les paramètres de votre navigateur.",
+          "• Cookies essentiels : nécessaires au fonctionnement du site",
+          "• Cookies analytiques : pour comprendre l'utilisation du site",
+          "• Cookies marketing : pour des publicités personnalisées (avec consentement)"
+        ]
+      },
+      {
+        "id": "10",
+        "title": "Modifications",
+        "content": [
+          "Cette politique peut être mise à jour. Nous vous informerons de tout changement significatif par email ou notification sur notre site."
+        ]
+      },
+      {
+        "id": "11",
+        "title": "Contact",
+        "content": [
+          "Pour toute question concernant cette politique de confidentialité :",
+          "• Email : privacy@wakcars.ma",
+          "• Adresse : 47 Avenue Mohammed V, Guéliz, Marrakech 40000",
+          "• Téléphone : +212 524 123 456"
+        ]
+      }
+    ]
+  }
+}
