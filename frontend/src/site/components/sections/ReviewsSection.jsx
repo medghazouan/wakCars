@@ -70,7 +70,7 @@ const ReviewsSection = () => {
             }}
             pagination={{ clickable: true }}
             loop={true}
-            className="pb-16"
+            className="!pb-0"
           >
             {reviews.map((review, index) => (
               <SwiperSlide key={review.id || index} className="h-auto">

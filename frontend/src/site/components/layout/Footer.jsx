@@ -33,6 +33,13 @@ const MapPinIcon = () => (
   </svg>
 )
 
+const ClockIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10"/>
+    <polyline points="12 6 12 12 16 14"/>
+  </svg>
+)
+
 const Footer = () => {
   const { t } = useLanguage()
   const currentYear = new Date().getFullYear()
@@ -127,9 +134,8 @@ const Footer = () => {
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPinIcon />
-                <span className="text-gray-400 text-sm">
-                  47 Avenue Mohammed V, Guéliz<br />
-                  Marrakech 40000, Maroc
+                <span className="text-gray-400 text-sm whitespace-pre-line">
+                  {t('footer.address')}
                 </span>
               </li>
               <li>
@@ -138,7 +144,7 @@ const Footer = () => {
                   className="flex items-center gap-3 text-gray-400 hover:text-primary transition-colors"
                 >
                   <PhoneIcon />
-                  <span>+212 524 123 456</span>
+                  <span dir="ltr">{t('footer.phone')}</span>
                 </a>
               </li>
               <li>
@@ -147,8 +153,17 @@ const Footer = () => {
                   className="flex items-center gap-3 text-gray-400 hover:text-primary transition-colors"
                 >
                   <MailIcon />
-                  <span>contact@wakcars.ma</span>
+                  <span dir="ltr">{t('footer.email')}</span>
                 </a>
+              </li>
+              <li className="flex items-start gap-3">
+                <ClockIcon />
+                <div>
+                  <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">{t('footer.openingHoursLabel')}</p>
+                  <span className="text-gray-400 text-sm whitespace-pre-line">
+                    {t('footer.openingHours')}
+                  </span>
+                </div>
               </li>
             </ul>
           </div>

@@ -96,7 +96,7 @@ const Fleet = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start mt-8">
             
             {/* Split Left: Filters Vertical Sidebar */}
-            <div className="lg:col-span-4 xl:col-span-3 lg:sticky lg:top-[100px] z-40">
+            <div className="lg:col-span-4 xl:col-span-3 lg:sticky lg:top-[100px] z-10">
               <motion.div 
                 className="bg-white/95 backdrop-blur-xl shadow-2xl shadow-primary/5 border border-gray-100 p-5 md:p-6"
                 initial={{ opacity: 0, x: -20 }}

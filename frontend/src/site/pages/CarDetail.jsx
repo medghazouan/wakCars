@@ -64,7 +64,7 @@ const CarDetail = () => {
     { label: t('car.seats'), value: car.seats },
     { label: t('car.doors'), value: car.doors },
     { label: t('car.year'), value: car.year },
-    { label: t('car.deposit'), value: `${car.deposit_amount} MAD` },
+    { label: t('car.deposit'), value: `${car.deposit_amount} ${t('common.mad')}` },
   ]
 
   return (
@@ -154,8 +154,8 @@ const CarDetail = () => {
                   </h3>
                   <div className="mb-8 flex items-baseline">
                      <span className="text-5xl lg:text-6xl font-black font-display tracking-tighter text-text-primary">{car.price_per_day}</span>
-                     <span className="text-xl text-primary font-black ml-2">MAD</span>
-                     <span className="text-sm text-text-secondary ml-1 font-medium">/ jour</span>
+                     <span className="text-xl text-primary font-black ml-2 rtl:mr-2 rtl:ml-0">{t('common.mad')}</span>
+                     <span className="text-sm text-text-secondary ml-1 rtl:mr-1 rtl:ml-0 font-medium">{t('fleet.perDay')}</span>
                   </div>
 
                   <Link to={`/reservation?car=${car.id}`} className="block w-full">
@@ -167,7 +167,7 @@ const CarDetail = () => {
                   <div className="mt-8 pt-8 border-t border-gray-100 text-sm text-text-secondary space-y-4">
                      <div className="flex justify-between items-center">
                        <span className="uppercase tracking-wider text-[11px] font-bold">{t('booking.deposit')}</span> 
-                       <span className="text-text-primary font-ui font-bold">{car.deposit_amount} MAD</span>
+                       <span className="text-text-primary font-ui font-bold">{car.deposit_amount} {t('common.mad')}</span>
                      </div>
                      <div className="flex justify-between items-center">
                        <span className="uppercase tracking-wider text-[11px] font-bold">{t('booking.cancellation')}</span> 

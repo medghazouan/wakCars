@@ -504,6 +504,24 @@ html.has-scroll-smooth body {
   min-height: 100vh;
 }
 
+/* Swiper pagination dots spacing */
+.swiper-pagination {
+  position: relative !important;
+  bottom: auto !important;
+  margin-top: 24px;
+}
+
+.swiper-pagination-bullet {
+  width: 10px;
+  height: 10px;
+  background: #ccc;
+  opacity: 1;
+}
+
+.swiper-pagination-bullet-active {
+  background: var(--color-primary);
+}
+
 /* Staff dashboard shell (combined SPA — see src/admin/adminPaths.js) */
 @layer components {
   .admin-app {

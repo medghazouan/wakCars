@@ -35,18 +35,6 @@ const FleetGrid = () => {
             </p>
           </motion.div>
           
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <Link
-              to="/voitures"
-              className="inline-flex items-center justify-center h-12 px-6 rounded-full bg-white border border-gray-200 text-text-primary font-ui font-semibold uppercase tracking-wider text-sm hover:border-primary hover:text-primary transition-colors"
-            >
-              {t('fleet.viewAll')}
-            </Link>
-          </motion.div>
         </div>
 
         {/* Grid */}
@@ -71,19 +59,6 @@ const FleetGrid = () => {
           )}
         </div>
 
-        {/* CTA */}
-        <motion.div
-          className="text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.6, duration: 0.5 }}
-        >
-          <Link to="/voitures">
-            <Button variant="secondary" size="lg">
-              {t('hero.cta')}
-            </Button>
-          </Link>
-        </motion.div>
       </div>
     </section>
   )

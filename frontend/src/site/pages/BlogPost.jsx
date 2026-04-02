@@ -24,8 +24,8 @@ const BlogPost = () => {
   const { t, currentLanguage, getLocalizedField } = useLanguage()
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['blog', slug],
-    queryFn: () => api.get(`/blog/${slug}`),
+    queryKey: ['blog', slug, currentLanguage],
+    queryFn: () => api.get(`/blog/${slug}`, { params: { lang: currentLanguage } }),
   })
 
   const { data: otherBlogsData } = useQuery({
@@ -110,7 +110,7 @@ const BlogPost = () => {
                 {/* Category */}
                 {post.category && (
                   <span className="inline-block bg-primary/10 text-primary text-xs font-ui font-semibold uppercase tracking-widest px-4 py-2 mb-6 rounded-sm">
-                    {post.category}
+                    {t(`blog.categoryMap.${post.category}`, { defaultValue: post.category })}
                   </span>
                 )}
 
@@ -174,7 +174,7 @@ const BlogPost = () => {
                    {t('blog.recent', 'Articles Récents')}
                 </h3>
                 <Link to="/blog" className="text-primary hover:underline hidden md:flex items-center gap-2 font-ui uppercase tracking-wider text-sm font-semibold">
-                  {t('blog.viewAll', 'Voir tout')} <ArrowIcon />
+                  {t('blog.viewAll', 'Voir tout')} <span className="rtl:rotate-180"><ArrowIcon /></span>
                 </Link>
               </div>
               
@@ -203,8 +203,8 @@ const BlogPost = () => {
                             loading="lazy"
                           />
                           {otherPost.category && (
-                            <span className="absolute top-4 left-4 bg-primary text-white text-[10px] font-ui uppercase tracking-wider px-2 py-1">
-                              {otherPost.category}
+                            <span className="absolute top-4 left-4 rtl:left-auto rtl:right-4 bg-primary text-white text-[10px] font-ui uppercase tracking-wider px-2 py-1">
+                              {t(`blog.categoryMap.${otherPost.category}`, { defaultValue: otherPost.category })}
                             </span>
                           )}
                         </div>
@@ -227,7 +227,7 @@ const BlogPost = () => {
                           </p>
                           <span className="inline-flex items-center gap-2 text-primary text-xs font-ui font-bold uppercase tracking-widest group-hover:gap-3 transition-all mt-auto">
                             {t('blog.readMore')}
-                            <ArrowIcon />
+                            <span className="rtl:rotate-180"><ArrowIcon /></span>
                           </span>
                         </div>
                       </Link>

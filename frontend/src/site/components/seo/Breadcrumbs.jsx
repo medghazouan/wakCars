@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { generateBreadcrumbSchema } from '../../utils/seo.utils'
+import { useLanguage } from '../../hooks/useLanguage'
 
 const ChevronIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -9,6 +10,7 @@ const ChevronIcon = () => (
 )
 
 const Breadcrumbs = ({ items }) => {
+  const { t } = useLanguage()
   const baseUrl = 'https://wakcars.ma'
   const schemaItems = items.map((item) => ({
     name: item.label,
@@ -27,7 +29,7 @@ const Breadcrumbs = ({ items }) => {
         <ol className="flex items-center gap-2 text-sm">
           <li>
             <Link to="/" className="text-text-secondary hover:text-primary transition-colors">
-              Accueil
+              {t('nav.home')}
             </Link>
           </li>
           {items.map((item, index) => (

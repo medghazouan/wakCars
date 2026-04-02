@@ -111,7 +111,8 @@
     "freeCancellation": "مجاني",
     "insurance": "التأمين",
     "fullInsurance": "شامل",
-    "progress": "التقدم"
+    "progress": "التقدم",
+    "select": "اختيار"
   },
   "confirmation": {
     "title": "شكراً لثقتكم بنا!",
@@ -155,7 +156,16 @@
     "subtitle": "مسارات، نصائح عملية وأفكار لرحلتك في المغرب.",
     "readMore": "اقرأ المقال",
     "category": "الفئة",
-    "publishedAt": "نُشر في"
+    "publishedAt": "نُشر في",
+    "recent": "مقالات حديثة",
+    "viewAll": "عرض الكل",
+    "categoryMap": {
+      "Conseils": "نصائح",
+      "Tourisme": "سياحة",
+      "Guides": "أدلة",
+      "Itinéraires": "مسارات",
+      "Bons Plans": "عروض مميزة"
+    }
   },
   "contact": {
     "title": "اتصل بنا",
@@ -165,7 +175,7 @@
       "name": "اسمك",
       "email": "بريدك الإلكتروني",
       "message": "رسالتك",
-      "send": "إرسال",
+      "send": "إرسال عبر واتساب",
       "sending": "جاري الإرسال...",
       "success": "تم إرسال الرسالة بنجاح!",
       "error": "حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى."
@@ -187,7 +197,12 @@
     "privacy": "سياسة الخصوصية",
     "followUs": "تابعنا",
     "copyright": "© {{year}} واك كارز. جميع الحقوق محفوظة.",
-    "craftedBy": "صُنع في مختبرات"
+    "craftedBy": "صُنع في مختبرات",
+    "address": "47 شارع محمد الخامس، جليز\nمراكش 40000، المغرب",
+    "phone": "+212 524 123 456",
+    "email": "contact@wakcars.ma",
+    "openingHours": "الإثنين-السبت: 08:00-20:00\nالأحد: 09:00-17:00",
+    "openingHoursLabel": "ساعات العمل"
   },
   "cta": {
     "title": "هل أنت مستعد للمغامرة؟",

@@ -86,8 +86,8 @@ const Blog = () => {
                         loading="lazy"
                       />
                       {post.category && (
-                        <span className="absolute top-4 left-4 bg-primary text-white text-xs font-ui uppercase tracking-wider px-3 py-1">
-                          {post.category}
+                        <span className="absolute top-4 left-4 rtl:left-auto rtl:right-4 bg-primary text-white text-xs font-ui uppercase tracking-wider px-3 py-1">
+                          {t(`blog.categoryMap.${post.category}`, { defaultValue: post.category })}
                         </span>
                       )}
                     </div>
@@ -115,7 +115,7 @@ const Blog = () => {
                     {/* Read More */}
                     <span className="inline-flex items-center gap-2 text-primary text-sm font-ui font-semibold uppercase tracking-wider group-hover:gap-3 transition-all">
                       {t('blog.readMore')}
-                      <ArrowIcon />
+                      <span className="rtl:rotate-180"><ArrowIcon /></span>
                     </span>
                   </Link>
                 </motion.article>

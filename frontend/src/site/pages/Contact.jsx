@@ -1,14 +1,10 @@
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion } from 'framer-motion'
-import { useMutation } from '@tanstack/react-query'
 import { useLanguage } from '../hooks/useLanguage'
-import api from '../services/api'
 import MetaTags from '../components/seo/MetaTags'
 import Breadcrumbs from '../components/seo/Breadcrumbs'
-import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
 
 const PhoneIcon = () => (
@@ -45,14 +41,11 @@ const ClockIcon = () => (
 )
 
 const contactSchema = z.object({
-  name: z.string().min(2, 'Nom requis'),
-  email: z.string().email('Email invalide'),
   message: z.string().min(10, 'Message trop court'),
 })
 
 const Contact = () => {
   const { t } = useLanguage()
-  const [success, setSuccess] = useState(false)
 
   const {
     register,
@@ -63,17 +56,11 @@ const Contact = () => {
     resolver: zodResolver(contactSchema),
   })
 
-  const sendMessage = useMutation({
-    mutationFn: (data) => api.post('/contact', data),
-    onSuccess: () => {
-      setSuccess(true)
-      reset()
-      setTimeout(() => setSuccess(false), 5000)
-    },
-  })
-
   const onSubmit = (data) => {
-    sendMessage.mutate(data)
+    const phone = '212661234567'
+    const text = encodeURIComponent(data.message)
+    window.open(`https://wa.me/${phone}?text=${text}`, '_blank')
+    reset()
   }
 
   const contactInfo = [
@@ -82,12 +69,14 @@ const Contact = () => {
       label: t('contact.info.phone'),
       value: '+212 524 123 456',
       href: 'tel:+212524123456',
+      ltr: true,
     },
     {
       icon: <WhatsAppIcon />,
       label: t('contact.info.whatsapp'),
       value: '+212 661 234 567',
       href: 'https://wa.me/212661234567',
+      ltr: true,
     },
     {
       icon: <MailIcon />,
@@ -98,12 +87,12 @@ const Contact = () => {
     {
       icon: <MapPinIcon />,
       label: t('contact.info.address'),
-      value: '47 Avenue Mohammed V, Guéliz\nMarrakech 40000, Maroc',
+      value: t('footer.address'),
     },
     {
       icon: <ClockIcon />,
       label: t('contact.info.hours'),
-      value: 'Lun-Sam: 08h00-20h00\nDim: 09h00-17h00',
+      value: t('footer.openingHours'),
     },
   ]
 
@@ -136,7 +125,7 @@ const Contact = () => {
             </motion.div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-stretch">
             {/* Contact Form */}
             <motion.div
               className="lg:col-span-7 flex flex-col"
@@ -153,24 +142,10 @@ const Contact = () => {
                 </h2>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 relative z-10 flex flex-col flex-grow">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <Input
-                      label={t('contact.form.name')}
-                      {...register('name')}
-                      error={errors.name?.message}
-                    />
-                    <Input
-                      type="email"
-                      label={t('contact.form.email')}
-                      {...register('email')}
-                      error={errors.email?.message}
-                    />
-                  </div>
-                  
                   <div className="input-group flex-grow">
                     <textarea
                       {...register('message')}
-                      rows={6}
+                      rows={8}
                       className="input-field resize-none h-full"
                       placeholder=" "
                     />
@@ -180,29 +155,13 @@ const Contact = () => {
                     )}
                   </div>
 
-                  {success && (
-                    <div className="p-4 bg-green-50 border border-green-200 text-green-700 text-sm flex items-center gap-3">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" strokeLinecap="round" strokeLinejoin="round"/><path d="M22 4L12 14.01l-3-3" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      {t('contact.form.success')}
-                    </div>
-                  )}
-
-                  {sendMessage.isError && (
-                    <div className="p-4 bg-red-50 border border-red-200 text-red-700 text-sm">
-                      {t('contact.form.error')}
-                    </div>
-                  )}
-
                   <div className="mt-auto pt-4">
                     <Button
                       type="submit"
-                      loading={sendMessage.isPending}
                       className="w-full md:w-auto px-10 py-4 text-sm tracking-wide"
                     >
-                      {sendMessage.isPending ? t('contact.form.sending') : t('contact.form.send')}
-                      {!sendMessage.isPending && (
-                        <svg className="w-4 h-4 ml-2 rtl:mr-2 rtl:ml-0 inline-block rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                      )}
+                      {t('contact.form.send')}
+                      <svg className="w-4 h-4 ml-2 rtl:mr-2 rtl:ml-0 inline-block rtl:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </Button>
                   </div>
                 </form>
@@ -211,7 +170,7 @@ const Contact = () => {
 
             {/* Contact Info & Map */}
             <motion.div
-              className="lg:col-span-5 flex flex-col space-y-8"
+              className="lg:col-span-5 flex flex-col"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
@@ -244,7 +203,7 @@ const Contact = () => {
                             rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                             className="font-medium text-white hover:text-primary transition-colors whitespace-pre-line text-[15px] block leading-relaxed"
                           >
-                            {item.value}
+                            {item.ltr ? <span dir="ltr" className="inline-block">{item.value}</span> : item.value}
                           </a>
                         ) : (
                           <p className="font-medium text-white whitespace-pre-line text-[15px] leading-relaxed">
@@ -257,25 +216,29 @@ const Contact = () => {
                 </div>
               </div>
 
-              {/* Map Embed */}
-              <div className="relative h-[300px] bg-gray-100 border border-gray-100 overflow-hidden group">
-                {/* Decorative Map overlay line */}
-                <div className="absolute top-0 left-0 w-full h-1 bg-primary transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 z-10" />
-                
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3397.0!2d-7.9811!3d31.6295!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sGu%C3%A9liz%2C%20Marrakech!5e0!3m2!1sfr!2sma!4v1234567890"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0, filter: 'grayscale(0.2) contrast(1.1) opacity(0.9)' }}
-                  className="transition-all duration-700 group-hover:filter-none"
-                  allowFullScreen=""
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="WAK Cars - Localisation"
-                />
-              </div>
             </motion.div>
           </div>
+
+          {/* Map Embed — Full Width Below */}
+          <motion.div
+            className="mt-12 relative h-[350px] bg-gray-100 border border-gray-100 overflow-hidden group"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+          >
+            <div className="absolute top-0 left-0 w-full h-1 bg-primary transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 z-10" />
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3397.0!2d-7.9811!3d31.6295!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sGu%C3%A9liz%2C%20Marrakech!5e0!3m2!1sfr!2sma!4v1234567890"
+              width="100%"
+              height="100%"
+              style={{ border: 0, filter: 'grayscale(0.2) contrast(1.1) opacity(0.9)' }}
+              className="transition-all duration-700 group-hover:filter-none"
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="WAK Cars - Localisation"
+            />
+          </motion.div>
         </div>
       </div>
     </>

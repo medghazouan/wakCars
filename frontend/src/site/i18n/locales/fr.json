@@ -111,7 +111,8 @@
     "freeCancellation": "Gratuite",
     "insurance": "Assurance",
     "fullInsurance": "Tous risques",
-    "progress": "Progression"
+    "progress": "Progression",
+    "select": "Sélectionner"
   },
   "confirmation": {
     "title": "Merci pour votre réservation !",
@@ -155,7 +156,16 @@
     "subtitle": "Itinéraires, conseils pratiques et bons plans pour votre road trip au Maroc.",
     "readMore": "Lire l'article",
     "category": "Catégorie",
-    "publishedAt": "Publié le"
+    "publishedAt": "Publié le",
+    "recent": "Articles Récents",
+    "viewAll": "Voir tout",
+    "categoryMap": {
+      "Conseils": "Conseils",
+      "Tourisme": "Tourisme",
+      "Guides": "Guides",
+      "Itinéraires": "Itinéraires",
+      "Bons Plans": "Bons Plans"
+    }
   },
   "contact": {
     "title": "Contactez-Nous",
@@ -165,7 +175,7 @@
       "name": "Votre nom",
       "email": "Votre email",
       "message": "Votre message",
-      "send": "Envoyer",
+      "send": "Envoyer via WhatsApp",
       "sending": "Envoi en cours...",
       "success": "Message envoyé avec succès !",
       "error": "Erreur lors de l'envoi. Veuillez réessayer."
@@ -187,7 +197,12 @@
     "privacy": "Politique de Confidentialité",
     "followUs": "Suivez-Nous",
     "copyright": "© {{year}} WAK Cars. Tous droits réservés.",
-    "craftedBy": "CRAFTED IN THE LABS OF"
+    "craftedBy": "CRAFTED IN THE LABS OF",
+    "address": "47 Avenue Mohammed V, Guéliz\nMarrakech 40000, Maroc",
+    "phone": "+212 524 123 456",
+    "email": "contact@wakcars.ma",
+    "openingHours": "Lun-Sam: 08h00-20h00\nDim: 09h00-17h00",
+    "openingHoursLabel": "Horaires d'ouverture"
   },
   "cta": {
     "title": "Prêt pour l'Aventure ?",

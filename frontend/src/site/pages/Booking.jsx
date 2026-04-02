@@ -289,9 +289,9 @@ const Booking = () => {
                           </label>
                           <select
                             {...register('pickup_location_id', { valueAsNumber: true })}
-                            className="w-full p-3 border border-gray-200 focus:border-primary focus:outline-none"
+                            className="w-full max-w-full p-3 border border-gray-200 focus:border-primary focus:outline-none truncate"
                           >
-                            <option value="">-- Sélectionner --</option>
+                            <option value="">-- {t('booking.select')} --</option>
                             {locations.map((loc) => (
                               <option key={loc.id} value={loc.id}>
                                 {getLocalizedField(loc, 'name')}
@@ -319,9 +319,9 @@ const Booking = () => {
                             </label>
                             <select
                               {...register('dropoff_location_id', { valueAsNumber: true })}
-                              className="w-full p-3 border border-gray-200 focus:border-primary focus:outline-none"
+                              className="w-full max-w-full p-3 border border-gray-200 focus:border-primary focus:outline-none truncate"
                             >
-                              <option value="">-- Sélectionner --</option>
+                              <option value="">-- {t('booking.select')} --</option>
                               {locations.map((loc) => (
                                 <option key={loc.id} value={loc.id}>
                                   {getLocalizedField(loc, 'name')}
@@ -476,7 +476,7 @@ const Booking = () => {
                 </div>
 
                 {/* Summary Sidebar (Soft & Light) */}
-                <div className="w-full xl:w-[420px] shrink-0 bg-white text-text-primary p-6 md:p-8 flex flex-col lg:sticky lg:top-28 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-gray-100 rounded-sm self-stretch justify-center transition-all duration-500">
+                <div className="w-full xl:w-[420px] shrink-0 bg-white text-text-primary p-6 md:p-8 flex flex-col lg:sticky lg:top-28 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-gray-100 rounded-sm self-stretch justify-center transition-all duration-500 order-first xl:order-none">
                   {car && days === 0 ? (
                     <motion.div 
                       key="car-details"

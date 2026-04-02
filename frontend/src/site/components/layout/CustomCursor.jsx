@@ -71,7 +71,7 @@ const CustomCursor = () => {
     <>
       <motion.div
         ref={cursorRef}
-        className="fixed top-0 left-0 pointer-events-none z-[9999] mix-blend-difference"
+        className="fixed top-0 left-0 pointer-events-none z-[9999]"
         animate={{
           x: position.x - (isHovering ? 20 : 6),
           y: position.y - (isHovering ? 20 : 6),
