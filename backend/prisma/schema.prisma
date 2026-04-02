@@ -137,6 +137,8 @@ model locations {
   address_fr String   @db.VarChar(255)
   address_ar String   @db.VarChar(255)
   city       String   @default("Marrakech") @db.VarChar(100)
+  /// Public site: array of image URLs (JSON). Nullable until populated.
+  images     Json?
   created_at DateTime @default(now())
 
   pickup_reservations  reservations[] @relation("PickupLocation")
