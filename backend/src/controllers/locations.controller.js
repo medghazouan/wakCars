@@ -18,8 +18,10 @@ const getById = async (req, res, next) => {
 
 const create = async (req, res, next) => {
   try {
-    const { name_fr, name_ar, slug, address_fr, address_ar, city = 'Marrakech' } = req.body;
-    const location = await prisma.locations.create({ data: { name_fr, name_ar, slug, address_fr, address_ar, city } });
+    const { name_fr, name_ar, slug, address_fr, address_ar, city = 'Marrakech', images } = req.body;
+    const data = { name_fr, name_ar, slug, address_fr, address_ar, city };
+    if (images !== undefined) data.images = images;
+    const location = await prisma.locations.create({ data });
     return created(res, location);
   } catch (err) { next(err); }
 };
@@ -30,7 +32,7 @@ const update = async (req, res, next) => {
     const exists = await prisma.locations.findUnique({ where: { id } });
     if (!exists) return notFound(res, 'Location');
 
-    const { name_fr, name_ar, slug, address_fr, address_ar, city } = req.body;
+    const { name_fr, name_ar, slug, address_fr, address_ar, city, images } = req.body;
     const data = {};
     if (name_fr !== undefined) data.name_fr = name_fr;
     if (name_ar !== undefined) data.name_ar = name_ar;
@@ -38,6 +40,7 @@ const update = async (req, res, next) => {
     if (address_fr !== undefined) data.address_fr = address_fr;
     if (address_ar !== undefined) data.address_ar = address_ar;
     if (city !== undefined) data.city = city;
+    if (images !== undefined) data.images = images;
 
     const location = await prisma.locations.update({ where: { id }, data });
     return success(res, location);

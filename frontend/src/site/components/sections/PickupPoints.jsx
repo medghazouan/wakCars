@@ -55,6 +55,8 @@ const PickupPoints = () => {
               if (!location) return null;
               
               const isAirport = Boolean(location.is_airport);
+              const images = location.images || [];
+              const heroImage = images[0] || null;
               
               // Dynamic bento grid logic to perfectly fill a 6-column layout
               let gridClass = ""
@@ -67,21 +69,16 @@ const PickupPoints = () => {
               } else if (total === 3) {
                 gridClass = "lg:col-span-2"
               } else if (total === 4) {
-                // Layout: [Large(4 col)] [Small(2 col)]
-                //         [Small(2 col)] [Large(4 col)]
                 if (index === 0) gridClass = "lg:col-span-4"
                 else if (index === 1) gridClass = "lg:col-span-2"
                 else if (index === 2) gridClass = "lg:col-span-2"
                 else gridClass = "lg:col-span-4"
               } else if (total === 5) {
-                // Layout: [Large(3 col)] [Large(3 col)]
-                //         [Small(2)] [Small(2)] [Small(2)]
                 if (index < 2) gridClass = "lg:col-span-3"
                 else gridClass = "lg:col-span-2"
               } else {
-                // 6 or more: Mix of 3-col and 2-col to always fill 6 columns cleanly
-                if (index % 5 < 2) gridClass = "lg:col-span-3" // Two 3-cols per row
-                else gridClass = "lg:col-span-2"               // Three 2-cols per row
+                if (index % 5 < 2) gridClass = "lg:col-span-3"
+                else gridClass = "lg:col-span-2"
               }
 
               return (
@@ -96,12 +93,31 @@ const PickupPoints = () => {
                   animate={isInView ? { opacity: 1, scale: 1 } : {}}
                   transition={{ delay: index * 0.1, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
                 >
+                  {/* Background Image */}
+                  {heroImage && (
+                    <>
+                      <div className="absolute inset-0 z-0">
+                        <img
+                          src={heroImage}
+                          alt=""
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          loading="lazy"
+                        />
+                      </div>
+                      <div className={`absolute inset-0 z-[1] ${
+                        isAirport
+                          ? 'bg-gradient-to-t from-white/95 via-white/80 to-white/40'
+                          : 'bg-gradient-to-t from-white/95 via-white/85 to-white/50'
+                      }`} />
+                    </>
+                  )}
+
                   {/* Decorative background accents matching Locations page */}
-                  <div className={`absolute top-0 right-0 w-32 h-32 rounded-bl-full -z-10 transition-transform duration-700 group-hover:scale-[2.5] ${isAirport ? 'bg-primary/10' : 'bg-primary/5'}`} />
-                  <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-primary to-primary-light transform origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100 z-20" />
+                  <div className={`absolute top-0 right-0 w-32 h-32 rounded-bl-full ${heroImage ? 'z-[2]' : '-z-10'} transition-transform duration-700 group-hover:scale-[2.5] ${isAirport ? 'bg-primary/10' : 'bg-primary/5'}`} />
+                  <div className={`absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-primary to-primary-light transform origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100 ${heroImage ? 'z-[22]' : 'z-20'}`} />
                   
                   {/* Header Row: Icon & Badge */}
-                  <div className="flex justify-between items-start mb-8 relative z-10 w-full">
+                  <div className={`flex justify-between items-start mb-8 ${heroImage ? 'relative z-[10]' : 'relative z-10'} w-full`}>
                     <div className={`w-16 h-16 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-500 shadow-sm relative ${isAirport ? 'bg-primary/10 border-primary/30' : 'bg-primary/5 border-primary/10 border'}`}>
                       <div className="absolute inset-0 bg-primary opacity-0 group-hover:animate-ping rounded-none" style={{ animationDuration: '2s' }} />
                       <MapPinIcon />
@@ -116,7 +132,7 @@ const PickupPoints = () => {
                   </div>
 
                   {/* Content Container (matching Locations.jsx structure) */}
-                  <div className={`relative z-10 flex-grow flex ${isAirport ? 'flex-col md:flex-row md:items-start gap-8' : 'flex-col'}`}>
+                  <div className={`${heroImage ? 'relative z-[10]' : 'relative z-10'} flex-grow flex ${isAirport ? 'flex-col md:flex-row md:items-start gap-8' : 'flex-col'}`}>
                     <div className="flex-1 flex flex-col h-full">
                       {/* Name */}
                       <h2 className={`font-display font-bold text-text-primary mb-6 group-hover:text-primary transition-colors duration-300 ${isAirport ? 'text-3xl md:text-5xl tracking-tight' : 'text-2xl md:text-3xl'}`}>

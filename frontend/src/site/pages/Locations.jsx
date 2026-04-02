@@ -61,7 +61,10 @@ const Locations = () => {
               ))
             ) : (
               locations.map((location, index) => {
-                const isAirport = !!location.is_airport;
+                const isAirport = !!location.is_airport
+                const images = location.images || []
+                const heroImage = images[0] || null
+
                 return (
                   <motion.article
                     key={location.id}
@@ -74,12 +77,31 @@ const Locations = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1, duration: 0.6 }}
                   >
-                    {/* Decorative background accents */}
-                    <div className={`absolute top-0 right-0 w-32 h-32 rounded-bl-full -z-10 transition-transform duration-700 group-hover:scale-[2.5] ${isAirport ? 'bg-primary/10' : 'bg-primary/5'}`} />
-                    <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-primary to-primary-light transform origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100 z-20" />
+                    {/* Background Image */}
+                    {heroImage && (
+                      <>
+                        <div className="absolute inset-0 z-0">
+                          <img
+                            src={heroImage}
+                            alt=""
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            loading="lazy"
+                          />
+                        </div>
+                        <div className={`absolute inset-0 z-[1] ${
+                          isAirport
+                            ? 'bg-gradient-to-t from-white/95 via-white/80 to-white/40'
+                            : 'bg-gradient-to-t from-white/95 via-white/85 to-white/50'
+                        }`} />
+                      </>
+                    )}
 
+                    {/* Decorative background accents */}
+                    <div className={`absolute top-0 right-0 w-32 h-32 rounded-bl-full ${heroImage ? 'z-[2]' : '-z-10'} transition-transform duration-700 group-hover:scale-[2.5] ${isAirport ? 'bg-primary/10' : 'bg-primary/5'}`} />
+                    <div className={`absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-primary to-primary-light transform origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100 ${heroImage ? 'z-[22]' : 'z-20'}`} />
+                    
                     {/* Header Row: Icon & Badge */}
-                    <div className="flex justify-between items-start mb-8 relative z-10 w-full">
+                    <div className={`flex justify-between items-start mb-8 ${heroImage ? 'relative z-[10]' : 'relative z-10'} w-full`}>
                       <div className={`w-16 h-16 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-500 shadow-sm relative ${isAirport ? 'bg-primary/10 border-primary/30' : 'bg-primary/5 border-primary/10 border'}`}>
                         <div className="absolute inset-0 bg-primary opacity-0 group-hover:animate-ping rounded-none" style={{ animationDuration: '2s' }} />
                         <MapPinIcon />
@@ -92,7 +114,7 @@ const Locations = () => {
                     </div>
 
                     {/* Content Container */}
-                    <div className={`relative z-10 flex-grow flex ${isAirport ? 'flex-col md:flex-row md:items-start gap-8' : 'flex-col'}`}>
+                    <div className={`${heroImage ? 'relative z-[10]' : 'relative z-10'} flex-grow flex ${isAirport ? 'flex-col md:flex-row md:items-start gap-8' : 'flex-col'}`}>
                       <div className="flex-1 flex flex-col h-full">
                         {/* Name */}
                         <h2 className={`font-display font-bold text-text-primary mb-6 group-hover:text-primary transition-colors duration-300 ${isAirport ? 'text-3xl md:text-5xl tracking-tight' : 'text-2xl md:text-3xl'}`}>
@@ -116,7 +138,7 @@ const Locations = () => {
                         </div>
                       </div>
 
-                      {/* Airport Note Callout - If Airport, flex beside content on large screens */}
+                      {/* Airport Note Callout */}
                       {isAirport && (
                         <div className="md:w-[320px] flex-shrink-0 md:mt-0 mt-auto border-t md:border-t-0 md:border-l rtl:md:border-r rtl:md:border-l-0 border-gray-200/50 pt-6 md:pt-0 md:pl-8 rtl:md:pl-0 rtl:md:pr-8 flex flex-col justify-center">
                           <div className="relative flex flex-col gap-4 bg-orange-50 border border-orange-200 p-6 group-hover:bg-orange-100/50 transition-colors duration-300 shadow-inner">

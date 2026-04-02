@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../hooks/useLanguage'
+import wakCarsLogo from '../../assets/images/wak-cars-bl.png'
 
 const FacebookIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -51,8 +52,11 @@ const Footer = () => {
           {/* Brand Column */}
           <div className="lg:col-span-1">
             <Link to="/" className="inline-flex items-center gap-2 mb-6">
-              <span className="text-2xl font-display font-black text-primary">WAK</span>
-              <span className="text-2xl font-display font-black text-white">CARS</span>
+              <img 
+                src={wakCarsLogo} 
+                alt="WAK Cars" 
+                className="h-14 w-auto object-contain"
+              />
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed mb-6">
               {t('footer.description')}

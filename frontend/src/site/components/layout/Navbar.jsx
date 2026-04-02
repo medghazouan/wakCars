@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '../../hooks/useLanguage'
+import wakCarsLogo from '../../assets/images/wak-cars-bl.png'
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -65,12 +66,11 @@ const Navbar = () => {
               className="flex items-center gap-2 z-50"
               aria-label="WAK Cars - Accueil"
             >
-              <span className="text-2xl font-display font-black text-primary tracking-tight">
-                WAK
-              </span>
-              <span className="text-2xl font-display font-black text-text-on-dark tracking-tight">
-                CARS
-              </span>
+              <img 
+                src={wakCarsLogo} 
+                alt="WAK Cars" 
+                className="h-14 md:h-16 w-auto object-contain"
+              />
             </Link>
 
             {/* Desktop Navigation */}
