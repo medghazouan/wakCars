@@ -181,7 +181,7 @@ export default function TechnicalReviewsListPage() {
       animate="animate"
       exit="exit"
       variants={pageTransition}
-      className="mx-auto w-full max-w-[1600px] space-y-8"
+      className="mx-auto min-w-0 w-full max-w-[1600px] space-y-8"
     >
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <StatsCard
@@ -215,7 +215,7 @@ export default function TechnicalReviewsListPage() {
           </div>
           <Button
             onClick={() => navigate(adminPath('/technical-reviews/new'))}
-            className="bg-primary text-white hover:bg-primary/90"
+            className="w-full bg-primary text-white hover:bg-primary/90 sm:w-auto"
           >
             <Wrench size={16} className="mr-2" />
             New Visit

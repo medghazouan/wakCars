@@ -77,14 +77,14 @@ export default function SettingsPage() {
       animate="animate"
       exit="exit"
       variants={pageTransition}
-      className="mx-auto max-w-7xl space-y-8"
+      className="mx-auto w-full min-w-0 max-w-7xl space-y-6 sm:space-y-8"
     >
-      <div>
-        <h1 className="text-3xl font-bold text-secondary">{t('settings.title')}</h1>
-        <p className="text-gray-500">{t('settings.subtitle')}</p>
+      <div className="min-w-0">
+        <h1 className="text-2xl font-bold text-secondary sm:text-3xl">{t('settings.title')}</h1>
+        <p className="text-sm text-gray-500 sm:text-base">{t('settings.subtitle')}</p>
       </div>
 
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         {isLoading && <p className="text-sm text-gray-500">Chargement…</p>}
         {isError && <p className="text-sm text-amber-800">Impossible de charger les paramètres.</p>}
         {!isLoading && !isError && Object.keys(settings).length === 0 && (

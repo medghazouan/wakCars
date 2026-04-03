@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { Bell, ChevronRight } from 'lucide-react'
+import { Bell, ChevronRight, RefreshCw } from 'lucide-react'
 import { alertsApi } from '@admin/api/alerts.api'
 import { adminPath } from '@admin/adminPaths'
+import { Button } from '@admin/components/ui/Button'
 import { getVisibleAlertCount } from '@admin/utils/alertCounts'
 import { cn } from '@admin/utils/cn'
 import { overdueReturn, paymentIssue } from '@admin/utils/whatsappLinks'
@@ -20,10 +21,11 @@ export function NavAlertsBell() {
     return () => document.removeEventListener('mousedown', onDoc)
   }, [])
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ['alerts'],
     queryFn: () => alertsApi.getAlerts(),
     refetchInterval: 90_000,
+    retry: 2,
   })
 
   const payload = data?.data
@@ -40,11 +42,11 @@ export function NavAlertsBell() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="relative rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-secondary"
+        className="relative flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-gray-100 hover:text-secondary sm:min-h-0 sm:min-w-0 sm:rounded-lg sm:p-1.5"
         aria-expanded={open}
         aria-label="Alertes"
       >
-        <Bell size={20} />
+        <Bell size={22} className="sm:h-5 sm:w-5" />
         {count > 0 && (
           <span className="absolute end-0 top-0 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">
             {count > 99 ? '99+' : count}
@@ -55,30 +57,61 @@ export function NavAlertsBell() {
       {open && (
         <div
           className={cn(
-            'absolute end-0 top-full z-50 mt-2 w-[min(100vw-2rem,22rem)] rounded-xl border border-gray-200 bg-white py-2 shadow-xl',
-            'max-h-[min(70vh,520px)] overflow-y-auto'
+            'z-[60] overflow-x-hidden overflow-y-auto overscroll-contain rounded-2xl border border-gray-200 bg-white py-2 shadow-2xl',
+            'max-h-[min(78dvh,560px)]',
+            /* Mobile: anchored below header, full-width inset */
+            'fixed start-3 end-3 top-[calc(3.5rem+0.5rem+env(safe-area-inset-top,0px))] w-auto',
+            /* Desktop: anchored dropdown */
+            'sm:absolute sm:inset-auto sm:end-0 sm:start-auto sm:top-full sm:mt-2 sm:w-[min(100vw-2rem,22rem)] sm:max-w-none sm:rounded-xl sm:shadow-xl'
           )}
+          role="dialog"
+          aria-label="Notifications"
         >
-          <div className="flex items-center justify-between border-gray-100 border-b px-4 py-2">
-            <p className="text-sm font-semibold text-secondary">Alertes</p>
-            <Link
-              to={adminPath('/dashboard')}
-              className="flex items-center gap-0.5 text-xs font-medium text-primary hover:underline"
-              onClick={() => setOpen(false)}
-            >
-              Tableau de bord
-              <ChevronRight size={14} />
-            </Link>
+          <div className="flex flex-wrap items-center justify-between gap-2 border-gray-100 border-b px-3 py-3 sm:px-4 sm:py-2.5">
+            <p className="text-base font-semibold text-secondary sm:text-sm">Alertes</p>
+            <div className="flex items-center gap-2">
+              {isError ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-9 min-h-[44px] gap-1.5 px-3 text-xs sm:min-h-0"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                >
+                  <RefreshCw size={14} className={cn(isFetching && 'animate-spin')} />
+                  Réessayer
+                </Button>
+              ) : null}
+              <Link
+                to={adminPath('/dashboard')}
+                className="flex min-h-[44px] items-center gap-0.5 rounded-lg px-2 text-xs font-medium text-primary hover:bg-primary/5 hover:underline sm:min-h-0"
+                onClick={() => setOpen(false)}
+              >
+                Tableau de bord
+                <ChevronRight size={14} />
+              </Link>
+            </div>
           </div>
 
-          {isLoading && <p className="px-4 py-6 text-sm text-gray-500">Chargement…</p>}
+          {isLoading && <p className="px-4 py-8 text-center text-sm text-gray-500">Chargement…</p>}
 
-          {!isLoading && count === 0 && (
-            <p className="px-4 py-6 text-center text-sm text-gray-500">Aucune alerte opérationnelle.</p>
+          {isError && !isLoading && (
+            <div className="space-y-3 px-4 py-8 text-center">
+              <p className="text-sm text-amber-800">Impossible de charger les alertes.</p>
+              <Button type="button" size="sm" className="min-h-11 w-full max-w-xs" onClick={() => refetch()} disabled={isFetching}>
+                <RefreshCw size={16} className={cn('me-2', isFetching && 'animate-spin')} />
+                Réessayer
+              </Button>
+            </div>
           )}
 
-          {!isLoading && count > 0 && (
-            <div className="space-y-1 px-2 py-2">
+          {!isLoading && !isError && count === 0 && (
+            <p className="px-4 py-8 text-center text-sm text-gray-500">Aucune alerte opérationnelle.</p>
+          )}
+
+          {!isLoading && !isError && count > 0 && (
+            <div className="space-y-2 px-2 py-3 sm:space-y-1 sm:py-2">
               {overdue.length > 0 && (
                 <AlertSection title="Retours en retard">
                   {overdue.map((r) => (
@@ -94,7 +127,7 @@ export function NavAlertsBell() {
                             href={overdueReturn(r.customer, r)}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-[10px] font-semibold text-emerald-700"
+                            className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg text-[11px] font-semibold text-emerald-700 hover:bg-emerald-50 sm:min-h-0 sm:min-w-0 sm:px-1"
                             onClick={(e) => e.stopPropagation()}
                           >
                             WA
@@ -121,7 +154,7 @@ export function NavAlertsBell() {
                             href={paymentIssue(r.customer, r)}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-[10px] font-semibold text-emerald-700"
+                            className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg text-[11px] font-semibold text-emerald-700 hover:bg-emerald-50 sm:min-h-0 sm:min-w-0 sm:px-1"
                             onClick={(e) => e.stopPropagation()}
                           >
                             WA
@@ -170,9 +203,11 @@ export function NavAlertsBell() {
 
 function AlertSection({ title, children }) {
   return (
-    <div className="rounded-lg bg-gray-50/80 py-2">
-      <p className="px-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-gray-500">{title}</p>
-      <ul className="space-y-0.5">{children}</ul>
+    <div className="rounded-xl bg-gray-50/90 py-1 sm:rounded-lg sm:bg-gray-50/80">
+      <p className="px-3 pb-1.5 pt-2 text-[11px] font-bold uppercase tracking-wider text-gray-500 sm:px-2 sm:pb-1 sm:pt-0">
+        {title}
+      </p>
+      <ul className="space-y-0.5 px-1 pb-1 sm:px-0 sm:pb-0">{children}</ul>
     </div>
   )
 }
@@ -183,13 +218,13 @@ function AlertRow({ href, onNavigate, primary, secondary, extra }) {
       <Link
         to={href}
         onClick={onNavigate}
-        className="flex items-center justify-between gap-2 rounded-md px-2 py-2 text-sm transition-colors hover:bg-white"
+        className="flex min-h-[48px] items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors active:bg-white/80 sm:min-h-0 sm:rounded-md sm:px-2 sm:py-2 sm:hover:bg-white"
       >
-        <span className="min-w-0 flex-1">
+        <span className="min-w-0 flex-1 text-start">
           <span className="font-medium text-secondary">{primary}</span>
-          {secondary ? <span className="block truncate text-xs text-gray-500">{secondary}</span> : null}
+          {secondary ? <span className="mt-0.5 block truncate text-xs text-gray-500">{secondary}</span> : null}
         </span>
-        {extra}
+        {extra ? <span className="shrink-0">{extra}</span> : null}
       </Link>
     </li>
   )

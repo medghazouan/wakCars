@@ -23,11 +23,11 @@ export default function DashboardPage() {
       animate="animate"
       exit="exit"
       variants={pageTransition}
-      className="mx-auto w-full max-w-[1600px] space-y-8"
+      className="mx-auto w-full min-w-0 max-w-[1600px] space-y-6 sm:space-y-8"
     >
-      <div>
-        <h1 className="mb-2 text-3xl font-bold text-secondary">{t('dashboard.title')}</h1>
-        <p className="text-gray-400">{t('dashboard.subtitle')}</p>
+      <div className="min-w-0">
+        <h1 className="mb-2 text-2xl font-bold text-secondary sm:text-3xl">{t('dashboard.title')}</h1>
+        <p className="text-sm text-gray-400 sm:text-base">{t('dashboard.subtitle')}</p>
       </div>
 
       <DashboardOverviewStrip stats={stats} isLoading={isLoading} />

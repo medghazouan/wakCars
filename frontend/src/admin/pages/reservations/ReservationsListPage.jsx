@@ -291,7 +291,7 @@ export default function ReservationsListPage() {
       animate="animate"
       exit="exit"
       variants={pageTransition}
-      className="mx-auto w-full max-w-[1600px] space-y-8"
+      className="mx-auto w-full min-w-0 max-w-[1600px] space-y-6 sm:space-y-8"
     >
       <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
         <StatsCard
@@ -336,12 +336,12 @@ export default function ReservationsListPage() {
                 : 'Calendar of pickups by month.'}
             </p>
           </div>
-          <div className="flex rounded-lg bg-gray-100 p-1 text-sm font-semibold">
+          <div className="flex w-full rounded-lg bg-gray-100 p-1 text-sm font-semibold sm:w-auto">
             <button
               type="button"
               onClick={() => setView('list')}
               className={cn(
-                'rounded-md px-4 py-1.5 transition-colors',
+                'flex-1 rounded-md px-3 py-1.5 transition-colors sm:flex-none sm:px-4',
                 view === 'list'
                   ? 'bg-white text-secondary shadow-sm'
                   : 'text-gray-500 hover:text-gray-800'
@@ -353,7 +353,7 @@ export default function ReservationsListPage() {
               type="button"
               onClick={() => setView('calendar')}
               className={cn(
-                'rounded-md px-4 py-1.5 transition-colors',
+                'flex-1 rounded-md px-3 py-1.5 transition-colors sm:flex-none sm:px-4',
                 view === 'calendar'
                   ? 'bg-white text-secondary shadow-sm'
                   : 'text-gray-500 hover:text-gray-800'

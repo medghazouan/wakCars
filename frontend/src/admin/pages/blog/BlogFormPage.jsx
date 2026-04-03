@@ -122,25 +122,25 @@ export default function BlogFormPage() {
       animate="animate"
       exit="exit"
       variants={pageTransition}
-      className="mx-auto max-w-5xl space-y-8"
+      className="mx-auto min-w-0 w-full max-w-5xl space-y-8"
     >
-      <div>
-        <h1 className="mb-2 text-3xl font-bold text-secondary">{isEdit ? 'Modifier l’article' : 'Nouvel article'}</h1>
+      <div className="min-w-0">
+        <h1 className="mb-2 text-2xl font-bold text-secondary sm:text-3xl">{isEdit ? 'Modifier l’article' : 'Nouvel article'}</h1>
         <p className="text-gray-500">Contenu bilingue aligné sur le site public.</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Card className="space-y-8 p-6">
+        <Card className="space-y-8 p-4 sm:p-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-1.5">
               <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-600">Slug FR *</label>
-              <div className="flex gap-2">
-                <Input {...register('slug_fr', { required: 'Requis' })} error={errors.slug_fr?.message} />
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+                <Input className="min-w-0 flex-1" {...register('slug_fr', { required: 'Requis' })} error={errors.slug_fr?.message} />
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="shrink-0"
+                  className="w-full shrink-0 sm:w-auto"
                   onClick={() => setValue('slug_fr', slugifyFr(titleFr))}
                 >
                   Auto
@@ -241,11 +241,11 @@ export default function BlogFormPage() {
             </label>
           </div>
 
-          <div className="flex justify-end gap-3 border-gray-100 border-t pt-6">
-            <Button type="button" variant="ghost" onClick={() => navigate(adminPath('/blog'))}>
+          <div className="flex flex-col-reverse gap-2 border-t border-gray-100 pt-4 sm:flex-row sm:justify-end sm:gap-3 sm:pt-6">
+            <Button type="button" variant="ghost" className="w-full sm:w-auto" onClick={() => navigate(adminPath('/blog'))}>
               Annuler
             </Button>
-            <Button type="submit" isLoading={saveMutation.isPending}>
+            <Button type="submit" className="w-full sm:w-auto" isLoading={saveMutation.isPending}>
               Enregistrer
             </Button>
           </div>

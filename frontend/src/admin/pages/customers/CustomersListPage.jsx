@@ -51,14 +51,14 @@ export default function CustomersListPage() {
       animate="animate"
       exit="exit"
       variants={pageTransition}
-      className="max-w-7xl mx-auto space-y-8"
+      className="mx-auto w-full min-w-0 max-w-7xl space-y-6 sm:space-y-8"
     >
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-secondary mb-2">Customers</h1>
-          <p className="text-gray-400">Manage your client base and view rental histories.</p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="mb-2 text-2xl font-bold text-secondary sm:text-3xl">Customers</h1>
+          <p className="text-sm text-gray-400 sm:text-base">Manage your client base and view rental histories.</p>
         </div>
-        <Button>+ Add New Customer</Button>
+        <Button className="w-full shrink-0 sm:w-auto">+ Add New Customer</Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -67,7 +67,10 @@ export default function CustomersListPage() {
 
       <div className="flex flex-col gap-4">
         <div className="flex justify-end">
-          <button className="flex items-center gap-2 text-sm text-gray-500 hover:text-secondary bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm">
+          <button
+            type="button"
+            className="flex w-full items-center justify-center gap-2 rounded-sm border border-gray-200 bg-white px-4 py-2 text-sm text-gray-500 shadow-booking hover:text-secondary sm:ms-auto sm:w-auto"
+          >
             <Filter size={16} />
             Filter
           </button>

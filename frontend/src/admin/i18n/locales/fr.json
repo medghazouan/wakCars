@@ -6,6 +6,8 @@
   "nav": {
     "dashboard": "Tableau de bord",
     "fleet": "Flotte",
+    "categories": "Catégories",
+    "locations": "Lieux",
     "reservations": "Réservations",
     "insurance": "Assurance",
     "technicalReviews": "Visites techniques",
@@ -32,7 +34,9 @@
     "roleStaff": "Accès personnel",
     "langSwitchAria": "Passer en arabe",
     "langFr": "FR",
-    "langAr": "عربي"
+    "langAr": "عربي",
+    "openMenuAria": "Ouvrir le menu de navigation",
+    "closeMenuAria": "Fermer le menu"
   },
   "login": {
     "title": "Espace administrateur",

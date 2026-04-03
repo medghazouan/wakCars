@@ -12,10 +12,10 @@ export function ReviewQueue() {
   const queue = data?.data?.expiringTechVisits?.slice(0, 3) || []
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="font-bold text-lg text-secondary">Review Queue</h3>
-        <span className="text-[10px] font-bold text-danger bg-danger/10 px-2 py-1 rounded uppercase tracking-widest">
+    <Card className="p-4 sm:p-6">
+      <div className="mb-4 flex flex-col gap-2 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
+        <h3 className="text-lg font-bold text-secondary">Review Queue</h3>
+        <span className="w-fit text-[10px] font-bold uppercase tracking-widest text-danger bg-danger/10 px-2 py-1 rounded">
           High Priority
         </span>
       </div>

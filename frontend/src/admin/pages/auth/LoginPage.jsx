@@ -55,13 +55,13 @@ export default function LoginPage() {
 
   return (
     <motion.div
-      className="flex min-h-screen w-full items-center justify-center bg-gradient-to-tr from-[#2D4A3E] to-[#6B8F7B] p-4"
+      className="flex min-h-screen min-h-[100dvh] w-full items-center justify-center bg-gradient-to-tr from-[#2D4A3E] to-[#6B8F7B] p-3 sm:p-4"
       initial="initial"
       animate="animate"
       exit="exit"
       variants={pageTransition}
     >
-      <div className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
+      <div className="w-full max-w-md min-w-0 overflow-hidden rounded-2xl bg-white shadow-2xl">
         <div className="flex justify-end px-6 pt-6">
           <button
             type="button"

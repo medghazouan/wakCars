@@ -9,6 +9,10 @@ import AdminLayout from '@admin/components/layout/AdminLayout'
 import DashboardPage from '@admin/pages/dashboard/DashboardPage'
 import FleetListPage from '@admin/pages/fleet/FleetListPage'
 import FleetFormPage from '@admin/pages/fleet/FleetFormPage'
+import CategoriesListPage from '@admin/pages/categories/CategoriesListPage'
+import CategoryFormPage from '@admin/pages/categories/CategoryFormPage'
+import LocationsListPage from '@admin/pages/locations/LocationsListPage'
+import LocationFormPage from '@admin/pages/locations/LocationFormPage'
 import ReservationsListPage from '@admin/pages/reservations/ReservationsListPage'
 import ReservationFormPage from '@admin/pages/reservations/ReservationFormPage'
 import InsuranceListPage from '@admin/pages/insurance/InsuranceListPage'
@@ -95,6 +99,12 @@ export const router = createBrowserRouter([
           { path: 'fleet/new', element: <FleetFormPage /> },
           { path: 'fleet/:id/edit', element: <FleetLegacyEditRedirect /> },
           { path: 'fleet/:id', element: <FleetFormPage /> },
+          { path: 'categories', element: <CategoriesListPage /> },
+          { path: 'categories/new', element: <CategoryFormPage /> },
+          { path: 'categories/:id', element: <CategoryFormPage /> },
+          { path: 'locations', element: <LocationsListPage /> },
+          { path: 'locations/new', element: <LocationFormPage /> },
+          { path: 'locations/:id', element: <LocationFormPage /> },
           { path: 'reservations', element: <ReservationsListPage /> },
           { path: 'reservations/new', element: <ReservationFormPage /> },
           { path: 'reservations/:id/edit', element: <ReservationFormPage /> },

@@ -171,19 +171,21 @@ export default function FleetListPage() {
       animate="animate"
       exit="exit"
       variants={pageTransition}
-      className="mx-auto max-w-7xl space-y-8"
+      className="mx-auto w-full min-w-0 max-w-7xl space-y-6 sm:space-y-8"
     >
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="mb-2 text-3xl font-bold text-secondary">Vehicle Fleet</h1>
-          <p className="text-gray-400">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="mb-2 text-2xl font-bold text-secondary sm:text-3xl">Vehicle Fleet</h1>
+          <p className="text-sm text-gray-400 sm:text-base">
             Managing {dashLoading ? '…' : stats.total} active units
             {fleet.locationsCount != null
               ? ` across ${fleet.locationsCount} location${fleet.locationsCount === 1 ? '' : 's'}.`
               : ' across regions.'}
           </p>
         </div>
-        <Button onClick={() => navigate(adminPath('/fleet/new'))}>+ Add New Vehicle</Button>
+        <Button className="w-full shrink-0 sm:w-auto" onClick={() => navigate(adminPath('/fleet/new'))}>
+          + Add New Vehicle
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -216,8 +218,8 @@ export default function FleetListPage() {
       </div>
 
       <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between border-b border-gray-200">
-          <div className="flex flex-wrap gap-x-6 gap-y-2">
+        <div className="flex flex-col gap-3 border-b border-gray-100 sm:flex-row sm:items-center sm:justify-between">
+          <div className="-mx-1 flex gap-x-4 gap-y-2 overflow-x-auto overflow-y-hidden pb-1 sm:mx-0 sm:flex-wrap sm:pb-0">
             <button
               type="button"
               onClick={() => {
@@ -277,7 +279,7 @@ export default function FleetListPage() {
           </div>
           <button
             type="button"
-            className="flex items-center gap-2 pb-4 text-sm text-gray-500 hover:text-secondary"
+            className="flex shrink-0 items-center gap-2 self-start pb-4 text-sm text-gray-500 hover:text-secondary sm:self-auto"
           >
             <Filter size={16} />
             Filter

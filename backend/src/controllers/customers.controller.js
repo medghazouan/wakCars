@@ -1,4 +1,5 @@
 const prisma = require('../utils/prisma');
+const { attachCarsToReservations } = require('../utils/attachCarsToReservations');
 const { success, created, notFound } = require('../utils/apiResponse');
 
 const list = async (req, res, next) => {
@@ -35,16 +36,22 @@ const getById = async (req, res, next) => {
     const customer = await prisma.customers.findUnique({ where: { id } });
     if (!customer) return notFound(res, 'Customer');
 
-    const reservations = await prisma.reservations.findMany({
+    const rows = await prisma.reservations.findMany({
       where: { customer_id: id },
       include: {
-        car: { select: { id: true, brand: true, model: true, year: true } },
         pickup_location: { select: { id: true, name_fr: true } },
         dropoff_location: { select: { id: true, name_fr: true } },
         payments: { select: { amount: true, method: true, status: true } },
       },
       orderBy: { pickup_date: 'desc' },
     });
+    const carSelect = { id: true, brand: true, model: true, year: true };
+    const reservations = await attachCarsToReservations(rows, carSelect, (carId) => ({
+      id: carId,
+      brand: '—',
+      model: 'Vehicle removed',
+      year: null,
+    }));
 
     const totalSpent = reservations
       .flatMap((r) => r.payments)

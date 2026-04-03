@@ -1,5 +1,22 @@
 const prisma = require('../utils/prisma');
+const cloudinary = require('../services/cloudinary.service');
 const { success, created, noContent, notFound, fail } = require('../utils/apiResponse');
+
+function parseImagesField(images) {
+  if (images === undefined || images === null) return null;
+  if (Array.isArray(images)) {
+    return images.filter((u) => typeof u === 'string' && u.trim().length > 0);
+  }
+  if (typeof images === 'string') {
+    try {
+      const j = JSON.parse(images);
+      return Array.isArray(j) ? j.filter((u) => typeof u === 'string' && u.trim().length > 0) : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
 
 const list = async (req, res, next) => {
   try {
@@ -20,7 +37,8 @@ const create = async (req, res, next) => {
   try {
     const { name_fr, name_ar, slug, address_fr, address_ar, city = 'Marrakech', images } = req.body;
     const data = { name_fr, name_ar, slug, address_fr, address_ar, city };
-    if (images !== undefined) data.images = images;
+    const parsed = parseImagesField(images);
+    if (parsed !== null && parsed.length > 0) data.images = parsed;
     const location = await prisma.locations.create({ data });
     return created(res, location);
   } catch (err) { next(err); }
@@ -40,7 +58,10 @@ const update = async (req, res, next) => {
     if (address_fr !== undefined) data.address_fr = address_fr;
     if (address_ar !== undefined) data.address_ar = address_ar;
     if (city !== undefined) data.city = city;
-    if (images !== undefined) data.images = images;
+    if (images !== undefined) {
+      const parsed = parseImagesField(images);
+      data.images = parsed !== null && parsed.length > 0 ? parsed : null;
+    }
 
     const location = await prisma.locations.update({ where: { id }, data });
     return success(res, location);
@@ -64,4 +85,39 @@ const remove = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { list, getById, create, update, remove };
+const addImage = async (req, res, next) => {
+  try {
+    const id = parseInt(req.params.id);
+    const exists = await prisma.locations.findUnique({ where: { id } });
+    if (!exists) return notFound(res, 'Location');
+    if (!req.file?.buffer) return fail(res, 'Image file required', 400);
+
+    const { url } = await cloudinary.uploadImage(req.file.buffer, 'locations');
+    const prev = parseImagesField(exists.images) || [];
+    const location = await prisma.locations.update({
+      where: { id },
+      data: { images: [...prev, url] },
+    });
+    return success(res, location);
+  } catch (err) { next(err); }
+};
+
+const removeImage = async (req, res, next) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { url } = req.body;
+    const exists = await prisma.locations.findUnique({ where: { id } });
+    if (!exists) return notFound(res, 'Location');
+    if (!url || typeof url !== 'string') return fail(res, 'url is required', 400);
+
+    const prev = parseImagesField(exists.images) || [];
+    const nextUrls = prev.filter((u) => u !== url.trim());
+    const location = await prisma.locations.update({
+      where: { id },
+      data: { images: nextUrls.length > 0 ? nextUrls : null },
+    });
+    return success(res, location);
+  } catch (err) { next(err); }
+};
+
+module.exports = { list, getById, create, update, remove, addImage, removeImage };

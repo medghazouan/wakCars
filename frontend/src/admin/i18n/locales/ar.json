@@ -6,6 +6,8 @@
   "nav": {
     "dashboard": "لوحة التحكم",
     "fleet": "الأسطول",
+    "categories": "الفئات",
+    "locations": "المواقع",
     "reservations": "الحجوزات",
     "insurance": "التأمين",
     "technicalReviews": "الزيارات الفنية",
@@ -32,7 +34,9 @@
     "roleStaff": "صلاحيات الموظف",
     "langSwitchAria": "التبديل إلى الفرنسية",
     "langFr": "FR",
-    "langAr": "عربي"
+    "langAr": "عربي",
+    "openMenuAria": "فتح قائمة التنقل",
+    "closeMenuAria": "إغلاق القائمة"
   },
   "login": {
     "title": "بوابة الإدارة",

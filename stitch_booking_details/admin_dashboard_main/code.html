@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Wak Cars Admin | Precision Luxury Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#bd0015",
+              "surface-container-high": "#ebe7e7",
+              "surface-tint": "#c00015",
+              "surface-variant": "#e5e2e1",
+              "error": "#ba1a1a",
+              "error-container": "#ffdad6",
+              "tertiary": "#775800",
+              "on-surface-variant": "#5d3f3c",
+              "surface-bright": "#fcf9f8",
+              "on-tertiary-fixed-variant": "#5b4300",
+              "on-secondary-fixed": "#1b1c1c",
+              "surface-container-lowest": "#ffffff",
+              "tertiary-fixed": "#ffdf9e",
+              "secondary-container": "#e2dfde",
+              "on-tertiary": "#ffffff",
+              "on-primary": "#ffffff",
+              "on-error-container": "#93000a",
+              "on-surface": "#1c1b1b",
+              "on-secondary": "#ffffff",
+              "inverse-surface": "#313030",
+              "tertiary-fixed-dim": "#fabd00",
+              "secondary-fixed-dim": "#c8c6c5",
+              "outline-variant": "#e7bdb8",
+              "outline": "#926e6b",
+              "on-primary-fixed-variant": "#93000d",
+              "surface-container-low": "#f6f3f2",
+              "surface-container": "#f0edec",
+              "primary-fixed-dim": "#ffb4ac",
+              "on-background": "#1c1b1b",
+              "primary-container": "#e61e25",
+              "on-primary-fixed": "#410002",
+              "inverse-on-surface": "#f3f0ef",
+              "tertiary-container": "#967000",
+              "surface-dim": "#dcd9d9",
+              "background": "#fcf9f8",
+              "surface-container-highest": "#e5e2e1",
+              "on-secondary-fixed-variant": "#474746",
+              "on-error": "#ffffff",
+              "secondary-fixed": "#e5e2e1",
+              "on-tertiary-fixed": "#261a00",
+              "surface": "#fcf9f8",
+              "on-secondary-container": "#636262",
+              "secondary": "#5f5e5e",
+              "on-tertiary-container": "#fffeff",
+              "inverse-primary": "#ffb4ac",
+              "primary-fixed": "#ffdad6",
+              "on-primary-container": "#fffdff"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- SideNavBar Component -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#fcf9f8] dark:bg-[#1c1b1b] flex flex-col h-full p-4 border-r border-[#f6f3f2] dark:border-[#2a2929] z-50">
+<div class="flex items-center gap-3 px-4 py-6 mb-8">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+</div>
+<div>
+<h1 class="text-lg font-black text-[#bd0015] leading-none">Wak Admin</h1>
+<p class="text-[10px] uppercase tracking-widest text-secondary mt-1">Fleet Management</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Active State: Dashboard/Fleet (Using Fleet as active for primary view) -->
+<a class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-[#2a2929] text-[#bd0015] dark:text-[#e61e25] rounded-xl shadow-sm transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+<span class="font-['Plus__Jakarta_Sans'] text-sm font-medium">Fleet</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#5f5e5e] dark:text-[#a1a1a1] hover:text-[#1c1b1b] dark:hover:text-white hover:bg-[#f6f3f2] dark:hover:bg-[#2a2929] rounded-xl transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span class="font-['Plus__Jakarta_Sans'] text-sm font-medium">Reservations</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#5f5e5e] dark:text-[#a1a1a1] hover:text-[#1c1b1b] dark:hover:text-white hover:bg-[#f6f3f2] dark:hover:bg-[#2a2929] rounded-xl transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+<span class="font-['Plus__Jakarta_Sans'] text-sm font-medium">Insurance</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#5f5e5e] dark:text-[#a1a1a1] hover:text-[#1c1b1b] dark:hover:text-white hover:bg-[#f6f3f2] dark:hover:bg-[#2a2929] rounded-xl transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="build">build</span>
+<span class="font-['Plus__Jakarta_Sans'] text-sm font-medium">Technical Reviews</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#5f5e5e] dark:text-[#a1a1a1] hover:text-[#1c1b1b] dark:hover:text-white hover:bg-[#f6f3f2] dark:hover:bg-[#2a2929] rounded-xl transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Plus__Jakarta_Sans'] text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-[#f6f3f2] dark:border-[#2a2929] space-y-1">
+<button class="w-full flex items-center gap-3 px-4 py-4 mb-4 bg-primary text-white rounded-xl font-bold active:scale-95 transition-transform shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+<span class="text-sm">New Reservation</span>
+</button>
+<a class="flex items-center gap-3 px-4 py-3 text-[#5f5e5e] dark:text-[#a1a1a1] hover:text-[#1c1b1b] dark:hover:text-white rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span class="font-['Plus__Jakarta_Sans'] text-sm font-medium">Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-error hover:bg-error-container/20 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-['Plus__Jakarta_Sans'] text-sm font-medium">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- TopAppBar Component -->
+<header class="w-full sticky top-0 z-40 bg-white/70 dark:bg-[#1c1b1b]/70 backdrop-blur-md shadow-[0_20px_40px_rgba(28,27,27,0.06)] flex justify-between items-center px-8 py-4 w-full">
+<div class="flex items-center bg-surface-container-low px-4 py-2 rounded-full w-96">
+<span class="material-symbols-outlined text-secondary mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-secondary" placeholder="Search fleet, bookings, or clients..." type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<button class="p-2 text-secondary hover:bg-[#f6f3f2] dark:hover:bg-[#2a2929] transition-colors rounded-full relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-white"></span>
+</button>
+<button class="p-2 text-secondary hover:bg-[#f6f3f2] dark:hover:bg-[#2a2929] transition-colors rounded-full">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="p-2 text-secondary hover:bg-[#f6f3f2] dark:hover:bg-[#2a2929] transition-colors rounded-full">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-outline-variant/30"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-sm font-bold text-on-surface leading-tight">Admin Profile</p>
+<p class="text-[10px] text-secondary">Super Admin Access</p>
+</div>
+<img alt="Admin Profile Avatar" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" data-alt="professional portrait of a confident male executive in a sleek black suit with clean studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvAzexlckESpnx2LconV6pxz3z-ac0TOD3Ybuu16n-PELATYqTmC8-igTZqXrfki59FowlqcsgdDyYMJc3QaoA2mayJBu_dlYicMdinHWt9t_gWVhCO4iNAW2spl9GBdhsHRTmrD9czI3OqI53vOpWXUKQjJIXfYuJjopYGbX3jKR_tJLiJgDT2zXqI1K4MTTSJYs4hVJn_A_6t3Epcr0XSX01YvxrZo4qpBNmbEqgx9lWLNxbiHjrF_i7cFpfq0brE_LH2Aawquaz"/>
+</div>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="p-8 max-w-[1600px] mx-auto">
+<!-- Hero Title -->
+<div class="mb-10">
+<h2 class="text-4xl font-headline font-extrabold text-on-surface tracking-tight">Executive Dashboard</h2>
+<p class="text-secondary mt-2 body-md">Precision analytics and fleet management for Wak Executive Drive.</p>
+</div>
+<!-- KPI Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+<!-- Revenue Card -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm relative overflow-hidden group">
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-4">
+<span class="p-2 bg-primary/10 text-primary rounded-lg">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+</span>
+<span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">+12.4%</span>
+</div>
+<p class="text-secondary text-sm font-medium mb-1">Total Revenue</p>
+<h3 class="text-3xl font-headline font-extrabold text-on-surface">$284,590.00</h3>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
+<span class="material-symbols-outlined text-9xl" data-icon="trending_up">trending_up</span>
+</div>
+</div>
+<!-- Active Reservations Card -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm relative overflow-hidden group">
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-4">
+<span class="p-2 bg-primary/10 text-primary rounded-lg">
+<span class="material-symbols-outlined" data-icon="event_available">event_available</span>
+</span>
+<span class="text-[10px] font-bold text-tertiary bg-tertiary-fixed/30 px-2 py-1 rounded-full">85% Occupancy</span>
+</div>
+<p class="text-secondary text-sm font-medium mb-1">Active Reservations</p>
+<h3 class="text-3xl font-headline font-extrabold text-on-surface">142</h3>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
+<span class="material-symbols-outlined text-9xl" data-icon="key">key</span>
+</div>
+</div>
+<!-- Fleet Status Card -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm relative overflow-hidden group">
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-4">
+<span class="p-2 bg-primary/10 text-primary rounded-lg">
+<span class="material-symbols-outlined" data-icon="car_repair">car_repair</span>
+</span>
+<span class="text-[10px] font-bold text-on-surface bg-surface-container-high px-2 py-1 rounded-full">186 Total</span>
+</div>
+<p class="text-secondary text-sm font-medium mb-1">Fleet Status</p>
+<h3 class="text-3xl font-headline font-extrabold text-on-surface">12 <span class="text-sm font-medium text-error">Maintenance</span></h3>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
+<span class="material-symbols-outlined text-9xl" data-icon="speed">speed</span>
+</div>
+</div>
+<!-- Pending Reviews Card -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm relative overflow-hidden group">
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-4">
+<span class="p-2 bg-primary/10 text-primary rounded-lg">
+<span class="material-symbols-outlined" data-icon="assignment_late">assignment_late</span>
+</span>
+<span class="text-[10px] font-bold text-error bg-error-container/50 px-2 py-1 rounded-full">Urgent</span>
+</div>
+<p class="text-secondary text-sm font-medium mb-1">Pending Technical Reviews</p>
+<h3 class="text-3xl font-headline font-extrabold text-on-surface">24</h3>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
+<span class="material-symbols-outlined text-9xl" data-icon="security_update_warning">security_update_warning</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Recent Reservations Table Section -->
+<div class="lg:col-span-2 bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+<div class="p-6 flex justify-between items-center border-b border-outline-variant/10">
+<h3 class="text-xl font-headline font-bold text-on-surface">Recent Reservations</h3>
+<button class="text-primary text-sm font-bold hover:underline">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-container-low">
+<tr>
+<th class="px-6 py-4 text-[11px] uppercase tracking-wider text-secondary font-bold">Client</th>
+<th class="px-6 py-4 text-[11px] uppercase tracking-wider text-secondary font-bold">Vehicle</th>
+<th class="px-6 py-4 text-[11px] uppercase tracking-wider text-secondary font-bold">Duration</th>
+<th class="px-6 py-4 text-[11px] uppercase tracking-wider text-secondary font-bold">Status</th>
+<th class="px-6 py-4 text-[11px] uppercase tracking-wider text-secondary font-bold text-right">Amount</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-[10px] font-bold">JD</div>
+<span class="text-sm font-semibold">Julian D. Roberts</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm">Porsche Taycan 4S</td>
+<td class="px-6 py-4 text-sm text-secondary">Oct 12 - Oct 15</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-bold">Confirmed</span>
+</td>
+<td class="px-6 py-4 text-sm font-bold text-right">$1,250.00</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-[10px] font-bold">SC</div>
+<span class="text-sm font-semibold">Sarah Connor</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm">Mercedes G-Wagon</td>
+<td class="px-6 py-4 text-sm text-secondary">Oct 14 - Oct 20</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-tertiary-fixed text-tertiary-container rounded-full text-[10px] font-bold">Pending</span>
+</td>
+<td class="px-6 py-4 text-sm font-bold text-right">$3,400.00</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-[10px] font-bold">EM</div>
+<span class="text-sm font-semibold">Elon M. Task</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm">Tesla Model S Plaid</td>
+<td class="px-6 py-4 text-sm text-secondary">Oct 11 - Oct 11</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold">In Progress</span>
+</td>
+<td class="px-6 py-4 text-sm font-bold text-right">$450.00</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-[10px] font-bold">AB</div>
+<span class="text-sm font-semibold">Alice Brighton</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm">BMW M4 Competition</td>
+<td class="px-6 py-4 text-sm text-secondary">Oct 09 - Oct 12</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-outline-variant/50 text-secondary rounded-full text-[10px] font-bold">Completed</span>
+</td>
+<td class="px-6 py-4 text-sm font-bold text-right">$980.00</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Fleet Utilization / Review Status -->
+<div class="space-y-8">
+<!-- Glassmorphism Preview Widget -->
+<div class="relative overflow-hidden rounded-xl bg-primary text-white p-6 shadow-xl">
+<div class="absolute inset-0 z-0">
+<img alt="Modern luxury sports car in motion" class="w-full h-full object-cover opacity-30 mix-blend-overlay" data-alt="side profile of a sleek charcoal grey modern sports car driving on a coastal road at sunset with long exposure blur" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9FTQUcHRUhFZxsrqpZoQ79B3wRFLjPs09DwLQ8TW6rV9m8kacjspp1MZv3w0FiEaRq2qSFnvFO36hn29xaJxZPu_MaADZh9JbZ8ruUTaQNb4JRhvM8usbOm088y5LbzdZArcfxy67U7nMlwPm0lVbxV2Y1u1ybJWwjJGOE2V8ZGrB_BU1LQxpbSKFWxaoy-HxMN1TaiOsFa3dNSZJtcaCq92C5HZ81_6e8pO9-6p_PqwuEv2LsMX2mSOFwQbVKSdHtht45ZrXIfmB"/>
+</div>
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-tertiary-fixed" data-icon="stars" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="text-[10px] font-bold tracking-widest uppercase">Premium Insights</span>
+</div>
+<h4 class="text-2xl font-headline font-bold mb-2">Fleet Health Score</h4>
+<div class="flex items-end gap-2 mb-6">
+<span class="text-5xl font-black">94%</span>
+<span class="text-sm font-medium mb-1 text-white/80">Excellent</span>
+</div>
+<div class="w-full bg-white/20 h-2 rounded-full mb-4 overflow-hidden">
+<div class="bg-white h-full" style="width: 94%"></div>
+</div>
+<button class="w-full py-3 bg-white text-primary rounded-xl font-bold text-sm active:scale-95 transition-transform">Run Technical Audit</button>
+</div>
+</div>
+<!-- Critical Maintenance List -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/5">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-lg font-headline font-bold text-on-surface">Review Queue</h3>
+<span class="text-error text-[10px] font-black uppercase px-2 py-1 bg-error-container/30 rounded-full">High Priority</span>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-4 group">
+<div class="w-12 h-12 rounded-lg overflow-hidden bg-surface-container">
+<img alt="BMW car preview" class="w-full h-full object-cover group-hover:scale-110 transition-transform" data-alt="close up of a modern bmw front grille and headlight in a dark showroom with cinematic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYOoHcvuv17qgb51i8f-HaIn3BQDX7xHt0U7tGaoQgvSsjJluxuwOr39fcjPm-Zv9bNuYesPP8DMLA1pme4WgimlobwYvF2y1wIJtJ7acYfAUSnQAI3kSTm7TkbUCmPyxiUNKF63ZW29B9cGu1JcR8YA6_LfpK22IKTF3Vshyp73HVzHQ1sg3pYCyDP9NjlY4_3GaAszCF_94AVtxOG3r37JjzybvR8Kg40jfEsKhH7L-_P0f6oZWcqJosxhu4NPDNuEHGxgqQANHC"/>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">BMW M8 Gran Coupe</p>
+<p class="text-[10px] text-secondary">Brake System Inspection</p>
+</div>
+<span class="material-symbols-outlined text-secondary hover:text-primary cursor-pointer" data-icon="arrow_forward_ios">arrow_forward_ios</span>
+</div>
+<div class="flex items-center gap-4 group">
+<div class="w-12 h-12 rounded-lg overflow-hidden bg-surface-container">
+<img alt="Audi car preview" class="w-full h-full object-cover group-hover:scale-110 transition-transform" data-alt="rear light detail of a white audi rs series luxury car against a clean minimalist background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBm3aTiOUdzJrT8Se7mXW73fUgmCxtsq-6Dk_IzmYRsaBZxMwGjq-ZiWx2WxKapAjl_1R-MWpg4bO-fPM1f6bYAxToYdbJi2rG7TVr7k2mRHUqMMD2HoSGTyP4mDtKJn1_aEKUjqJaXH_wvk1gP2wx7u1M_1vs_bpmbjcnqUeRxi7OE4AO_FuYcBV7xmVs1kq3M1RCF--VAa9Y8ir2rv34WBKFwKudAnfmS3b8xTWtqduB_qZ0ABp2NlaiQzMTrOZRX0tQkdCfLCWPD"/>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">Audi RS7 Sportback</p>
+<p class="text-[10px] text-secondary">Annual Safety Review</p>
+</div>
+<span class="material-symbols-outlined text-secondary hover:text-primary cursor-pointer" data-icon="arrow_forward_ios">arrow_forward_ios</span>
+</div>
+<div class="flex items-center gap-4 group">
+<div class="w-12 h-12 rounded-lg overflow-hidden bg-surface-container">
+<img alt="Range Rover preview" class="w-full h-full object-cover group-hover:scale-110 transition-transform" data-alt="luxury suv front profile in a high-end garage setting with soft ambient lighting highlighting body lines" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCC70R3l7dM9Z5HsC-gnitD-mGFga1rveuQBkoIfX3U1uomHjhJrjSWuOJE4-1PCcjaSSBAa42Ed5YnGATZDt86Xs6uJTtYu5GWHpT-FQ_qfUbqnnVBrOXlpo8Z-DkY6QOXYAo5Jz7yaqtYyUNAYtxlLf0x2u0OStnUgJox5fewMF_VwirO6efkLDoH8EHR8oPEKlIIFPIPlNCDBTRTA7Nam4EJ_a9dWjN-IJAgG-5dPE6qgVF2JH2sA-6tPJ5y_AzHsQJHeEWuxNTE"/>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">Range Rover Autobiography</p>
+<p class="text-[10px] text-secondary">Suspension Calibration</p>
+</div>
+<span class="material-symbols-outlined text-secondary hover:text-primary cursor-pointer" data-icon="arrow_forward_ios">arrow_forward_ios</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

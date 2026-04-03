@@ -12,37 +12,43 @@ export function Pagination({ currentPage, totalPages, totalItems, itemsPerPage, 
   if (totalItems === 0) return null
 
   return (
-    <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-white">
-      <p className="text-sm text-gray-500">
-        Showing <span className="font-medium text-secondary">{startItem} - {endItem}</span> of <span className="font-medium text-secondary">{totalItems}</span> items
+    <div className="flex flex-col gap-3 border-t border-gray-100 bg-white px-3 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <p className="text-center text-xs text-text-secondary sm:text-start sm:text-sm">
+        Showing <span className="font-medium text-text-primary">{startItem} - {endItem}</span> of{' '}
+        <span className="font-medium text-text-primary">{totalItems}</span> items
       </p>
-      <div className="flex items-center gap-1">
+      <div className="flex flex-wrap items-center justify-center gap-1">
         <button
+          type="button"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600"
+          className="rounded p-1 text-text-secondary hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <ChevronLeft size={20} />
         </button>
-        
-        {pages.map(page => (
-          <button
-            key={page}
-            onClick={() => onPageChange(page)}
-            className={`w-8 h-8 flex items-center justify-center rounded text-sm font-medium transition-colors ${
-              currentPage === page 
-                ? 'bg-primary text-white' 
-                : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            {page}
-          </button>
-        ))}
+
+        <div className="flex max-w-[min(100%,16rem)] flex-wrap justify-center gap-0.5 sm:max-w-none">
+          {pages.map((page) => (
+            <button
+              key={page}
+              type="button"
+              onClick={() => onPageChange(page)}
+              className={`flex h-8 min-w-[2rem] items-center justify-center rounded-sm px-1.5 text-xs font-medium transition-colors sm:text-sm ${
+                currentPage === page
+                  ? 'bg-primary text-white'
+                  : 'text-text-secondary hover:bg-gray-100'
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+        </div>
 
         <button
+          type="button"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-gray-600"
+          className="rounded p-1 text-text-secondary hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <ChevronRight size={20} />
         </button>

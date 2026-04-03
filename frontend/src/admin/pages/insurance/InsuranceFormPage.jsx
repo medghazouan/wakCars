@@ -120,7 +120,7 @@ export default function InsuranceFormPage() {
         animate="animate"
         exit="exit"
         variants={pageTransition}
-        className="mx-auto w-full max-w-2xl space-y-6 p-6"
+        className="mx-auto w-full min-w-0 max-w-2xl space-y-6 py-4 sm:py-6"
       >
         <div className="h-96 rounded-lg bg-gray-100 animate-pulse" />
       </motion.div>
@@ -133,14 +133,14 @@ export default function InsuranceFormPage() {
       animate="animate"
       exit="exit"
       variants={pageTransition}
-      className="mx-auto w-full max-w-2xl space-y-6"
+      className="mx-auto w-full min-w-0 max-w-2xl space-y-6"
     >
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-secondary">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold text-secondary sm:text-3xl">
             {isEdit ? 'Edit Insurance Policy' : 'New Insurance Policy'}
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="mt-1 text-sm text-gray-500">
             {isEdit
               ? 'Update the insurance policy details'
               : 'Add a new insurance policy for your fleet'}
@@ -149,13 +149,14 @@ export default function InsuranceFormPage() {
         <Button
           variant="ghost"
           type="button"
+          className="w-full shrink-0 sm:w-auto"
           onClick={() => navigate(adminPath('/insurance'))}
         >
           Cancel
         </Button>
       </div>
 
-      <Card className="p-6 space-y-6">
+      <Card className="space-y-6 p-4 sm:p-6">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Category Selection */}
           <div>
@@ -266,19 +267,19 @@ export default function InsuranceFormPage() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4 border-t border-gray-200">
+          <div className="flex flex-col-reverse gap-2 border-t border-gray-200 pt-4 sm:flex-row sm:gap-3">
             <Button
               type="button"
               variant="ghost"
               onClick={() => navigate(adminPath('/insurance'))}
-              className="flex-1"
+              className="w-full sm:flex-1"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               isLoading={saveMutation.isPending}
-              className="flex-1 bg-primary text-white hover:bg-primary/90"
+              className="w-full bg-primary text-white hover:bg-primary/90 sm:flex-1"
             >
               {isEdit ? 'Update Policy' : 'Create Policy'}
             </Button>

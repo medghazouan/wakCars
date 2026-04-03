@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#bd0015",
+              "surface-container-high": "#ebe7e7",
+              "surface-tint": "#c00015",
+              "surface-variant": "#e5e2e1",
+              "error": "#ba1a1a",
+              "error-container": "#ffdad6",
+              "tertiary": "#775800",
+              "on-surface-variant": "#5d3f3c",
+              "surface-bright": "#fcf9f8",
+              "on-tertiary-fixed-variant": "#5b4300",
+              "on-secondary-fixed": "#1b1c1c",
+              "surface-container-lowest": "#ffffff",
+              "tertiary-fixed": "#ffdf9e",
+              "secondary-container": "#e2dfde",
+              "on-tertiary": "#ffffff",
+              "on-primary": "#ffffff",
+              "on-error-container": "#93000a",
+              "on-surface": "#1c1b1b",
+              "on-secondary": "#ffffff",
+              "inverse-surface": "#313030",
+              "tertiary-fixed-dim": "#fabd00",
+              "secondary-fixed-dim": "#c8c6c5",
+              "outline-variant": "#e7bdb8",
+              "outline": "#926e6b",
+              "on-primary-fixed-variant": "#93000d",
+              "surface-container-low": "#f6f3f2",
+              "surface-container": "#f0edec",
+              "primary-fixed-dim": "#ffb4ac",
+              "on-background": "#1c1b1b",
+              "primary-container": "#e61e25",
+              "on-primary-fixed": "#410002",
+              "inverse-on-surface": "#f3f0ef",
+              "tertiary-container": "#967000",
+              "surface-dim": "#dcd9d9",
+              "background": "#fcf9f8",
+              "surface-container-highest": "#e5e2e1",
+              "on-secondary-fixed-variant": "#474746",
+              "on-error": "#ffffff",
+              "secondary-fixed": "#e5e2e1",
+              "on-tertiary-fixed": "#261a00",
+              "surface": "#fcf9f8",
+              "on-secondary-container": "#636262",
+              "secondary": "#5f5e5e",
+              "on-tertiary-container": "#fffeff",
+              "inverse-primary": "#ffb4ac",
+              "primary-fixed": "#ffdad6",
+              "on-primary-container": "#fffdff"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen">
+<!-- SideNavBar (Execution from JSON) -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#fcf9f8] dark:bg-[#1c1b1b] flex flex-col h-full p-4 border-r border-[#f6f3f2] dark:border-[#2a2929] z-50">
+<div class="mb-10 px-2 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary flex items-center justify-center rounded-xl shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">directions_car</span>
+</div>
+<div>
+<h1 class="text-lg font-black text-[#bd0015] leading-none">Wak Admin</h1>
+<p class="text-[10px] uppercase tracking-widest text-secondary font-bold mt-1">Fleet Management</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-[#5f5e5e] dark:text-[#a1a1a1] hover:text-[#1c1b1b] dark:hover:text-white hover:bg-[#f6f3f2] dark:hover:bg-[#2a2929] rounded-xl transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined">directions_car</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">Fleet</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#5f5e5e] dark:text-[#a1a1a1] hover:text-[#1c1b1b] dark:hover:text-white hover:bg-[#f6f3f2] dark:hover:bg-[#2a2929] rounded-xl transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">Reservations</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-white dark:bg-[#2a2929] text-[#bd0015] dark:text-[#e61e25] rounded-xl shadow-sm transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">Insurance</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#5f5e5e] dark:text-[#a1a1a1] hover:text-[#1c1b1b] dark:hover:text-white hover:bg-[#f6f3f2] dark:hover:bg-[#2a2929] rounded-xl transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined">build</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">Technical Reviews</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#5f5e5e] dark:text-[#a1a1a1] hover:text-[#1c1b1b] dark:hover:text-white hover:bg-[#f6f3f2] dark:hover:bg-[#2a2929] rounded-xl transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 space-y-1 border-t border-surface-container">
+<button class="w-full bg-primary text-white py-3 px-4 rounded-xl font-headline font-bold text-sm shadow-lg shadow-primary/20 active:scale-95 transition-transform mb-4">
+                New Reservation
+            </button>
+<a class="flex items-center gap-3 px-4 py-3 text-[#5f5e5e] dark:text-[#a1a1a1] hover:bg-[#f6f3f2] rounded-xl" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#5f5e5e] dark:text-[#a1a1a1] hover:bg-[#f6f3f2] rounded-xl" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm font-medium">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- TopAppBar (Execution from JSON) -->
+<header class="w-full sticky top-0 z-50 bg-white/70 dark:bg-[#1c1b1b]/70 backdrop-blur-md shadow-[0_20px_40px_rgba(28,27,27,0.06)] flex justify-between items-center px-8 py-4 w-full">
+<div class="flex items-center gap-6">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-secondary">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full w-80 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-secondary" placeholder="Search fleet by VIN or Plate..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<button class="p-2 text-secondary hover:bg-[#f6f3f2] rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-secondary hover:bg-[#f6f3f2] rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined">help</span>
+</button>
+<button class="p-2 text-secondary hover:bg-[#f6f3f2] rounded-full transition-colors active:scale-95">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-surface-container mx-2"></div>
+<div class="flex items-center gap-3 pl-2">
+<div class="text-right">
+<p class="text-xs font-bold text-on-surface">Alex Thompson</p>
+<p class="text-[10px] text-secondary">Fleet Manager</p>
+</div>
+<img alt="Admin Profile Avatar" class="w-10 h-10 rounded-full object-cover ring-2 ring-primary/10" data-alt="Close-up professional headshot of a fleet manager with a clean, confident look in a bright office environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDixReZCIQJ2tHemHXnMU3ngllC3n6UlDw0_IQNqDLHMeIyHVrrSn1XjkdfIHyCtKE7N9brs5t6Cy9R_8LjffEJkjrr0CUQ99EGTM2tivzpXbUgHD-2BUu5TLtEFuCD2W9B8_JDPFIuejQGDGewBzO0Rmv00RwqZwrEmbnCLfhif2UGU5ti4wnkVUds6sI0CBGImnnmaKBt0lyp_rV51cUqa2_LNRy8XEHt8lVZ-hp4okxeNlvPflnxnPczzfWfv0oPezuyi9U2aeA7"/>
+</div>
+</div>
+</header>
+<div class="p-8 space-y-8">
+<!-- Summary Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+<div class="md:col-span-2 bg-surface-container-lowest p-6 rounded-xl shadow-[0_20px_40px_rgba(28,27,27,0.04)] flex flex-col justify-between border-none">
+<div>
+<h2 class="font-headline font-bold text-xl mb-1">Fleet Compliance</h2>
+<p class="text-secondary text-sm">Review status and insurance coverage overview.</p>
+</div>
+<div class="mt-8 grid grid-cols-3 gap-4">
+<div class="space-y-1">
+<span class="text-[10px] font-bold text-secondary uppercase tracking-tighter">Compliant</span>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-black text-on-surface">142</span>
+<span class="text-xs font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">88%</span>
+</div>
+</div>
+<div class="space-y-1">
+<span class="text-[10px] font-bold text-secondary uppercase tracking-tighter">Due Soon</span>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-black text-on-surface">14</span>
+<span class="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">9%</span>
+</div>
+</div>
+<div class="space-y-1">
+<span class="text-[10px] font-bold text-secondary uppercase tracking-tighter">Critical</span>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-black text-on-surface">5</span>
+<span class="text-xs font-semibold text-primary bg-red-50 px-2 py-0.5 rounded-full">3%</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-primary p-6 rounded-xl shadow-lg shadow-primary/20 text-white relative overflow-hidden flex flex-col justify-between">
+<div class="relative z-10">
+<span class="material-symbols-outlined text-white/50 text-4xl mb-4">verified</span>
+<h3 class="font-headline font-bold text-lg leading-tight">New Review<br/>Log Required</h3>
+</div>
+<button class="relative z-10 w-full py-2 bg-white text-primary rounded-lg font-bold text-sm hover:bg-white/90 transition-colors">
+                        Start Inspection
+                    </button>
+<!-- Abstract decoration -->
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
+</div>
+<div class="bg-tertiary-fixed p-6 rounded-xl shadow-sm text-on-tertiary-fixed flex flex-col justify-between border-none">
+<div>
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-tertiary">stars</span>
+<span class="text-[10px] font-black uppercase tracking-widest">Premium Fleet</span>
+</div>
+<h3 class="font-headline font-bold text-lg leading-tight">Technical Review<br/>Quality Score</h3>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-4xl font-black">9.8</span>
+<div class="h-8 w-[1px] bg-tertiary/20"></div>
+<p class="text-[10px] font-medium leading-tight">Excellent technical health maintained across VIP segment.</p>
+</div>
+</div>
+</section>
+<!-- Vehicles Due for Review -->
+<section class="space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="font-headline font-extrabold text-2xl tracking-tight">Compliance Queue</h2>
+<div class="flex gap-2">
+<button class="px-4 py-2 bg-surface-container text-secondary rounded-lg text-xs font-bold hover:bg-surface-container-high transition-colors">All Vehicles</button>
+<button class="px-4 py-2 bg-primary/10 text-primary rounded-lg text-xs font-bold hover:bg-primary/20 transition-colors">Critical Only</button>
+</div>
+</div>
+<!-- Bento Style Vehicle Cards -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<!-- Vehicle Card 1: Critical -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_10px_30px_rgba(28,27,27,0.03)] flex flex-col md:flex-row border-none group">
+<div class="md:w-1/3 relative">
+<img alt="Vehicle Image" class="h-full w-full object-cover" data-alt="Side profile of a sleek charcoal grey Porsche 911 parked in a minimalist studio with dramatic high-contrast lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcbCm2Kd52bUT9CWY8z5MFBznJRT6Iq7dYV6OJ7ntm7MO2CwfOk5TAYBa-iyxI-7kgEB2noJ5dk3aZzI8FMZQxMU9WsyOGah-BOjkDVyCZuEC96jRkFT6ejOvBiC2tUDcJWvBus-Uk8MeaD7tJi5BkEiV75wgKhh3Haz42Sx4WdA2TdkR_khrT576TNAd0Rs7pOCtw-euz_dMj_XHImynQtdBdrAIzLBoxy2MBWUCjvB7iMrp2I2aWuBZ_SjNzUw7BkQLluRCU-qOk"/>
+<div class="absolute top-3 left-3 px-3 py-1 bg-primary text-white text-[10px] font-black rounded-full shadow-lg">OVERDUE</div>
+</div>
+<div class="flex-1 p-6 flex flex-col justify-between">
+<div class="space-y-4">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline font-bold text-lg group-hover:text-primary transition-colors">Porsche 911 Carrera</h3>
+<p class="text-xs font-medium text-secondary">Plate: ZN-402-WX • VIN: ...7842</p>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-primary font-black text-xl leading-none">Red</span>
+<span class="text-[10px] font-bold text-secondary uppercase">Compliance Level</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="p-3 bg-red-50 rounded-lg">
+<p class="text-[9px] font-bold text-primary uppercase mb-1">Technical Review</p>
+<p class="text-xs font-bold text-on-surface">Expired 12 days ago</p>
+</div>
+<div class="p-3 bg-surface-container-low rounded-lg">
+<p class="text-[9px] font-bold text-secondary uppercase mb-1">Insurance Renewal</p>
+<p class="text-xs font-bold text-on-surface">Expires in 18 days</p>
+</div>
+</div>
+</div>
+<div class="mt-6 flex gap-2">
+<button class="flex-1 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:shadow-lg hover:shadow-primary/30 transition-all">Review Now</button>
+<button class="px-3 py-2 bg-surface-container text-on-surface rounded-lg hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-sm">history</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Vehicle Card 2: Warning -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_10px_30px_rgba(28,27,27,0.03)] flex flex-col md:flex-row border-none group">
+<div class="md:w-1/3 relative">
+<img alt="Vehicle Image" class="h-full w-full object-cover" data-alt="Front three-quarter view of a BMW 5 Series sedan driving through a modern business district at dusk with city lights reflecting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjLI52RpvE4MpEVCNyDSY9eLNkXCsY23mIjGJhcFejBmQMwvp9aOceMUJm8vVwtUa67kMMRNWRkEAex7UnquNvsayiuAjZTtAV8PiZS5yJbpvCaaSYZ9BztWIcQLIEAlOZhBwZ1cVdt-M0yVUbseHd2XqhjAr_hR2qfL07H6fhQgwT0aQvhkfIWVUc16cyuYINBjGjh5zmzXu7WTNotbLVnxp415_J-pkVnc5v2KdwEVNlct1nb9bad7sDtjeNA-a8fwdD8OheIs7E"/>
+<div class="absolute top-3 left-3 px-3 py-1 bg-amber-500 text-white text-[10px] font-black rounded-full shadow-lg">DUE SOON</div>
+</div>
+<div class="flex-1 p-6 flex flex-col justify-between">
+<div class="space-y-4">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline font-bold text-lg group-hover:text-primary transition-colors">BMW 5 Series</h3>
+<p class="text-xs font-medium text-secondary">Plate: BV-918-LL • VIN: ...3109</p>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-amber-500 font-black text-xl leading-none">Yellow</span>
+<span class="text-[10px] font-bold text-secondary uppercase">Compliance Level</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="p-3 bg-amber-50 rounded-lg">
+<p class="text-[9px] font-bold text-amber-700 uppercase mb-1">Technical Review</p>
+<p class="text-xs font-bold text-on-surface">Due in 5 days</p>
+</div>
+<div class="p-3 bg-green-50 rounded-lg">
+<p class="text-[9px] font-bold text-green-700 uppercase mb-1">Insurance Renewal</p>
+<p class="text-xs font-bold text-on-surface">Valid for 6 months</p>
+</div>
+</div>
+</div>
+<div class="mt-6 flex gap-2">
+<button class="flex-1 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:shadow-lg hover:shadow-primary/30 transition-all">Schedule Task</button>
+<button class="px-3 py-2 bg-surface-container text-on-surface rounded-lg hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-sm">history</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Logging & History Section -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Log New Review Form -->
+<div class="lg:col-span-1 bg-surface-container-lowest p-8 rounded-2xl shadow-xl border border-surface-container-high/50">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">add_task</span>
+</div>
+<div>
+<h2 class="font-headline font-bold text-xl">Log Review</h2>
+<p class="text-xs text-secondary font-medium">Capture inspection details</p>
+</div>
+</div>
+<form class="space-y-6">
+<div class="space-y-2">
+<label class="text-[10px] font-black uppercase text-secondary tracking-widest">Select Vehicle</label>
+<select class="w-full border-none bg-surface-container-low rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/20 appearance-none">
+<option>Porsche 911 (ZN-402-WX)</option>
+<option>BMW 5 Series (BV-918-LL)</option>
+<option>Tesla Model 3 (EL-777-WA)</option>
+</select>
+</div>
+<div class="space-y-3">
+<label class="text-[10px] font-black uppercase text-secondary tracking-widest">Inspection Checklist</label>
+<div class="space-y-2">
+<label class="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-colors">
+<input class="w-5 h-5 rounded border-none bg-white text-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span class="text-sm font-bold">Engine &amp; Transmission</span>
+</label>
+<label class="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-colors">
+<input class="w-5 h-5 rounded border-none bg-white text-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span class="text-sm font-bold">Tires &amp; Suspension</span>
+</label>
+<label class="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-colors">
+<input class="w-5 h-5 rounded border-none bg-white text-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span class="text-sm font-bold">Interior Condition</span>
+</label>
+<label class="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-colors">
+<input class="w-5 h-5 rounded border-none bg-white text-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span class="text-sm font-bold">Exterior &amp; Paint</span>
+</label>
+<label class="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl cursor-pointer hover:bg-surface-container transition-colors">
+<input class="w-5 h-5 rounded border-none bg-white text-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span class="text-sm font-bold">Fluids &amp; Levels</span>
+</label>
+</div>
+</div>
+<div class="pt-4">
+<button class="w-full bg-on-surface text-white py-4 rounded-xl font-headline font-black uppercase tracking-widest text-xs hover:bg-primary transition-colors shadow-lg shadow-on-surface/10" type="submit">
+                                Submit Inspection Report
+                            </button>
+</div>
+</form>
+</div>
+<!-- Previous Reviews History -->
+<div class="lg:col-span-2 space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="font-headline font-extrabold text-xl tracking-tight">Recent Review History</h2>
+<button class="text-primary text-xs font-bold hover:underline">Download CSV</button>
+</div>
+<div class="bg-surface-container-low/50 rounded-2xl p-2 space-y-2">
+<!-- History Item 1 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between border-none hover:shadow-md transition-shadow">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<h4 class="font-bold text-sm">Tesla Model 3 • EL-777-WA</h4>
+<p class="text-xs text-secondary">Passed Periodic Technical Review</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold">Aug 14, 2023</p>
+<p class="text-[10px] text-green-600 font-bold uppercase">Passed (Clean)</p>
+</div>
+</div>
+<!-- History Item 2 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between border-none hover:shadow-md transition-shadow">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-600">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div>
+<h4 class="font-bold text-sm">Audi Q8 • QA-551-OP</h4>
+<p class="text-xs text-secondary">Passed with Minor Observations</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold">Aug 11, 2023</p>
+<p class="text-[10px] text-amber-600 font-bold uppercase">Passed (Warning)</p>
+</div>
+</div>
+<!-- History Item 3 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between border-none hover:shadow-md transition-shadow">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-600">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">cancel</span>
+</div>
+<div>
+<h4 class="font-bold text-sm">Land Rover Defender • DEF-01</h4>
+<p class="text-xs text-secondary">Failed Inspection: Brake System</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold">Aug 09, 2023</p>
+<p class="text-[10px] text-red-600 font-bold uppercase">Failed (Repair)</p>
+</div>
+</div>
+<!-- History Item 4 -->
+<div class="bg-surface-container-lowest p-5 rounded-xl flex items-center justify-between border-none hover:shadow-md transition-shadow opacity-60">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<h4 class="font-bold text-sm">Mercedes G-Wagon • MB-200-S</h4>
+<p class="text-xs text-secondary">Passed Periodic Technical Review</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold">Aug 02, 2023</p>
+<p class="text-[10px] text-green-600 font-bold uppercase">Passed (Clean)</p>
+</div>
+</div>
+</div>
+<!-- Bottom CTA for Full History -->
+<button class="w-full py-4 border-2 border-dashed border-surface-container-highest rounded-2xl text-secondary text-sm font-bold hover:bg-surface-container transition-colors">
+                        View Full History Archives
+                    </button>
+</div>
+</section>
+</div>
+</main>
+</body></html>

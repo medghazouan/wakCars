@@ -147,10 +147,10 @@ export default function DamageFormPage() {
       animate="animate"
       exit="exit"
       variants={pageTransition}
-      className="mx-auto max-w-3xl space-y-8"
+      className="mx-auto min-w-0 w-full max-w-3xl space-y-8"
     >
-      <div>
-        <h1 className="mb-2 text-3xl font-bold text-secondary">
+      <div className="min-w-0">
+        <h1 className="mb-2 text-2xl font-bold text-secondary sm:text-3xl">
           {isEdit ? `Sinistre #${id}` : 'Nouveau constat'}
         </h1>
         <p className="text-gray-500">
@@ -159,7 +159,7 @@ export default function DamageFormPage() {
       </div>
 
       <form onSubmit={handleSubmit(isEdit ? onUpdate : onCreate)}>
-        <Card className="space-y-6 p-6">
+        <Card className="space-y-6 p-4 sm:p-6">
           {!isEdit && (
             <>
               <div className="space-y-1.5">
@@ -277,14 +277,15 @@ export default function DamageFormPage() {
             </div>
           )}
 
-          <div className="flex flex-wrap justify-end gap-3 border-gray-100 border-t pt-6">
-            <Button type="button" variant="ghost" onClick={() => navigate(adminPath('/damages'))}>
+          <div className="flex flex-col-reverse gap-2 border-t border-gray-100 pt-4 sm:flex-row sm:flex-wrap sm:justify-end sm:gap-3 sm:pt-6">
+            <Button type="button" variant="ghost" className="w-full sm:w-auto" onClick={() => navigate(adminPath('/damages'))}>
               Annuler
             </Button>
             {isEdit && report?.reservation_id && (
               <Button
                 type="button"
                 variant="outline"
+                className="w-full sm:w-auto"
                 isLoading={notifyMutation.isPending}
                 onClick={() => notifyMutation.mutate()}
               >
@@ -293,6 +294,7 @@ export default function DamageFormPage() {
             )}
             <Button
               type="submit"
+              className="w-full sm:w-auto"
               isLoading={createMutation.isPending || updateMutation.isPending}
             >
               {isEdit ? 'Enregistrer' : 'Créer le constat'}

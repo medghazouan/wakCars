@@ -117,10 +117,10 @@ export default function ReportsPage() {
       animate="animate"
       exit="exit"
       variants={pageTransition}
-      className="mx-auto max-w-7xl space-y-8"
+      className="mx-auto min-w-0 w-full max-w-7xl space-y-8"
     >
-      <div>
-        <h1 className="text-3xl font-bold text-secondary">{t('reports.title')}</h1>
+      <div className="min-w-0">
+        <h1 className="text-2xl font-bold text-secondary sm:text-3xl">{t('reports.title')}</h1>
         <p className="text-gray-500">{t('reports.subtitle')}</p>
       </div>
 
@@ -149,7 +149,7 @@ export default function ReportsPage() {
         />
       </div>
 
-      <Card className="flex flex-wrap items-end gap-4 p-4">
+      <Card className="flex min-w-0 flex-wrap items-end gap-4 p-4">
         <div>
           <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
             Période (revenus / export)

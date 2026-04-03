@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Fleet Management | Wak Cars Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#bd0015",
+                        "surface-container-high": "#ebe7e7",
+                        "surface-tint": "#c00015",
+                        "surface-variant": "#e5e2e1",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#775800",
+                        "on-surface-variant": "#5d3f3c",
+                        "surface-bright": "#fcf9f8",
+                        "on-tertiary-fixed-variant": "#5b4300",
+                        "on-secondary-fixed": "#1b1c1c",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed": "#ffdf9e",
+                        "secondary-container": "#e2dfde",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "on-surface": "#1c1b1b",
+                        "on-secondary": "#ffffff",
+                        "inverse-surface": "#313030",
+                        "tertiary-fixed-dim": "#fabd00",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "outline-variant": "#e7bdb8",
+                        "outline": "#926e6b",
+                        "on-primary-fixed-variant": "#93000d",
+                        "surface-container-low": "#f6f3f2",
+                        "surface-container": "#f0edec",
+                        "primary-fixed-dim": "#ffb4ac",
+                        "on-background": "#1c1b1b",
+                        "primary-container": "#e61e25",
+                        "on-primary-fixed": "#410002",
+                        "inverse-on-surface": "#f3f0ef",
+                        "tertiary-container": "#967000",
+                        "surface-dim": "#dcd9d9",
+                        "background": "#fcf9f8",
+                        "surface-container-highest": "#e5e2e1",
+                        "on-secondary-fixed-variant": "#474746",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-tertiary-fixed": "#261a00",
+                        "surface": "#fcf9f8",
+                        "on-secondary-container": "#636262",
+                        "secondary": "#5f5e5e",
+                        "on-tertiary-container": "#fffeff",
+                        "inverse-primary": "#ffb4ac",
+                        "primary-fixed": "#ffdad6",
+                        "on-primary-container": "#fffdff"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface flex min-h-screen">
+<!-- SideNavBar (The Anchor) -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col h-full p-4 border-r border-[#f6f3f2] bg-[#fcf9f8] font-['Plus_Jakarta_Sans'] text-sm font-medium z-40">
+<div class="flex items-center gap-3 px-2 mb-10">
+<div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+</div>
+<div>
+<h2 class="text-lg font-black text-[#bd0015] leading-tight">Wak Admin</h2>
+<p class="text-[10px] uppercase tracking-widest text-secondary font-bold">Fleet Management</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Fleet is Active -->
+<a class="flex items-center gap-3 px-4 py-3 bg-white text-[#bd0015] rounded-xl shadow-sm transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="directions_car" style="font-variation-settings: 'FILL' 1;">directions_car</span>
+<span>Fleet</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#5f5e5e] hover:bg-[#f6f3f2] hover:text-[#1c1b1b] rounded-xl transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span>Reservations</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#5f5e5e] hover:bg-[#f6f3f2] hover:text-[#1c1b1b] rounded-xl transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+<span>Insurance</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#5f5e5e] hover:bg-[#f6f3f2] hover:text-[#1c1b1b] rounded-xl transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="build">build</span>
+<span>Technical Reviews</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#5f5e5e] hover:bg-[#f6f3f2] hover:text-[#1c1b1b] rounded-xl transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-surface-container-high space-y-1">
+<button class="w-full flex items-center gap-3 px-4 py-3 text-[#5f5e5e] hover:bg-[#f6f3f2] hover:text-[#1c1b1b] rounded-xl transition-all duration-300 ease-in-out">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+<span>Support</span>
+</button>
+<button class="w-full flex items-center gap-3 px-4 py-3 text-[#5f5e5e] hover:bg-[#f6f3f2] hover:text-[#1c1b1b] rounded-xl transition-all duration-300 ease-in-out">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span>Logout</span>
+</button>
+</div>
+</aside>
+<main class="ml-64 flex-1 flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="w-full sticky top-0 z-30 bg-white/70 backdrop-blur-md flex justify-between items-center px-8 py-4 font-['Plus_Jakarta_Sans'] antialiased tracking-tight shadow-[0_20px_40px_rgba(28,27,27,0.06)]">
+<div class="flex items-center gap-8">
+<h1 class="text-xl font-bold tracking-tighter text-[#1c1b1b]">Fleet Dashboard</h1>
+<div class="relative group">
+<span class="absolute inset-y-0 left-3 flex items-center text-secondary">
+<span class="material-symbols-outlined text-xl" data-icon="search">search</span>
+</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full text-sm w-64 focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search vehicles, plates..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<button class="p-2 text-secondary hover:bg-[#f6f3f2] rounded-full active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-secondary hover:bg-[#f6f3f2] rounded-full active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="p-2 text-secondary hover:bg-[#f6f3f2] rounded-full active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-surface-container-high mx-2"></div>
+<div class="flex items-center gap-3 cursor-pointer group">
+<img alt="Admin Profile Avatar" class="w-10 h-10 rounded-full object-cover border-2 border-transparent group-hover:border-primary transition-all" data-alt="professional headshot of a middle-aged male executive with a confident smile in a modern bright office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaBTfvXH65zHTy7D44lia1AQuy9dC6ArUm5exE9q6plII5p6Nh8NVmF0fA0pMQTDesSz2ZpCDqw0x_2o2ooQZSXNL_CCouR_EZiOrF-k6JOmUp98JfSPUZ2wfixbVtvxokJNJxsQJHqTyxtt6y1baA7wP9gakFeviuXTU2xcDsVW1MiaJyCV72sHMDwuldAyKFyANkgHAiAupKXo5YP_jggFtAGp_DNxregZ-UXzf-ig-RZFtx1GB4JIJpeMc0unopwHY_A_X8l5Vx"/>
+<div class="hidden lg:block text-left">
+<p class="text-xs font-bold text-on-surface leading-none">Marcus Thorne</p>
+<p class="text-[10px] text-secondary font-medium uppercase tracking-tighter">Super Admin</p>
+</div>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="p-8 space-y-8 max-w-[1600px]">
+<!-- Header Section -->
+<div class="flex justify-between items-end">
+<div class="space-y-1">
+<h2 class="text-3xl font-extrabold tracking-tight text-on-surface">Vehicle Fleet</h2>
+<p class="text-secondary text-sm">Managing 128 active units across 4 regions.</p>
+</div>
+<button class="bg-primary text-on-primary px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20 hover:bg-primary-container active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+<span>Add New Vehicle</span>
+</button>
+</div>
+<!-- Bento Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-transparent hover:border-outline-variant/15 transition-all">
+<p class="text-secondary text-xs font-bold uppercase tracking-wider mb-2">Total Fleet</p>
+<div class="flex items-end justify-between">
+<span class="text-3xl font-black">128</span>
+<span class="text-primary font-bold text-xs flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+                            +4%
+                        </span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-transparent hover:border-outline-variant/15 transition-all">
+<p class="text-secondary text-xs font-bold uppercase tracking-wider mb-2">Available</p>
+<div class="flex items-end justify-between">
+<span class="text-3xl font-black text-green-600">84</span>
+<div class="w-16 h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="w-2/3 h-full bg-green-500"></div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-transparent hover:border-outline-variant/15 transition-all">
+<p class="text-secondary text-xs font-bold uppercase tracking-wider mb-2">In Maintenance</p>
+<div class="flex items-end justify-between">
+<span class="text-3xl font-black text-tertiary">12</span>
+<span class="material-symbols-outlined text-tertiary" data-icon="build">build</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-transparent hover:border-outline-variant/15 transition-all">
+<p class="text-secondary text-xs font-bold uppercase tracking-wider mb-2">Review Pending</p>
+<div class="flex items-end justify-between">
+<span class="text-3xl font-black text-primary">6</span>
+<span class="material-symbols-outlined text-primary" data-icon="priority_high">priority_high</span>
+</div>
+</div>
+</div>
+<!-- Advanced Table Section -->
+<div class="bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden">
+<div class="px-6 py-5 border-b border-surface-container-low flex items-center justify-between bg-white">
+<div class="flex gap-4">
+<button class="text-sm font-bold border-b-2 border-primary pb-1 text-on-surface">All Vehicles</button>
+<button class="text-sm font-medium text-secondary hover:text-on-surface transition-colors pb-1">Available Only</button>
+<button class="text-sm font-medium text-secondary hover:text-on-surface transition-colors pb-1">Need Service</button>
+</div>
+<button class="text-secondary hover:text-on-surface flex items-center gap-1 text-sm font-medium">
+<span class="material-symbols-outlined text-lg" data-icon="filter_list">filter_list</span>
+                        Filter
+                    </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50 text-secondary text-[11px] uppercase tracking-widest font-bold">
+<th class="px-6 py-4">Vehicle Details</th>
+<th class="px-6 py-4">Plate Number</th>
+<th class="px-6 py-4">Status</th>
+<th class="px-6 py-4">Last Service</th>
+<th class="px-6 py-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low">
+<!-- Row 1 -->
+<tr class="group hover:bg-surface-container-low/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-4">
+<div class="w-16 h-10 rounded-lg overflow-hidden bg-surface-container-high flex-shrink-0">
+<img alt="Porsche 911" class="w-full h-full object-cover" data-alt="sleek modern charcoal grey sports car profile view against a minimalist architectural background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7UEg21Bx-FCwZOeySz6UDs-2y1WXRuo3IF1K1HTidCYnEfAW-wojtt-qDmu7TJAdl-MmyAHoSa7cfvOZv5OnCvbMur3rcEE4i7BS-7ruPWScWeeQxXb68wVlFct0tTQa3BXooe9-MUrDsjkGV_ZFGubDU8gNhpftPzRw08YQB-jhzU9VUc3jKUmefHSGS3y7Hj65-hDwgOwnAt1NX3y1Q7ceN2AiOxODqI3dI-9BDLu0t3vC0LoDTM_D1Ua8DzuizL-JqXKjYD8uZ"/>
+</div>
+<div>
+<p class="font-bold text-on-surface leading-tight">Porsche 911 Carrera S</p>
+<p class="text-xs text-secondary">Luxury Performance • 2023</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-mono text-sm text-on-surface-variant font-medium">WAK-911-LUX</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-green-100 text-green-700">
+                                        Available
+                                    </span>
+</td>
+<td class="px-6 py-4 text-sm text-secondary">Oct 12, 2023</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-on-surface-variant hover:bg-white rounded-lg active:scale-90 transition-all" title="Edit">
+<span class="material-symbols-outlined text-xl" data-icon="edit">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-white rounded-lg active:scale-90 transition-all" title="View History">
+<span class="material-symbols-outlined text-xl" data-icon="history">history</span>
+</button>
+<button class="p-2 text-primary hover:bg-error-container/20 rounded-lg active:scale-90 transition-all" title="Delete">
+<span class="material-symbols-outlined text-xl" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="group hover:bg-surface-container-low/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-4">
+<div class="w-16 h-10 rounded-lg overflow-hidden bg-surface-container-high flex-shrink-0">
+<img alt="BMW M4" class="w-full h-full object-cover" data-alt="high-end white sedan parked under soft studio lighting showcasing aggressive front grill and led headlights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBl-1jBemMcA6Qo39Flga9ShZ1rgdYdOqU6hMoYQQzqFx3zymy4cM3AA5r45wWRxYPJqDiN_-q9_HRpxWVnoDodxDSvxkbJmA6kzqLKUgY8YxRts8IgWBrZ95JV3ncLlWSaj2i1Mp3DOmD3cGdggS3bvzWt8aRudNpZ8ABRE_xFAWELhs1xp1R1cFmW5bhCmglUgJGnMQeByi8HRkgB8bdUTvjLNtEjLqQW8kEc46JNUfZKl3wcFeABlJn1W6v4mpPqztpqbIg7DOU"/>
+</div>
+<div>
+<p class="font-bold text-on-surface leading-tight">BMW M4 Competition</p>
+<p class="text-xs text-secondary">Sport Coupe • 2024</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-mono text-sm text-on-surface-variant font-medium">WAK-444-BMW</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-700">
+                                        Rented
+                                    </span>
+</td>
+<td class="px-6 py-4 text-sm text-secondary">Jan 05, 2024</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-on-surface-variant hover:bg-white rounded-lg active:scale-90 transition-all" title="Edit">
+<span class="material-symbols-outlined text-xl" data-icon="edit">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-white rounded-lg active:scale-90 transition-all" title="View History">
+<span class="material-symbols-outlined text-xl" data-icon="history">history</span>
+</button>
+<button class="p-2 text-primary hover:bg-error-container/20 rounded-lg active:scale-90 transition-all" title="Delete">
+<span class="material-symbols-outlined text-xl" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="group hover:bg-surface-container-low/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-4">
+<div class="w-16 h-10 rounded-lg overflow-hidden bg-surface-container-high flex-shrink-0">
+<img alt="Tesla Model S" class="w-full h-full object-cover" data-alt="red electric sedan parked in a futuristic urban environment with cool blue morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA044SC_eWWEVdqtNOTj7gYbaiug-0VO84dUQWhj2tTh2fX5l4paO-1k5t-ibl6akodyA4Rq4siymmAFJtqIdPxUiY0YLT8jxygBfLIs-MYn-tEHLMfEWrEruJy50s2VSnKDpc9oHwzuLQKWHgGf19kY0HSq7IGn7aYgHaNZvDQhn1SB1-tnTUmXEt4cT9OqtkZ7395b9KYirIP0UAlhE-byv2p3UNhMH_xyWwxNvBHDPQUZpTbb3yPMrbrL4bYySIPUSXebtP84WAR"/>
+</div>
+<div>
+<p class="font-bold text-on-surface leading-tight">Tesla Model S Plaid</p>
+<p class="text-xs text-secondary">Electric Luxury • 2022</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-mono text-sm text-on-surface-variant font-medium">WAK-TES-LAA</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-tertiary-fixed text-on-tertiary-fixed">
+                                        Maintenance
+                                    </span>
+</td>
+<td class="px-6 py-4 text-sm text-secondary font-bold text-primary">Needs Service</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-on-surface-variant hover:bg-white rounded-lg active:scale-90 transition-all" title="Edit">
+<span class="material-symbols-outlined text-xl" data-icon="edit">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-white rounded-lg active:scale-90 transition-all" title="View History">
+<span class="material-symbols-outlined text-xl" data-icon="history">history</span>
+</button>
+<button class="p-2 text-primary hover:bg-error-container/20 rounded-lg active:scale-90 transition-all" title="Delete">
+<span class="material-symbols-outlined text-xl" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="group hover:bg-surface-container-low/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-4">
+<div class="w-16 h-10 rounded-lg overflow-hidden bg-surface-container-high flex-shrink-0">
+<img alt="Mercedes G-Wagon" class="w-full h-full object-cover" data-alt="rugged black luxury suv parked on a cobblestone street at dusk with ambient street lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaPO-KA9p7elt2Bg0PpUUeVx8Oc5u5bcLA874yFyQJKbvGgF46NN3XYMcOHgcQYFsgn3kKlsNS9ErJsqnCkR6433EnP8HhsADNGlPNVt7HzRg38Cmlj9S_76XVo5BQaUj-XzJaxN1nQcItg5_XbwLA_e2pus8xmtARoEuQ_AFJAk5YJBabKdS3YwcHQTa2PMdkub9ZoMG9-Im6Hv-X-gjplWOd3S5qJeazfcyHXzYNWaESTkHaLvmqZUb1drKEG3Ue8lROHCMbjDTj"/>
+</div>
+<div>
+<p class="font-bold text-on-surface leading-tight">Mercedes G63 AMG</p>
+<p class="text-xs text-secondary">Luxury SUV • 2023</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-mono text-sm text-on-surface-variant font-medium">WAK-G63-AMG</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-surface-variant text-on-surface-variant">
+                                        Technical Review
+                                    </span>
+</td>
+<td class="px-6 py-4 text-sm text-secondary">Nov 20, 2023</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 text-on-surface-variant hover:bg-white rounded-lg active:scale-90 transition-all" title="Edit">
+<span class="material-symbols-outlined text-xl" data-icon="edit">edit</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-white rounded-lg active:scale-90 transition-all" title="View History">
+<span class="material-symbols-outlined text-xl" data-icon="history">history</span>
+</button>
+<button class="p-2 text-primary hover:bg-error-container/20 rounded-lg active:scale-90 transition-all" title="Delete">
+<span class="material-symbols-outlined text-xl" data-icon="delete">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 border-t border-surface-container-low flex items-center justify-between bg-white text-sm">
+<p class="text-secondary">Showing <span class="font-bold text-on-surface">1 - 10</span> of 128 vehicles</p>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg border border-surface-container-high text-secondary hover:bg-surface-container-low transition-colors disabled:opacity-50">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-10 h-10 rounded-lg bg-primary text-on-primary font-bold">1</button>
+<button class="w-10 h-10 rounded-lg border border-surface-container-high text-on-surface-variant font-medium hover:bg-surface-container-low">2</button>
+<button class="w-10 h-10 rounded-lg border border-surface-container-high text-on-surface-variant font-medium hover:bg-surface-container-low">3</button>
+<button class="p-2 rounded-lg border border-surface-container-high text-secondary hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Contextual Footer Info -->
+<div class="flex gap-6">
+<div class="flex-1 bg-surface-container-low p-6 rounded-2xl flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined" data-icon="info" style="font-variation-settings: 'FILL' 1;">info</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">System Tip</h4>
+<p class="text-sm text-secondary">Vehicles requiring technical reviews are automatically flagged 30 days before the expiration date.</p>
+</div>
+</div>
+<div class="flex-1 bg-surface-container-low p-6 rounded-2xl flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-tertiary shadow-sm">
+<span class="material-symbols-outlined" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Smart Analytics</h4>
+<p class="text-sm text-secondary">Based on current reservations, we recommend increasing the available luxury fleet by 15% for next month.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

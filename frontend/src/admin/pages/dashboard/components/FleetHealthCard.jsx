@@ -13,7 +13,7 @@ export function FleetHealthCard({ score = 0, isLoading }) {
   const label = healthLabel(pct)
 
   return (
-    <div className="rounded-xl bg-gradient-to-br from-[#E61E25] to-[#991418] p-6 text-white shadow-lg relative overflow-hidden h-[300px] flex flex-col justify-between">
+    <div className="relative flex min-h-[240px] flex-col justify-between overflow-hidden rounded-xl bg-gradient-to-br from-[#E61E25] to-[#991418] p-4 text-white shadow-lg sm:h-[300px] sm:min-h-0 sm:p-6">
       {/* Background Decor */}
       <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
       

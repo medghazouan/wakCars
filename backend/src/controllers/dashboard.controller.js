@@ -1,4 +1,5 @@
 const prisma = require('../utils/prisma');
+const { attachCarsToReservations } = require('../utils/attachCarsToReservations');
 const { success } = require('../utils/apiResponse');
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -256,7 +257,7 @@ const getStats = async (req, res, next) => {
       prevMonthRevenueAgg,
       unpaidCount,
       overdueReturnsCount,
-      upcomingReservations,
+      timelineRows,
     ] = await Promise.all([
       prisma.cars.count({ where: { is_active: true } }),
       prisma.cars.count({ where: { is_active: true, status: 'AVAILABLE' } }),
@@ -308,17 +309,28 @@ const getStats = async (req, res, next) => {
         take: 8,
         include: {
           customer: { select: { first_name: true, last_name: true } },
-          car: {
-            select: {
-              brand: true,
-              model: true,
-              images: { take: 1, orderBy: { sort_order: 'asc' } },
-            },
-          },
           pickup_location: { select: { name_fr: true, name_ar: true } },
         },
       }),
     ]);
+
+    const timelineCarSelect = {
+      id: true,
+      brand: true,
+      model: true,
+      images: { take: 1, orderBy: { sort_order: 'asc' } },
+    };
+    const timelineCarPlaceholder = (carId) => ({
+      id: carId ?? 0,
+      brand: '—',
+      model: 'Vehicle removed',
+      images: [],
+    });
+    const upcomingReservations = await attachCarsToReservations(
+      timelineRows,
+      timelineCarSelect,
+      timelineCarPlaceholder
+    );
 
     const dow = today.getDay();
     let weekendStart;

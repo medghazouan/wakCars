@@ -11,8 +11,8 @@ export function DataTable({
   emptyMessage = "No records found"
 }) {
   return (
-    <Card className="flex flex-col">
-      <div className="overflow-x-auto">
+    <Card className="flex min-w-0 flex-col">
+      <div className="-mx-px overflow-x-auto sm:mx-0">
         <table className="w-full text-left text-sm whitespace-nowrap">
           <thead className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider font-semibold">
             <tr>

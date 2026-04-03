@@ -112,14 +112,14 @@ export default function FaqsListPage() {
       animate="animate"
       exit="exit"
       variants={pageTransition}
-      className="mx-auto max-w-[1600px] space-y-8"
+      className="mx-auto min-w-0 w-full max-w-[1600px] space-y-8"
     >
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-secondary">FAQ</h1>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-bold text-secondary sm:text-3xl">FAQ</h1>
           <p className="text-gray-500">Questions fréquentes affichées sur le site (FR / AR).</p>
         </div>
-        <Button onClick={() => navigate(adminPath('/faqs/new'))}>
+        <Button className="w-full sm:w-auto" onClick={() => navigate(adminPath('/faqs/new'))}>
           <Plus size={18} className="me-1" />
           Nouvelle FAQ
         </Button>

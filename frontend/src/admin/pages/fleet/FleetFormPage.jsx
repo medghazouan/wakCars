@@ -49,6 +49,8 @@ export default function FleetFormPage() {
       doors: 4,
       is_active: true,
       is_featured: false,
+      description_fr: '',
+      description_ar: '',
     },
   })
 
@@ -183,8 +185,8 @@ export default function FleetFormPage() {
       category_id: data.category_id,
       price_per_day: data.price_per_day,
       deposit_amount: data.deposit_amount,
-      description_fr: data.description_fr || undefined,
-      description_ar: data.description_ar || undefined,
+      description_fr: data.description_fr?.trim() || undefined,
+      description_ar: data.description_ar?.trim() || undefined,
       status: data.status,
       transmission: data.transmission,
       fuel_type: data.fuel_type,
@@ -205,10 +207,10 @@ export default function FleetFormPage() {
       animate="animate"
       exit="exit"
       variants={pageTransition}
-      className="max-w-4xl mx-auto space-y-8"
+      className="mx-auto w-full min-w-0 max-w-4xl space-y-6 sm:space-y-8"
     >
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex flex-col gap-2">
+        <div className="min-w-0">
           {isEdit && (
             <Link
               to={adminPath('/fleet')}
@@ -217,20 +219,20 @@ export default function FleetFormPage() {
               ← Back to fleet
             </Link>
           )}
-          <h1 className="mb-2 text-3xl font-bold text-secondary">
+          <h1 className="mb-2 text-2xl font-bold text-secondary sm:text-3xl">
             {isEdit ? `Edit vehicle` : 'Add New Vehicle'}
             {isEdit && id ? (
               <span className="ml-2 font-mono text-xl font-semibold text-gray-500">#{id}</span>
             ) : null}
           </h1>
-          <p className="text-gray-400">
+          <p className="text-sm text-gray-400 sm:text-base">
             {isEdit ? 'Update information and save changes below.' : 'Enter the vehicle details below.'}
           </p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Card className="p-6 space-y-6">
+        <Card className="space-y-6 p-4 sm:p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1.5">
               <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">Brand</label>
@@ -390,6 +392,31 @@ export default function FleetFormPage() {
                 error={errors.deposit_amount?.message}
               />
             </div>
+
+            <div className="space-y-1.5 md:col-span-2">
+              <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">
+                Description (FR) <span className="font-normal normal-case text-gray-400">(optionnel)</span>
+              </label>
+              <textarea
+                {...register('description_fr')}
+                rows={5}
+                placeholder="Texte affiché sur le site en français…"
+                className="w-full resize-y rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-secondary placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              />
+            </div>
+
+            <div className="space-y-1.5 md:col-span-2">
+              <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">
+                Description (AR) <span className="font-normal normal-case text-gray-400">(optionnel)</span>
+              </label>
+              <textarea
+                {...register('description_ar')}
+                rows={5}
+                placeholder="الوصف المعروض على الموقع بالعربية…"
+                dir="rtl"
+                className="w-full resize-y rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-secondary placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              />
+            </div>
           </div>
 
           <div className="space-y-3">
@@ -485,11 +512,11 @@ export default function FleetFormPage() {
             )}
           </div>
 
-          <div className="pt-6 flex gap-4 justify-end border-t border-gray-100">
-            <Button variant="ghost" onClick={() => navigate(adminPath('/fleet'))} type="button">
+          <div className="flex flex-col-reverse gap-2 border-t border-gray-100 pt-6 sm:flex-row sm:justify-end sm:gap-4">
+            <Button variant="ghost" className="w-full sm:w-auto" onClick={() => navigate(adminPath('/fleet'))} type="button">
               Cancel
             </Button>
-            <Button type="submit" isLoading={mutation.isPending}>
+            <Button type="submit" className="w-full sm:w-auto" isLoading={mutation.isPending}>
               Save Vehicle
             </Button>
           </div>

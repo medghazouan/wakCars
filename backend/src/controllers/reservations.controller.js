@@ -1,4 +1,5 @@
 const prisma = require('../utils/prisma');
+const { attachCarsToReservations } = require('../utils/attachCarsToReservations');
 const emailService = require('../services/email.service');
 const pdfService = require('../services/pdf.service');
 const logger = require('../utils/logger');
@@ -13,6 +14,32 @@ const FULL_INCLUDE = {
   payments: { orderBy: { created_at: 'asc' } },
   damage_reports: { include: { images: true }, orderBy: { created_at: 'desc' } },
 };
+
+/** Same as FULL_INCLUDE but without car (avoids Prisma error if car_id is orphaned). */
+const RESERVATION_RELATIONS_NO_CAR = {
+  customer: true,
+  pickup_location: true,
+  dropoff_location: true,
+  payments: { orderBy: { created_at: 'asc' } },
+  damage_reports: { include: { images: true }, orderBy: { created_at: 'desc' } },
+};
+
+async function mergeReservationCar(reservation) {
+  if (!reservation) return null;
+  const car = await prisma.cars.findUnique({
+    where: { id: reservation.car_id },
+    include: { images: { where: { is_primary: true }, take: 1 } },
+  });
+  const placeholder = {
+    id: reservation.car_id,
+    brand: '—',
+    model: 'Vehicle removed',
+    year: null,
+    license_plate: '',
+    images: [],
+  };
+  return { ...reservation, car: car ?? placeholder };
+}
 
 const calcDays = (pickup, dropoff) =>
   Math.max(1, Math.ceil((new Date(dropoff) - new Date(pickup)) / (1000 * 60 * 60 * 24)));
@@ -45,21 +72,29 @@ const list = async (req, res, next) => {
     }
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    const [reservations, total] = await Promise.all([
+    const carSelect = {
+      id: true,
+      brand: true,
+      model: true,
+      year: true,
+      license_plate: true,
+      category: { select: { name_fr: true } },
+      images: { orderBy: [{ is_primary: 'desc' }, { sort_order: 'asc' }], take: 1 },
+    };
+    const placeholderCar = (carId) => ({
+      id: carId,
+      brand: '—',
+      model: 'Vehicle removed',
+      year: null,
+      license_plate: '',
+      category: null,
+      images: [],
+    });
+
+    const [rows, total] = await Promise.all([
       prisma.reservations.findMany({
         where,
         include: {
-          car: {
-            select: {
-              id: true,
-              brand: true,
-              model: true,
-              year: true,
-              license_plate: true,
-              category: { select: { name_fr: true } },
-              images: { orderBy: [{ is_primary: 'desc' }, { sort_order: 'asc' }], take: 1 },
-            },
-          },
           customer: { select: { id: true, first_name: true, last_name: true, phone: true } },
           pickup_location: { select: { id: true, name_fr: true } },
           dropoff_location: { select: { id: true, name_fr: true } },
@@ -71,18 +106,19 @@ const list = async (req, res, next) => {
       }),
       prisma.reservations.count({ where }),
     ]);
+    const reservations = await attachCarsToReservations(rows, carSelect, placeholderCar);
     return success(res, reservations, 200, { total, page: parseInt(page), limit: parseInt(limit) });
   } catch (err) { next(err); }
 };
 
 const getById = async (req, res, next) => {
   try {
-    const reservation = await prisma.reservations.findUnique({
+    const row = await prisma.reservations.findUnique({
       where: { id: parseInt(req.params.id) },
-      include: FULL_INCLUDE,
+      include: RESERVATION_RELATIONS_NO_CAR,
     });
-    if (!reservation) return notFound(res, 'Reservation');
-    return success(res, reservation);
+    if (!row) return notFound(res, 'Reservation');
+    return success(res, await mergeReservationCar(row));
   } catch (err) { next(err); }
 };
 
@@ -159,8 +195,8 @@ const update = async (req, res, next) => {
       data.total_amount = await computeTotal(exists.car_id, pd, dd, gps, seat);
     }
 
-    const reservation = await prisma.reservations.update({ where: { id }, data, include: FULL_INCLUDE });
-    return success(res, reservation);
+    const updated = await prisma.reservations.update({ where: { id }, data, include: RESERVATION_RELATIONS_NO_CAR });
+    return success(res, await mergeReservationCar(updated));
   } catch (err) { next(err); }
 };
 
@@ -168,7 +204,10 @@ const updateStatus = async (req, res, next) => {
   try {
     const id = parseInt(req.params.id);
     const { status } = req.body;
-    const reservation = await prisma.reservations.findUnique({ where: { id }, include: { car: true, customer: true } });
+    const reservation = await prisma.reservations.findUnique({
+      where: { id },
+      include: { customer: true },
+    });
     if (!reservation) return notFound(res, 'Reservation');
 
     const data = { status };
@@ -176,10 +215,12 @@ const updateStatus = async (req, res, next) => {
     if (status === 'CONFIRMED') {
       data.confirmed_at = new Date();
       if (reservation.customer?.email) {
-        const full = await prisma.reservations.findUnique({ where: { id }, include: FULL_INCLUDE });
-        emailService
-          .sendReservationConfirmation(full)
-          .catch((err) => logger.error(`Confirmation email failed for #${id}: ${err.message}`));
+        const row = await prisma.reservations.findUnique({ where: { id }, include: RESERVATION_RELATIONS_NO_CAR });
+        if (row) {
+          mergeReservationCar(row)
+            .then((full) => emailService.sendReservationConfirmation(full))
+            .catch((err) => logger.error(`Confirmation email failed for #${id}: ${err.message}`));
+        }
       }
     }
     if (status === 'ACTIVE') {
@@ -195,7 +236,12 @@ const updateStatus = async (req, res, next) => {
       }
     }
 
-    const updated = await prisma.reservations.update({ where: { id }, data, include: FULL_INCLUDE });
+    const updatedRow = await prisma.reservations.update({
+      where: { id },
+      data,
+      include: RESERVATION_RELATIONS_NO_CAR,
+    });
+    const updated = await mergeReservationCar(updatedRow);
 
     if (
       status === 'COMPLETED' &&
@@ -234,12 +280,12 @@ const reassign = async (req, res, next) => {
       newCarId, reservation.pickup_date, reservation.dropoff_date,
       reservation.has_gps, reservation.has_child_seat
     );
-    const updated = await prisma.reservations.update({
+    const updatedRow = await prisma.reservations.update({
       where: { id },
       data: { car_id: newCarId, total_amount },
-      include: FULL_INCLUDE,
+      include: RESERVATION_RELATIONS_NO_CAR,
     });
-    return success(res, updated);
+    return success(res, await mergeReservationCar(updatedRow));
   } catch (err) { next(err); }
 };
 
@@ -250,27 +296,35 @@ const updatePaymentStatus = async (req, res, next) => {
     const exists = await prisma.reservations.findUnique({ where: { id } });
     if (!exists) return notFound(res, 'Reservation');
 
-    const updated = await prisma.reservations.update({
+    const payCarSelect = {
+      id: true,
+      brand: true,
+      model: true,
+      year: true,
+      license_plate: true,
+      category: { select: { name_fr: true } },
+      images: { orderBy: [{ is_primary: 'desc' }, { sort_order: 'asc' }], take: 1 },
+    };
+    const payPlaceholder = (carId) => ({
+      id: carId,
+      brand: '—',
+      model: 'Vehicle removed',
+      year: null,
+      license_plate: '',
+      category: null,
+      images: [],
+    });
+    const updatedRow = await prisma.reservations.update({
       where: { id },
       data: { payment_status },
       include: {
-        car: {
-          select: {
-            id: true,
-            brand: true,
-            model: true,
-            year: true,
-            license_plate: true,
-            category: { select: { name_fr: true } },
-            images: { orderBy: [{ is_primary: 'desc' }, { sort_order: 'asc' }], take: 1 },
-          },
-        },
         customer: { select: { id: true, first_name: true, last_name: true, phone: true } },
         pickup_location: { select: { id: true, name_fr: true } },
         dropoff_location: { select: { id: true, name_fr: true } },
         _count: { select: { payments: true } },
       },
     });
+    const [updated] = await attachCarsToReservations([updatedRow], payCarSelect, payPlaceholder);
     return success(res, updated);
   } catch (err) {
     next(err);
@@ -280,16 +334,20 @@ const updatePaymentStatus = async (req, res, next) => {
 const confirm = async (req, res, next) => {
   try {
     const id = parseInt(req.params.id);
-    const reservation = await prisma.reservations.findUnique({ where: { id }, include: FULL_INCLUDE });
+    const reservation = await prisma.reservations.findUnique({
+      where: { id },
+      include: RESERVATION_RELATIONS_NO_CAR,
+    });
     if (!reservation) return notFound(res, 'Reservation');
     if (reservation.status !== 'PENDING') {
       return fail(res, `Cannot confirm a reservation with status ${reservation.status}`, 409);
     }
-    const updated = await prisma.reservations.update({
+    const updatedRow = await prisma.reservations.update({
       where: { id },
       data: { status: 'CONFIRMED', confirmed_at: new Date() },
-      include: FULL_INCLUDE,
+      include: RESERVATION_RELATIONS_NO_CAR,
     });
+    const updated = await mergeReservationCar(updatedRow);
     if (reservation.customer?.email) {
       emailService
         .sendReservationConfirmation(updated)

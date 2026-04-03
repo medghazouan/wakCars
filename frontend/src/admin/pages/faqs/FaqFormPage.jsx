@@ -86,15 +86,15 @@ export default function FaqFormPage() {
       animate="animate"
       exit="exit"
       variants={pageTransition}
-      className="mx-auto max-w-4xl space-y-8"
+      className="mx-auto min-w-0 w-full max-w-4xl space-y-8"
     >
-      <div>
-        <h1 className="mb-2 text-3xl font-bold text-secondary">{isEdit ? 'Modifier la FAQ' : 'Nouvelle FAQ'}</h1>
+      <div className="min-w-0">
+        <h1 className="mb-2 text-2xl font-bold text-secondary sm:text-3xl">{isEdit ? 'Modifier la FAQ' : 'Nouvelle FAQ'}</h1>
         <p className="text-gray-500">Les catégories sont fixes pour rester alignées avec le site.</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Card className="space-y-6 p-6">
+        <Card className="space-y-6 p-4 sm:p-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-1.5 md:col-span-2">
               <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-600">Catégorie *</label>
@@ -146,11 +146,11 @@ export default function FaqFormPage() {
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 border-gray-100 border-t pt-6">
-            <Button type="button" variant="ghost" onClick={() => navigate(adminPath('/faqs'))}>
+          <div className="flex flex-col-reverse gap-2 border-t border-gray-100 pt-4 sm:flex-row sm:justify-end sm:gap-3 sm:pt-6">
+            <Button type="button" variant="ghost" className="w-full sm:w-auto" onClick={() => navigate(adminPath('/faqs'))}>
               Annuler
             </Button>
-            <Button type="submit" isLoading={saveMutation.isPending}>
+            <Button type="submit" className="w-full sm:w-auto" isLoading={saveMutation.isPending}>
               Enregistrer
             </Button>
           </div>

@@ -245,13 +245,13 @@ export default function ReservationFormPage() {
       animate="animate"
       exit="exit"
       variants={pageTransition}
-      className="max-w-3xl mx-auto space-y-8"
+      className="mx-auto w-full min-w-0 max-w-3xl space-y-6 sm:space-y-8"
     >
-      <div>
-        <h1 className="text-3xl font-bold text-secondary mb-2">
+      <div className="min-w-0">
+        <h1 className="mb-2 text-2xl font-bold text-secondary sm:text-3xl">
           {isEdit ? `Edit reservation #${id}` : 'New reservation'}
         </h1>
-        <p className="text-gray-400">
+        <p className="text-sm text-gray-400 sm:text-base">
           {isEdit
             ? 'Update booking details. Edits to the linked customer are saved to the Customers directory (you cannot switch to a different customer here).'
             : 'Create a booking for a guest or customer.'}
@@ -259,7 +259,7 @@ export default function ReservationFormPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Card className="p-6 space-y-6">
+        <Card className="space-y-6 p-4 sm:p-6">
           {!isEdit && (
             <div className="space-y-1.5">
               <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest">Vehicle</label>
@@ -549,11 +549,11 @@ export default function ReservationFormPage() {
             </label>
           </div>
 
-          <div className="pt-6 flex gap-4 justify-end border-t border-gray-100">
-            <Button variant="ghost" type="button" onClick={() => navigate(adminPath('/reservations'))}>
+          <div className="flex flex-col-reverse gap-2 border-t border-gray-100 pt-6 sm:flex-row sm:justify-end sm:gap-4">
+            <Button variant="ghost" type="button" className="w-full sm:w-auto" onClick={() => navigate(adminPath('/reservations'))}>
               Cancel
             </Button>
-            <Button type="submit" isLoading={mutation.isPending}>
+            <Button type="submit" className="w-full sm:w-auto" isLoading={mutation.isPending}>
               {isEdit ? 'Save changes' : 'Create reservation'}
             </Button>
           </div>

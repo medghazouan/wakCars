@@ -17,4 +17,9 @@ const updateRules = createRules.map((r) => r.optional());
 
 const idParam = [param('id').isInt({ min: 1 }).withMessage('Valid location id required')];
 
-module.exports = { createRules, updateRules, idParam };
+const removeImageRules = [
+  param('id').isInt({ min: 1 }).withMessage('Valid location id required'),
+  body('url').trim().notEmpty().withMessage('url is required'),
+];
+
+module.exports = { createRules, updateRules, idParam, removeImageRules };
