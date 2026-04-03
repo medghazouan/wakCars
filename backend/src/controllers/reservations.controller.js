@@ -4,6 +4,7 @@ const emailService = require('../services/email.service');
 const pdfService = require('../services/pdf.service');
 const logger = require('../utils/logger');
 const { normalizeBookingSource } = require('../utils/bookingSource');
+const { syncReservationPaymentStatus } = require('../utils/syncReservationPaymentStatus');
 const { success, created, notFound, fail } = require('../utils/apiResponse');
 
 const FULL_INCLUDE = {
@@ -296,6 +297,41 @@ const updatePaymentStatus = async (req, res, next) => {
     const exists = await prisma.reservations.findUnique({ where: { id } });
     if (!exists) return notFound(res, 'Reservation');
 
+    /**
+     * The Payments admin screen lists `payments` rows. Setting payment_status on the reservation
+     * alone does not create those rows — so marking PAID here also records the outstanding amount
+     * as a payment (same as using "Record payment") when nothing was logged yet.
+     */
+    if (payment_status === 'PAID') {
+      const reservation = await prisma.reservations.findUnique({
+        where: { id },
+        include: { payments: true },
+      });
+      const total = Number(reservation.total_amount) || 0;
+      const paid = reservation.payments
+        .filter((p) => p.status !== 'REFUNDED')
+        .reduce((sum, p) => sum + Number(p.amount), 0);
+      const gap = Math.round((total - paid) * 100) / 100;
+      if (gap > 0.01) {
+        await prisma.payments.create({
+          data: {
+            reservation_id: id,
+            amount: gap,
+            method: 'CASH',
+            status: 'PAID',
+            notes: 'Auto-recorded when marking reservation as paid',
+            recorded_by_id: req.admin?.id ?? null,
+          },
+        });
+      }
+      await syncReservationPaymentStatus(id);
+    } else {
+      await prisma.reservations.update({
+        where: { id },
+        data: { payment_status },
+      });
+    }
+
     const payCarSelect = {
       id: true,
       brand: true,
@@ -314,9 +350,8 @@ const updatePaymentStatus = async (req, res, next) => {
       category: null,
       images: [],
     });
-    const updatedRow = await prisma.reservations.update({
+    const updatedRow = await prisma.reservations.findUnique({
       where: { id },
-      data: { payment_status },
       include: {
         customer: { select: { id: true, first_name: true, last_name: true, phone: true } },
         pickup_location: { select: { id: true, name_fr: true } },

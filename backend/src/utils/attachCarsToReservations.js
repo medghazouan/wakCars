@@ -7,6 +7,12 @@ const prisma = require('./prisma');
 async function attachCarsToReservations(rows, carSelect, placeholderForId) {
   if (!rows?.length) return rows;
   const ids = [...new Set(rows.map((r) => r.car_id).filter((id) => id != null))];
+  if (ids.length === 0) {
+    return rows.map((r) => ({
+      ...r,
+      car: placeholderForId(r.car_id),
+    }));
+  }
   const cars = await prisma.cars.findMany({
     where: { id: { in: ids } },
     select: carSelect,

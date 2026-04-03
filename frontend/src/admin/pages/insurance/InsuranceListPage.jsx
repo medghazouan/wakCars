@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { format, parseISO } from 'date-fns'
+import { ar, fr } from 'date-fns/locale'
 import { AlertCircle, CheckCircle, Clock, FileText, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { adminPath } from '@admin/adminPaths'
@@ -13,8 +14,11 @@ import { Button } from '@admin/components/ui/Button'
 import { StatsCard } from '@admin/components/ui/StatsCard'
 import { DataTable } from '@admin/components/ui/DataTable'
 import { StatusBadge } from '@admin/components/ui/StatusBadge'
+import { useAdminLanguage } from '@admin/hooks/useAdminLanguage'
 
 export default function InsuranceListPage() {
+  const { t, currentLanguage } = useAdminLanguage()
+  const dateLocale = currentLanguage === 'ar' ? ar : fr
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [page, setPage] = useState(1)
@@ -34,10 +38,10 @@ export default function InsuranceListPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['insurance'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      toast.success('Insurance policy deleted')
+      toast.success(t('page.insurance.toastDeleted'))
     },
     onError: (err) => {
-      toast.error(err.response?.data?.error || 'Could not delete policy')
+      toast.error(err.response?.data?.error || t('page.insurance.toastDeleteErr'))
     },
   })
 
@@ -60,86 +64,92 @@ export default function InsuranceListPage() {
     }
   }, [data?.meta])
 
-  const columns = [
-    {
-      key: 'car',
-      label: 'Vehicle',
-      render: (p) => (
-        <div>
-          <p className="font-bold text-secondary">
-            {p.car?.brand} {p.car?.model}
-          </p>
-          <p className="font-mono text-xs text-gray-500">{p.car?.license_plate}</p>
-        </div>
-      ),
-    },
-    {
-      key: 'provider',
-      label: 'Provider',
-      render: (p) => (
-        <div>
-          <p className="font-semibold text-secondary">{p.provider}</p>
-          <p className="text-xs text-gray-500">Policy: {p.policy_number}</p>
-        </div>
-      ),
-    },
-    {
-      key: 'dates',
-      label: 'Coverage Period',
-      render: (p) => (
-        <div>
-          <p className="font-medium text-gray-700">
-            {format(parseISO(p.start_date), 'MMM dd, yyyy')} -{' '}
-            {format(parseISO(p.expiry_date), 'MMM dd, yyyy')}
-          </p>
-          <p className="text-xs text-gray-500">
-            {Math.ceil((new Date(p.expiry_date) - new Date(p.start_date)) / (1000 * 60 * 60 * 24))} days
-          </p>
-        </div>
-      ),
-    },
-    {
-      key: 'status',
-      label: 'Status',
-      render: (p) => {
-        const statusKey = p.status?.toUpperCase() || 'UNKNOWN'
-        return <StatusBadge status={statusKey} />
+  const columns = useMemo(
+    () => [
+      {
+        key: 'car',
+        label: t('page.insurance.vehicle'),
+        render: (p) => (
+          <div>
+            <p className="font-bold text-secondary">
+              {p.car?.brand} {p.car?.model}
+            </p>
+            <p className="font-mono text-xs text-gray-500">{p.car?.license_plate}</p>
+          </div>
+        ),
       },
-    },
-    {
-      key: 'actions',
-      label: 'Actions',
-      headerClassName: 'text-right',
-      cellClassName: 'text-right',
-      render: (p) => (
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          <Button
-            size="sm"
-            variant="ghost"
-            type="button"
-            className="h-8"
-            onClick={() => navigate(adminPath(`/insurance/${p.id}/edit`))}
-          >
-            Edit
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-8 text-danger hover:text-red-700"
-            type="button"
-            isLoading={deleteMutation.isPending && deleteMutation.variables === p.id}
-            onClick={() => {
-              if (confirm('Are you sure you want to delete this policy?')) {
-                deleteMutation.mutate(p.id)
-              }
-            }}
-          >
-            <Trash2 size={16} />
-          </Button>
-        </div>
-      ),
-    },
-  ]
+      {
+        key: 'provider',
+        label: t('page.insurance.provider'),
+        render: (p) => (
+          <div>
+            <p className="font-semibold text-secondary">{p.provider}</p>
+            <p className="text-xs text-gray-500">{t('page.insurance.policyLine', { number: p.policy_number })}</p>
+          </div>
+        ),
+      },
+      {
+        key: 'dates',
+        label: t('page.insurance.coverage'),
+        render: (p) => {
+          const days = Math.ceil(
+            (new Date(p.expiry_date) - new Date(p.start_date)) / (1000 * 60 * 60 * 24)
+          )
+          return (
+            <div>
+              <p className="font-medium text-gray-700">
+                {format(parseISO(p.start_date), 'd MMM yyyy', { locale: dateLocale })} -{' '}
+                {format(parseISO(p.expiry_date), 'd MMM yyyy', { locale: dateLocale })}
+              </p>
+              <p className="text-xs text-gray-500">{t('page.insurance.coverageDays', { count: days })}</p>
+            </div>
+          )
+        },
+      },
+      {
+        key: 'status',
+        label: t('page.insurance.status'),
+        render: (p) => {
+          const statusKey = p.status?.toUpperCase() || 'UNKNOWN'
+          return <StatusBadge status={statusKey} />
+        },
+      },
+      {
+        key: 'actions',
+        label: t('common.actions'),
+        headerClassName: 'text-right',
+        cellClassName: 'text-right',
+        render: (p) => (
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Button
+              size="sm"
+              variant="ghost"
+              type="button"
+              className="h-8"
+              onClick={() => navigate(adminPath(`/insurance/${p.id}/edit`))}
+            >
+              {t('common.edit')}
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-8 text-danger hover:text-red-700"
+              type="button"
+              isLoading={deleteMutation.isPending && deleteMutation.variables === p.id}
+              onClick={() => {
+                if (window.confirm(t('page.insurance.deleteConfirm'))) {
+                  deleteMutation.mutate(p.id)
+                }
+              }}
+            >
+              <Trash2 size={16} />
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    [t, navigate, deleteMutation, dateLocale]
+  )
 
   return (
     <motion.div
@@ -151,21 +161,21 @@ export default function InsuranceListPage() {
     >
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <StatsCard
-          title="Compliant Vehicles"
+          title={t('page.insurance.compliantVehicles')}
           value={dashLoading ? '…' : stats.compliant}
           icon={CheckCircle}
           badgeText={dashLoading ? '…' : `${stats.compliantPct}%`}
           badgeVariant="success"
         />
         <StatsCard
-          title="Due Soon"
+          title={t('page.insurance.dueSoon')}
           value={dashLoading ? '…' : stats.dueSoon}
           icon={Clock}
           badgeText={dashLoading ? '…' : `${stats.dueSoonPct}%`}
           badgeVariant="warning"
         />
         <StatsCard
-          title="Critical / Expired"
+          title={t('page.insurance.criticalExpired')}
           value={dashLoading ? '…' : stats.critical}
           icon={AlertCircle}
           badgeText={dashLoading ? '…' : `${stats.criticalPct}%`}
@@ -176,15 +186,15 @@ export default function InsuranceListPage() {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-xl font-bold text-secondary">Insurance Policies</h2>
-            <p className="text-sm text-gray-400">Manage fleet insurance coverage (10 per page).</p>
+            <h2 className="text-xl font-bold text-secondary">{t('page.insurance.title')}</h2>
+            <p className="text-sm text-gray-400">{t('page.insurance.subtitle')}</p>
           </div>
           <Button
             onClick={() => navigate(adminPath('/insurance/new'))}
             className="w-full bg-primary text-white hover:bg-primary/90 sm:w-auto"
           >
-            <FileText size={16} className="mr-2" />
-            New Policy
+            <FileText size={16} className="me-2" />
+            {t('page.insurance.newPolicy')}
           </Button>
         </div>
 

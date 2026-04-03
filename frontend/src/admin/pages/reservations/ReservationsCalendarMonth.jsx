@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
+  addDays,
   addMonths,
   eachDayOfInterval,
   endOfMonth,
@@ -12,20 +13,22 @@ import {
   startOfMonth,
   startOfWeek,
 } from 'date-fns'
+import { ar, fr } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { adminPath } from '@admin/adminPaths'
 import { Button } from '@admin/components/ui/Button'
 import { cn } from '@admin/utils/cn'
-
-const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+import { useAdminLanguage } from '@admin/hooks/useAdminLanguage'
 
 /**
  * @param {{ month: Date; reservations: any[]; isLoading: boolean; onMonthChange: (d: Date) => void }} props
  */
 export function ReservationsCalendarMonth({ month, reservations, isLoading, onMonthChange }) {
+  const { t, currentLanguage } = useAdminLanguage()
+  const dateLocale = currentLanguage === 'ar' ? ar : fr
   const navigate = useNavigate()
 
-  const { days, pickupsByDay } = useMemo(() => {
+  const { days, pickupsByDay, weekdayLabels } = useMemo(() => {
     const monthStart = startOfMonth(month)
     const monthEnd = endOfMonth(month)
     const gridStart = startOfWeek(monthStart, { weekStartsOn: 1 })
@@ -41,8 +44,11 @@ export function ReservationsCalendarMonth({ month, reservations, isLoading, onMo
       map.get(key).push(r)
     }
 
-    return { days: daysList, pickupsByDay: map }
-  }, [month, reservations])
+    const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 })
+    const wdayLabels = Array.from({ length: 7 }, (_, i) => format(addDays(weekStart, i), 'EEE', { locale: dateLocale }))
+
+    return { days: daysList, pickupsByDay: map, weekdayLabels: wdayLabels }
+  }, [month, reservations, dateLocale])
 
   const now = new Date()
 
@@ -50,7 +56,7 @@ export function ReservationsCalendarMonth({ month, reservations, isLoading, onMo
     <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm md:p-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
         <h3 className="text-lg font-bold text-secondary">
-          Upcoming pickups — {format(month, 'MMMM yyyy')}
+          {t('page.reservations.calendarPickups')} — {format(month, 'MMMM yyyy', { locale: dateLocale })}
         </h3>
         <div className="flex items-center gap-2">
           <Button
@@ -58,7 +64,7 @@ export function ReservationsCalendarMonth({ month, reservations, isLoading, onMo
             size="sm"
             variant="outline"
             className="h-9 px-2"
-            aria-label="Previous month"
+            aria-label={t('page.reservations.prevMonthAria')}
             onClick={() => onMonthChange(addMonths(month, -1))}
           >
             <ChevronLeft size={18} />
@@ -70,14 +76,14 @@ export function ReservationsCalendarMonth({ month, reservations, isLoading, onMo
             className="h-9 px-3 text-xs font-semibold"
             onClick={() => onMonthChange(new Date())}
           >
-            Today
+            {t('page.reservations.today')}
           </Button>
           <Button
             type="button"
             size="sm"
             variant="outline"
             className="h-9 px-2"
-            aria-label="Next month"
+            aria-label={t('page.reservations.nextMonthAria')}
             onClick={() => onMonthChange(addMonths(month, 1))}
           >
             <ChevronRight size={18} />
@@ -85,9 +91,7 @@ export function ReservationsCalendarMonth({ month, reservations, isLoading, onMo
         </div>
       </div>
 
-      <p className="mb-4 text-xs text-gray-500">
-        Reservations with pickup date in this month. Click an entry to edit the booking.
-      </p>
+      <p className="mb-4 text-xs text-gray-500">{t('page.reservations.calendarHelp')}</p>
 
       {isLoading ? (
         <div className="grid grid-cols-7 gap-1">
@@ -98,7 +102,7 @@ export function ReservationsCalendarMonth({ month, reservations, isLoading, onMo
       ) : (
         <>
           <div className="mb-2 grid grid-cols-7 gap-1 text-center text-[10px] font-bold uppercase tracking-wider text-gray-400">
-            {WEEKDAYS.map((d) => (
+            {weekdayLabels.map((d) => (
               <div key={d} className="py-2">
                 {d}
               </div>

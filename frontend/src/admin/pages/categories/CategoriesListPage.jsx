@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
@@ -11,8 +12,10 @@ import { DataTable } from '@admin/components/ui/DataTable'
 import { StatsCard } from '@admin/components/ui/StatsCard'
 import { useAuth } from '@admin/hooks/useAuth'
 import { cn } from '@admin/utils/cn'
+import { useAdminLanguage } from '@admin/hooks/useAdminLanguage'
 
 export default function CategoriesListPage() {
+  const { t } = useAdminLanguage()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const isAdmin = useAuth((s) => s.admin?.role) === 'ADMIN'
@@ -29,85 +32,84 @@ export default function CategoriesListPage() {
     mutationFn: (id) => categoriesApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] })
-      toast.success('Catégorie désactivée')
+      toast.success(t('page.categories.toastDeactivated'))
     },
-    onError: (err) => toast.error(err.response?.data?.error || 'Action impossible'),
+    onError: (err) => toast.error(err.response?.data?.error || t('page.categories.toastActionErr')),
   })
 
-  const columns = [
-    {
-      key: 'names',
-      label: 'Nom',
-      render: (c) => (
-        <div className="min-w-0">
-          <p className="font-medium text-secondary">{c.name_fr}</p>
-          <p className="truncate text-xs text-gray-500" dir="rtl">
-            {c.name_ar}
-          </p>
-        </div>
-      ),
-    },
-    {
-      key: 'slug',
-      label: 'Slug',
-      render: (c) => <span className="font-mono text-xs text-gray-600">{c.slug}</span>,
-    },
-    {
-      key: 'cars',
-      label: 'Véhicules actifs',
-      render: (c) => <span className="tabular-nums">{c._count?.cars ?? 0}</span>,
-    },
-    {
-      key: 'order',
-      label: 'Ordre',
-      render: (c) => c.sort_order,
-    },
-    {
-      key: 'status',
-      label: 'Statut',
-      render: (c) => (
-        <span
-          className={cn(
-            'rounded-full px-2 py-0.5 text-xs font-semibold',
-            c.is_active ? 'bg-emerald-50 text-emerald-800' : 'bg-gray-200 text-gray-600'
-          )}
-        >
-          {c.is_active ? 'Active' : 'Inactive'}
-        </span>
-      ),
-    },
-    {
-      key: 'actions',
-      label: '',
-      render: (c) => (
-        <div className="flex flex-wrap gap-2">
-          <Button size="sm" variant="outline" type="button" onClick={() => navigate(adminPath(`/categories/${c.id}`))}>
-            Modifier
-          </Button>
-          {isAdmin && c.is_active ? (
-            <Button
-              size="sm"
-              variant="ghost"
-              type="button"
-              className="text-amber-800 hover:bg-amber-50"
-              isLoading={deactivateMutation.isPending && deactivateMutation.variables === c.id}
-              onClick={() => {
-                if (
-                  window.confirm(
-                    'Désactiver cette catégorie ? Elle ne sera plus proposée pour les nouveaux véhicules (véhicules actifs doivent être déplacés avant).'
-                  )
-                ) {
-                  deactivateMutation.mutate(c.id)
-                }
-              }}
-            >
-              Désactiver
+  const columns = useMemo(
+    () => [
+      {
+        key: 'names',
+        label: t('page.categories.colName'),
+        render: (c) => (
+          <div className="min-w-0">
+            <p className="font-medium text-secondary">{c.name_fr}</p>
+            <p className="truncate text-xs text-gray-500" dir="rtl">
+              {c.name_ar}
+            </p>
+          </div>
+        ),
+      },
+      {
+        key: 'slug',
+        label: t('page.categories.colSlug'),
+        render: (c) => <span className="font-mono text-xs text-gray-600">{c.slug}</span>,
+      },
+      {
+        key: 'cars',
+        label: t('page.categories.colCars'),
+        render: (c) => <span className="tabular-nums">{c._count?.cars ?? 0}</span>,
+      },
+      {
+        key: 'order',
+        label: t('page.categories.colOrder'),
+        render: (c) => c.sort_order,
+      },
+      {
+        key: 'status',
+        label: t('page.categories.status'),
+        render: (c) => (
+          <span
+            className={cn(
+              'rounded-full px-2 py-0.5 text-xs font-semibold',
+              c.is_active ? 'bg-emerald-50 text-emerald-800' : 'bg-gray-200 text-gray-600'
+            )}
+          >
+            {c.is_active ? t('page.categories.statusActive') : t('page.categories.statusInactive')}
+          </span>
+        ),
+      },
+      {
+        key: 'actions',
+        label: '',
+        render: (c) => (
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" type="button" onClick={() => navigate(adminPath(`/categories/${c.id}`))}>
+              {t('common.edit')}
             </Button>
-          ) : null}
-        </div>
-      ),
-    },
-  ]
+            {isAdmin && c.is_active ? (
+              <Button
+                size="sm"
+                variant="ghost"
+                type="button"
+                className="text-amber-800 hover:bg-amber-50"
+                isLoading={deactivateMutation.isPending && deactivateMutation.variables === c.id}
+                onClick={() => {
+                  if (window.confirm(t('page.categories.deactivateConfirm'))) {
+                    deactivateMutation.mutate(c.id)
+                  }
+                }}
+              >
+                {t('page.categories.deactivate')}
+              </Button>
+            ) : null}
+          </div>
+        ),
+      },
+    ],
+    [t, navigate, isAdmin, deactivateMutation]
+  )
 
   return (
     <motion.div
@@ -119,20 +121,26 @@ export default function CategoriesListPage() {
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div className="min-w-0">
-          <h1 className="text-2xl font-bold text-secondary sm:text-3xl">Catégories véhicules</h1>
-          <p className="text-gray-500">Groupez la flotte par type (SUV, berline, etc.). FR / AR + slug unique.</p>
+          <h1 className="text-2xl font-bold text-secondary sm:text-3xl">{t('page.categories.title')}</h1>
+          <p className="text-gray-500">{t('page.categories.subtitle')}</p>
         </div>
         <Button className="w-full sm:w-auto" onClick={() => navigate(adminPath('/categories/new'))}>
           <Plus size={18} className="me-1" />
-          Nouvelle catégorie
+          {t('page.categories.add')}
         </Button>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <StatsCard title="Catégories" value={String(rows.length)} icon={FolderTree} badgeText={`${activeCount} actives`} badgeVariant="neutral" />
+        <StatsCard
+          title={t('page.categories.statsTitle')}
+          value={String(rows.length)}
+          icon={FolderTree}
+          badgeText={t('page.categories.statsBadgeActive', { count: activeCount })}
+          badgeVariant="neutral"
+        />
       </div>
 
-      <DataTable columns={columns} data={rows} isLoading={isLoading} emptyMessage="Aucune catégorie." />
+      <DataTable columns={columns} data={rows} isLoading={isLoading} emptyMessage={t('page.categories.empty')} />
     </motion.div>
   )
 }

@@ -1,6 +1,8 @@
+import { useTranslation } from 'react-i18next'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 export function Pagination({ currentPage, totalPages, totalItems, itemsPerPage, onPageChange }) {
+  const { t } = useTranslation('admin')
   const startItem = (currentPage - 1) * itemsPerPage + 1
   const endItem = Math.min(currentPage * itemsPerPage, totalItems)
 
@@ -14,8 +16,7 @@ export function Pagination({ currentPage, totalPages, totalItems, itemsPerPage, 
   return (
     <div className="flex flex-col gap-3 border-t border-gray-100 bg-white px-3 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
       <p className="text-center text-xs text-text-secondary sm:text-start sm:text-sm">
-        Showing <span className="font-medium text-text-primary">{startItem} - {endItem}</span> of{' '}
-        <span className="font-medium text-text-primary">{totalItems}</span> items
+        {t('table.pageOf', { start: startItem, end: endItem, total: totalItems })}
       </p>
       <div className="flex flex-wrap items-center justify-center gap-1">
         <button

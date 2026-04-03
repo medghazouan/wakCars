@@ -77,35 +77,44 @@ export default function ReportsPage() {
     return list.map((x) => ({ name: x.source, value: x.count }))
   }, [src?.bySource])
 
-  const utilColumns = [
-    { key: 'vehicle', label: 'Véhicule' },
-    { key: 'license_plate', label: 'Immatriculation' },
-    { key: 'reservations', label: 'Réservations' },
-    { key: 'rentedDays', label: 'Jours loués' },
-    {
-      key: 'totalRevenue',
-      label: 'Revenus (MAD)',
-      render: (r) => formatCurrency(r.totalRevenue ?? 0),
-    },
-  ]
+  const utilColumns = useMemo(
+    () => [
+      { key: 'vehicle', label: t('reports.colVehicle') },
+      { key: 'license_plate', label: t('reports.colPlate') },
+      { key: 'reservations', label: t('reports.colReservations') },
+      { key: 'rentedDays', label: t('reports.colRentedDays') },
+      {
+        key: 'totalRevenue',
+        label: t('reports.colRevenueMad'),
+        render: (r) => formatCurrency(r.totalRevenue ?? 0),
+      },
+    ],
+    [t]
+  )
 
-  const handleExport = async (type, format) => {
-    const key = `${type}-${format}`
+  const periodBadge = useMemo(() => {
+    if (period === 'monthly') return t('reports.badgeMonth')
+    if (period === 'daily') return t('reports.badgeDay')
+    return t('reports.badgeYear')
+  }, [period, t])
+
+  const handleExport = async (type, fileFormat) => {
+    const key = `${type}-${fileFormat}`
     setExporting(key)
     try {
       const blob = await reportsApi.exportReport({
         type,
-        format,
+        format: fileFormat,
         period,
         ...(from ? { from: new Date(`${from}T12:00:00`).toISOString() } : {}),
         ...(to ? { to: new Date(`${to}T23:59:59`).toISOString() } : {}),
       })
       const names = {
-        revenue: `revenue-${period}.${format === 'csv' ? 'csv' : 'pdf'}`,
-        utilization: `utilisation-flotte.${format === 'csv' ? 'csv' : 'pdf'}`,
-        booking_sources: `booking-sources-${period}.${format === 'csv' ? 'csv' : 'pdf'}`,
+        revenue: `revenue-${period}.${fileFormat === 'csv' ? 'csv' : 'pdf'}`,
+        utilization: `utilisation-flotte.${fileFormat === 'csv' ? 'csv' : 'pdf'}`,
+        booking_sources: `booking-sources-${period}.${fileFormat === 'csv' ? 'csv' : 'pdf'}`,
       }
-      downloadBlob(blob, names[type] || `report.${format}`)
+      downloadBlob(blob, names[type] || `report.${fileFormat}`)
     } finally {
       setExporting(null)
     }
@@ -126,24 +135,24 @@ export default function ReportsPage() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatsCard
-          title="CA encaissé"
+          title={t('reports.caEncaisse')}
           value={loadingRev ? '…' : formatCurrency(revenue?.total ?? 0)}
           icon={TrendingUp}
-          badgeText={period === 'monthly' ? 'Mois' : period === 'daily' ? 'Jour' : 'Année'}
+          badgeText={periodBadge}
           badgeVariant="neutral"
         />
         <StatsCard
-          title="Réservations (période)"
+          title={t('reports.reservationsPeriod')}
           value={loadingAn ? '…' : String(analytics?.total ?? 0)}
           icon={Activity}
         />
         <StatsCard
-          title="Véhicules (utilisation)"
+          title={t('reports.vehiclesUtil')}
           value={loadingUtil ? '…' : String(utilRows.length)}
           icon={BarChart3}
         />
         <StatsCard
-          title="Volume sources"
+          title={t('reports.volumeSources')}
           value={loadingSrc ? '…' : String(src?.total ?? 0)}
           icon={PieChartIcon}
         />
@@ -152,20 +161,22 @@ export default function ReportsPage() {
       <Card className="flex min-w-0 flex-wrap items-end gap-4 p-4">
         <div>
           <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-            Période (revenus / export)
+            {t('reports.periodLabel')}
           </label>
           <select
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
             className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm"
           >
-            <option value="daily">Jour</option>
-            <option value="monthly">Mois</option>
-            <option value="annual">Année</option>
+            <option value="daily">{t('reports.badgeDay')}</option>
+            <option value="monthly">{t('reports.badgeMonth')}</option>
+            <option value="annual">{t('reports.badgeYear')}</option>
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Du</label>
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+            {t('reports.dateFrom')}
+          </label>
           <input
             type="date"
             value={from}
@@ -174,7 +185,9 @@ export default function ReportsPage() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Au</label>
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+            {t('reports.dateTo')}
+          </label>
           <input
             type="date"
             value={to}
@@ -182,14 +195,12 @@ export default function ReportsPage() {
             className="rounded-lg border border-gray-200 px-3 py-2 text-sm"
           />
         </div>
-        <p className="text-xs text-gray-400">
-          Laisser vide pour la période par défaut (mois / année en cours selon le rapport).
-        </p>
+        <p className="text-xs text-gray-400">{t('reports.dateHint')}</p>
       </Card>
 
       <section className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold text-secondary">Revenus</h2>
+          <h2 className="text-lg font-semibold text-secondary">{t('reports.sectionRevenue')}</h2>
           <div className="flex flex-wrap gap-2">
             <Button
               size="sm"
@@ -198,7 +209,7 @@ export default function ReportsPage() {
               isLoading={exporting === 'revenue-csv'}
               onClick={() => handleExport('revenue', 'csv')}
             >
-              CSV
+              {t('reports.exportCsv')}
             </Button>
             <Button
               size="sm"
@@ -206,25 +217,25 @@ export default function ReportsPage() {
               isLoading={exporting === 'revenue-pdf'}
               onClick={() => handleExport('revenue', 'pdf')}
             >
-              PDF
+              {t('reports.exportPdf')}
             </Button>
           </div>
         </div>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <Card className="p-4 lg:col-span-1">
-            <p className="text-xs font-semibold uppercase text-gray-500">Total encaissé</p>
+            <p className="text-xs font-semibold uppercase text-gray-500">{t('reports.totalEncaisse')}</p>
             <p className="mt-2 text-2xl font-bold text-secondary">
               {loadingRev ? '…' : formatCurrency(revenue?.total ?? 0)}
             </p>
-            <p className="mt-1 text-xs text-gray-400">Paiements avec statut PAID sur la période.</p>
+            <p className="mt-1 text-xs text-gray-400">{t('reports.encaisseHint')}</p>
           </Card>
-          <Card className="p-4 lg:col-span-2">
-            <p className="mb-2 text-xs font-semibold uppercase text-gray-500">Par jour</p>
-            <div className="h-64">
+          <Card className="min-w-0 p-4 lg:col-span-2">
+            <p className="mb-2 text-xs font-semibold uppercase text-gray-500">{t('reports.byDay')}</p>
+            <div className="h-64 w-full min-w-0">
               {loadingRev ? (
-                <p className="text-sm text-gray-400">Chargement…</p>
+                <p className="text-sm text-gray-400">{t('table.loading')}</p>
               ) : chartByDay.length === 0 ? (
-                <p className="text-sm text-gray-400">Pas de données pour cette période.</p>
+                <p className="text-sm text-gray-400">{t('reports.noDataPeriod')}</p>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartByDay}>
@@ -243,7 +254,7 @@ export default function ReportsPage() {
 
       <section className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold text-secondary">Utilisation de la flotte</h2>
+          <h2 className="text-lg font-semibold text-secondary">{t('reports.sectionUtil')}</h2>
           <div className="flex flex-wrap gap-2">
             <Button
               size="sm"
@@ -252,7 +263,7 @@ export default function ReportsPage() {
               isLoading={exporting === 'utilization-csv'}
               onClick={() => handleExport('utilization', 'csv')}
             >
-              CSV
+              {t('reports.exportCsv')}
             </Button>
             <Button
               size="sm"
@@ -260,16 +271,21 @@ export default function ReportsPage() {
               isLoading={exporting === 'utilization-pdf'}
               onClick={() => handleExport('utilization', 'pdf')}
             >
-              PDF
+              {t('reports.exportPdf')}
             </Button>
           </div>
         </div>
-        <DataTable columns={utilColumns} data={utilRows} isLoading={loadingUtil} emptyMessage="Aucune donnée." />
+        <DataTable
+          columns={utilColumns}
+          data={utilRows}
+          isLoading={loadingUtil}
+          emptyMessage={t('reports.emptyUtil')}
+        />
       </section>
 
       <section className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold text-secondary">Origine des réservations</h2>
+          <h2 className="text-lg font-semibold text-secondary">{t('reports.sectionSources')}</h2>
           <div className="flex flex-wrap gap-2">
             <Button
               size="sm"
@@ -278,7 +294,7 @@ export default function ReportsPage() {
               isLoading={exporting === 'booking_sources-csv'}
               onClick={() => handleExport('booking_sources', 'csv')}
             >
-              CSV
+              {t('reports.exportCsv')}
             </Button>
             <Button
               size="sm"
@@ -286,21 +302,21 @@ export default function ReportsPage() {
               isLoading={exporting === 'booking_sources-pdf'}
               onClick={() => handleExport('booking_sources', 'pdf')}
             >
-              PDF
+              {t('reports.exportPdf')}
             </Button>
           </div>
         </div>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <Card className="p-4">
-            <p className="mb-2 text-xs font-semibold uppercase text-gray-500">Total période</p>
+            <p className="mb-2 text-xs font-semibold uppercase text-gray-500">{t('reports.totalPeriod')}</p>
             <p className="text-2xl font-bold text-secondary">{loadingSrc ? '…' : (src?.total ?? 0)}</p>
           </Card>
-          <Card className="p-4">
-            <div className="h-56">
+          <Card className="min-w-0 p-4">
+            <div className="h-56 w-full min-w-0">
               {loadingSrc ? (
-                <p className="text-sm text-gray-400">Chargement…</p>
+                <p className="text-sm text-gray-400">{t('table.loading')}</p>
               ) : pieData.length === 0 ? (
-                <p className="text-sm text-gray-400">Pas encore de réservations avec source.</p>
+                <p className="text-sm text-gray-400">{t('reports.noSourceYet')}</p>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -327,32 +343,32 @@ export default function ReportsPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-secondary">Synthèse réservations</h2>
+        <h2 className="text-lg font-semibold text-secondary">{t('reports.sectionSynth')}</h2>
         <Card className="p-4">
           {loadingAn ? (
-            <p className="text-sm text-gray-400">Chargement…</p>
+            <p className="text-sm text-gray-400">{t('table.loading')}</p>
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div>
-                <p className="text-xs text-gray-500">Total</p>
+                <p className="text-xs text-gray-500">{t('reports.totalLabel')}</p>
                 <p className="text-xl font-bold">{analytics?.total ?? 0}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Par statut</p>
+                <p className="text-xs text-gray-500">{t('reports.byStatus')}</p>
                 <ul className="mt-1 text-sm text-gray-700">
                   {Object.entries(analytics?.byStatus || {}).map(([k, v]) => (
                     <li key={k}>
-                      {k}: {v}
+                      {t(`status.${k}`, { defaultValue: k })}: {v}
                     </li>
                   ))}
                 </ul>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Paiement</p>
+                <p className="text-xs text-gray-500">{t('reports.byPayment')}</p>
                 <ul className="mt-1 text-sm text-gray-700">
                   {Object.entries(analytics?.byPaymentStatus || {}).map(([k, v]) => (
                     <li key={k}>
-                      {k}: {v}
+                      {t(`status.${k}`, { defaultValue: k })}: {v}
                     </li>
                   ))}
                 </ul>

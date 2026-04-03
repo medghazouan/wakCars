@@ -1,24 +1,6 @@
 const prisma = require('../utils/prisma');
+const { syncReservationPaymentStatus } = require('../utils/syncReservationPaymentStatus');
 const { success, created, notFound } = require('../utils/apiResponse');
-
-const syncPaymentStatus = async (reservationId) => {
-  const reservation = await prisma.reservations.findUnique({
-    where: { id: reservationId },
-    include: { payments: true },
-  });
-  if (!reservation) return;
-
-  const paid = reservation.payments
-    .filter((p) => p.status !== 'REFUNDED')
-    .reduce((sum, p) => sum + Number(p.amount), 0);
-  const total = Number(reservation.total_amount);
-
-  let payment_status = 'UNPAID';
-  if (paid >= total) payment_status = 'PAID';
-  else if (paid > 0) payment_status = 'PARTIAL';
-
-  await prisma.reservations.update({ where: { id: reservationId }, data: { payment_status } });
-};
 
 const list = async (req, res, next) => {
   try {
@@ -81,7 +63,7 @@ const create = async (req, res, next) => {
       include: { recorded_by: { select: { id: true, name: true } } },
     });
 
-    await syncPaymentStatus(resId);
+    await syncReservationPaymentStatus(resId);
     return created(res, payment);
   } catch (err) { next(err); }
 };
@@ -101,7 +83,7 @@ const update = async (req, res, next) => {
     if (notes !== undefined) data.notes = notes;
 
     const updated = await prisma.payments.update({ where: { id }, data });
-    await syncPaymentStatus(payment.reservation_id);
+    await syncReservationPaymentStatus(payment.reservation_id);
     return success(res, updated);
   } catch (err) { next(err); }
 };

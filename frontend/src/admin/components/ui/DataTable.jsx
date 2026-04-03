@@ -1,15 +1,18 @@
+import { useTranslation } from 'react-i18next'
 import { Card } from './Card'
 import { Pagination } from './Pagination'
 import { cn } from '@admin/utils/cn'
 
 export function DataTable({ 
   columns, 
-  data, 
+  data = [], 
   isLoading, 
   pagination, 
   onPageChange,
-  emptyMessage = "No records found"
+  emptyMessage,
 }) {
+  const { t } = useTranslation('admin')
+  const resolvedEmpty = emptyMessage ?? t('table.noRecords')
   return (
     <Card className="flex min-w-0 flex-col">
       <div className="-mx-px overflow-x-auto sm:mx-0">
@@ -35,13 +38,13 @@ export function DataTable({
             {isLoading ? (
               <tr>
                 <td colSpan={columns.length} className="px-6 py-8 text-center text-gray-400">
-                  Loading...
+                  {t('table.loading')}
                 </td>
               </tr>
             ) : data.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="px-6 py-8 text-center text-gray-400">
-                  {emptyMessage}
+                  {resolvedEmpty}
                 </td>
               </tr>
             ) : (
@@ -59,7 +62,10 @@ export function DataTable({
         </table>
       </div>
       
-      {pagination && pagination.totalPages > 1 && (
+      {pagination &&
+        pagination.total != null &&
+        pagination.limit != null &&
+        pagination.total > pagination.limit && (
         <Pagination 
           currentPage={pagination.page}
           totalPages={pagination.totalPages}

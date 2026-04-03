@@ -1,55 +1,114 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { Bell, ChevronRight, RefreshCw } from 'lucide-react'
 import { alertsApi } from '@admin/api/alerts.api'
 import { adminPath } from '@admin/adminPaths'
 import { Button } from '@admin/components/ui/Button'
 import { getVisibleAlertCount } from '@admin/utils/alertCounts'
+import {
+  buildAlertsFingerprint,
+  loadAcknowledgedAlertsFingerprint,
+  saveAcknowledgedAlertsFingerprint,
+} from '@admin/utils/alertsFingerprint'
 import { cn } from '@admin/utils/cn'
 import { overdueReturn, paymentIssue } from '@admin/utils/whatsappLinks'
 
+const POLL_MS = 15_000
+
 export function NavAlertsBell() {
+  const { t } = useTranslation('admin')
+  const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const containerRef = useRef(null)
-
-  useEffect(() => {
-    const onDoc = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) setOpen(false)
-    }
-    document.addEventListener('mousedown', onDoc)
-    return () => document.removeEventListener('mousedown', onDoc)
-  }, [])
+  const payloadRef = useRef(null)
+  const [ackFingerprint, setAckFingerprint] = useState(loadAcknowledgedAlertsFingerprint)
 
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ['alerts'],
     queryFn: () => alertsApi.getAlerts(),
-    refetchInterval: 90_000,
+    refetchInterval: () =>
+      typeof document !== 'undefined' && document.hidden ? false : POLL_MS,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
     retry: 2,
   })
 
   const payload = data?.data
+
+  useEffect(() => {
+    payloadRef.current = payload
+  }, [payload])
+
+  const acknowledgeAlerts = useCallback(() => {
+    const p = payloadRef.current
+    if (!p || isLoading || isError) return
+    const fp = buildAlertsFingerprint(p)
+    if (fp) {
+      saveAcknowledgedAlertsFingerprint(fp)
+      setAckFingerprint(fp)
+    }
+  }, [isLoading, isError])
+
+  useEffect(() => {
+    const onDoc = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen((wasOpen) => {
+          if (wasOpen) acknowledgeAlerts()
+          return false
+        })
+      }
+    }
+    document.addEventListener('mousedown', onDoc)
+    return () => document.removeEventListener('mousedown', onDoc)
+  }, [acknowledgeAlerts])
+
+  /** Near–real-time: poll while tab visible + refresh when returning to the tab */
+  useEffect(() => {
+    const onVis = () => {
+      if (document.visibilityState === 'visible') {
+        queryClient.invalidateQueries({ queryKey: ['alerts'] })
+      }
+    }
+    document.addEventListener('visibilitychange', onVis)
+    return () => document.removeEventListener('visibilitychange', onVis)
+  }, [queryClient])
+
   const summary = payload?.summary
   const count = getVisibleAlertCount(summary)
+  const currentFp = payload ? buildAlertsFingerprint(payload) : ''
+  const displayCount =
+    currentFp && ackFingerprint && currentFp === ackFingerprint ? 0 : count
 
   const overdue = (payload?.overdueReservations || []).slice(0, 4)
   const unpaid = (payload?.unpaidReservations || []).slice(0, 4)
   const expiring = (payload?.expiringInsurance || []).slice(0, 3)
   const damages = (payload?.unresolvedDamages || []).slice(0, 3)
 
+  const closePanel = useCallback(() => {
+    acknowledgeAlerts()
+    setOpen(false)
+  }, [acknowledgeAlerts])
+
   return (
     <div className="relative" ref={containerRef}>
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() =>
+          setOpen((wasOpen) => {
+            if (wasOpen) acknowledgeAlerts()
+            return !wasOpen
+          })
+        }
         className="relative flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-gray-500 transition-colors hover:bg-gray-100 hover:text-secondary sm:min-h-0 sm:min-w-0 sm:rounded-lg sm:p-1.5"
         aria-expanded={open}
-        aria-label="Alertes"
+        aria-label={t('alerts.bellAria')}
       >
         <Bell size={22} className="sm:h-5 sm:w-5" />
-        {count > 0 && (
+        {displayCount > 0 && (
           <span className="absolute end-0 top-0 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">
-            {count > 99 ? '99+' : count}
+            {displayCount > 99 ? '99+' : displayCount}
           </span>
         )}
       </button>
@@ -65,10 +124,10 @@ export function NavAlertsBell() {
             'sm:absolute sm:inset-auto sm:end-0 sm:start-auto sm:top-full sm:mt-2 sm:w-[min(100vw-2rem,22rem)] sm:max-w-none sm:rounded-xl sm:shadow-xl'
           )}
           role="dialog"
-          aria-label="Notifications"
+          aria-label={t('alerts.panelAria')}
         >
           <div className="flex flex-wrap items-center justify-between gap-2 border-gray-100 border-b px-3 py-3 sm:px-4 sm:py-2.5">
-            <p className="text-base font-semibold text-secondary sm:text-sm">Alertes</p>
+            <p className="text-base font-semibold text-secondary sm:text-sm">{t('alerts.title')}</p>
             <div className="flex items-center gap-2">
               {isError ? (
                 <Button
@@ -80,46 +139,46 @@ export function NavAlertsBell() {
                   disabled={isFetching}
                 >
                   <RefreshCw size={14} className={cn(isFetching && 'animate-spin')} />
-                  Réessayer
+                  {t('alerts.retry')}
                 </Button>
               ) : null}
               <Link
                 to={adminPath('/dashboard')}
                 className="flex min-h-[44px] items-center gap-0.5 rounded-lg px-2 text-xs font-medium text-primary hover:bg-primary/5 hover:underline sm:min-h-0"
-                onClick={() => setOpen(false)}
+                onClick={closePanel}
               >
-                Tableau de bord
+                {t('alerts.dashboardLink')}
                 <ChevronRight size={14} />
               </Link>
             </div>
           </div>
 
-          {isLoading && <p className="px-4 py-8 text-center text-sm text-gray-500">Chargement…</p>}
+          {isLoading && <p className="px-4 py-8 text-center text-sm text-gray-500">{t('alerts.loading')}</p>}
 
           {isError && !isLoading && (
             <div className="space-y-3 px-4 py-8 text-center">
-              <p className="text-sm text-amber-800">Impossible de charger les alertes.</p>
+              <p className="text-sm text-amber-800">{t('alerts.loadError')}</p>
               <Button type="button" size="sm" className="min-h-11 w-full max-w-xs" onClick={() => refetch()} disabled={isFetching}>
                 <RefreshCw size={16} className={cn('me-2', isFetching && 'animate-spin')} />
-                Réessayer
+                {t('alerts.retry')}
               </Button>
             </div>
           )}
 
           {!isLoading && !isError && count === 0 && (
-            <p className="px-4 py-8 text-center text-sm text-gray-500">Aucune alerte opérationnelle.</p>
+            <p className="px-4 py-8 text-center text-sm text-gray-500">{t('alerts.empty')}</p>
           )}
 
           {!isLoading && !isError && count > 0 && (
             <div className="space-y-2 px-2 py-3 sm:space-y-1 sm:py-2">
               {overdue.length > 0 && (
-                <AlertSection title="Retours en retard">
+                <AlertSection title={t('alerts.sectionOverdue')}>
                   {overdue.map((r) => (
                     <AlertRow
                       key={`o-${r.id}`}
                       href={adminPath(`/reservations/${r.id}/edit`)}
-                      onNavigate={() => setOpen(false)}
-                      primary={`Réservation #${r.id}`}
+                      onNavigate={closePanel}
+                      primary={t('alerts.reservationPrimary', { id: r.id })}
                       secondary={`${r.car?.brand || ''} ${r.car?.model || ''}`}
                       extra={
                         r.customer?.phone ? (
@@ -140,13 +199,13 @@ export function NavAlertsBell() {
               )}
 
               {unpaid.length > 0 && (
-                <AlertSection title="Paiements en attente">
+                <AlertSection title={t('alerts.sectionUnpaid')}>
                   {unpaid.map((r) => (
                     <AlertRow
                       key={`u-${r.id}`}
                       href={adminPath(`/reservations/${r.id}/edit`)}
-                      onNavigate={() => setOpen(false)}
-                      primary={`#${r.id} · ${r.payment_status}`}
+                      onNavigate={closePanel}
+                      primary={t('alerts.paymentPrimary', { id: r.id, status: r.payment_status })}
                       secondary={r.car ? `${r.car.brand} ${r.car.model}` : ''}
                       extra={
                         r.customer?.phone ? (
@@ -167,12 +226,12 @@ export function NavAlertsBell() {
               )}
 
               {expiring.length > 0 && (
-                <AlertSection title="Assurance (bientôt)">
+                <AlertSection title={t('alerts.sectionInsurance')}>
                   {expiring.map((p) => (
                     <AlertRow
                       key={`i-${p.id}`}
                       href={adminPath(`/insurance/${p.id}/edit`)}
-                      onNavigate={() => setOpen(false)}
+                      onNavigate={closePanel}
                       primary={`${p.car?.brand} ${p.car?.model}`}
                       secondary={p.expiry_date ? String(p.expiry_date).slice(0, 10) : ''}
                     />
@@ -181,13 +240,13 @@ export function NavAlertsBell() {
               )}
 
               {damages.length > 0 && (
-                <AlertSection title="Sinistres ouverts">
+                <AlertSection title={t('alerts.sectionDamages')}>
                   {damages.map((d) => (
                     <AlertRow
                       key={`d-${d.id}`}
                       href={adminPath(`/damages/${d.id}/edit`)}
-                      onNavigate={() => setOpen(false)}
-                      primary={`Sinistre #${d.id}`}
+                      onNavigate={closePanel}
+                      primary={t('alerts.damagePrimary', { id: d.id })}
                       secondary={d.car?.license_plate || ''}
                     />
                   ))}

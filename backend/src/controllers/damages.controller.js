@@ -1,14 +1,28 @@
 const prisma = require('../utils/prisma');
 const cloudinary = require('../services/cloudinary.service');
 const emailService = require('../services/email.service');
+const { attachCarsToReservations } = require('../utils/attachCarsToReservations');
 const { success, created, noContent, notFound, fail } = require('../utils/apiResponse');
 
-const FULL_INCLUDE = {
-  car: { select: { id: true, brand: true, model: true, license_plate: true } },
+/** Relations without `car` — avoids Prisma error when car_id points to a deleted car */
+const INCLUDE_WITHOUT_CAR = {
   reservation: { select: { id: true, status: true } },
   reported_by: { select: { id: true, name: true } },
   images: true,
 };
+
+const CAR_SELECT = {
+  id: true,
+  brand: true,
+  model: true,
+  license_plate: true,
+};
+const placeholderCar = (carId) => ({
+  id: carId,
+  brand: '—',
+  model: 'Vehicle removed',
+  license_plate: '',
+});
 
 const list = async (req, res, next) => {
   try {
@@ -19,27 +33,29 @@ const list = async (req, res, next) => {
     if (resolved !== undefined) where.resolved = resolved === 'true' || resolved === '1';
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    const [reports, total] = await Promise.all([
+    const [rows, total] = await Promise.all([
       prisma.damage_reports.findMany({
         where,
-        include: FULL_INCLUDE,
+        include: INCLUDE_WITHOUT_CAR,
         skip,
         take: parseInt(limit),
         orderBy: { created_at: 'desc' },
       }),
       prisma.damage_reports.count({ where }),
     ]);
+    const reports = await attachCarsToReservations(rows, CAR_SELECT, placeholderCar);
     return success(res, reports, 200, { total, page: parseInt(page), limit: parseInt(limit) });
   } catch (err) { next(err); }
 };
 
 const getById = async (req, res, next) => {
   try {
-    const report = await prisma.damage_reports.findUnique({
+    const row = await prisma.damage_reports.findUnique({
       where: { id: parseInt(req.params.id) },
-      include: FULL_INCLUDE,
+      include: INCLUDE_WITHOUT_CAR,
     });
-    if (!report) return notFound(res, 'Damage report');
+    if (!row) return notFound(res, 'Damage report');
+    const [report] = await attachCarsToReservations([row], CAR_SELECT, placeholderCar);
     return success(res, report);
   } catch (err) { next(err); }
 };
@@ -70,7 +86,9 @@ const create = async (req, res, next) => {
       );
     }
 
-    const full = await prisma.damage_reports.findUnique({ where: { id: report.id }, include: FULL_INCLUDE });
+    const row = await prisma.damage_reports.findUnique({ where: { id: report.id }, include: INCLUDE_WITHOUT_CAR });
+    if (!row) return notFound(res, 'Damage report');
+    const [full] = await attachCarsToReservations([row], CAR_SELECT, placeholderCar);
 
     if (customer_notified && reservation_id) {
       const reservation = await prisma.reservations.findUnique({
@@ -83,7 +101,9 @@ const create = async (req, res, next) => {
       }
     }
 
-    const out = await prisma.damage_reports.findUnique({ where: { id: report.id }, include: FULL_INCLUDE });
+    const outRow = await prisma.damage_reports.findUnique({ where: { id: report.id }, include: INCLUDE_WITHOUT_CAR });
+    if (!outRow) return notFound(res, 'Damage report');
+    const [out] = await attachCarsToReservations([outRow], CAR_SELECT, placeholderCar);
     return created(res, out);
   } catch (err) { next(err); }
 };
@@ -101,7 +121,8 @@ const update = async (req, res, next) => {
     if (resolved !== undefined) data.resolved = Boolean(resolved);
     if (customer_notified !== undefined) data.customer_notified = Boolean(customer_notified);
 
-    const report = await prisma.damage_reports.update({ where: { id }, data, include: FULL_INCLUDE });
+    const row = await prisma.damage_reports.update({ where: { id }, data, include: INCLUDE_WITHOUT_CAR });
+    const [report] = await attachCarsToReservations([row], CAR_SELECT, placeholderCar);
     return success(res, report);
   } catch (err) { next(err); }
 };
@@ -135,24 +156,26 @@ const deleteImage = async (req, res, next) => {
 const notifyCustomer = async (req, res, next) => {
   try {
     const id = parseInt(req.params.id);
-    const report = await prisma.damage_reports.findUnique({
+    const row = await prisma.damage_reports.findUnique({
       where: { id },
       include: {
         reservation: { include: { customer: true } },
         images: true,
       },
     });
-    if (!report) return notFound(res, 'Damage report');
+    if (!row) return notFound(res, 'Damage report');
+    const [report] = await attachCarsToReservations([row], CAR_SELECT, placeholderCar);
     if (!report.reservation?.customer?.email) {
       return fail(res, 'No customer email found for this damage report', 422);
     }
 
     await emailService.sendDamageNotification(report, report.reservation.customer);
-    const updated = await prisma.damage_reports.update({
+    const updatedRow = await prisma.damage_reports.update({
       where: { id },
       data: { customer_notified: true },
-      include: FULL_INCLUDE,
+      include: INCLUDE_WITHOUT_CAR,
     });
+    const [updated] = await attachCarsToReservations([updatedRow], CAR_SELECT, placeholderCar);
     return success(res, updated);
   } catch (err) { next(err); }
 };

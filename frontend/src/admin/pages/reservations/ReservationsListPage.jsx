@@ -16,6 +16,7 @@ import { StatusBadge } from '@admin/components/ui/StatusBadge'
 import { formatCurrency } from '@admin/utils/formatters'
 import { cn } from '@admin/utils/cn'
 import { ReservationsCalendarMonth } from './ReservationsCalendarMonth'
+import { useAdminLanguage } from '@admin/hooks/useAdminLanguage'
 
 const PAYMENT_STATUSES = ['UNPAID', 'PARTIAL', 'PAID', 'REFUNDED']
 
@@ -30,6 +31,7 @@ const RESERVATION_STATUSES = [
 ]
 
 export default function ReservationsListPage() {
+  const { t } = useAdminLanguage()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [page, setPage] = useState(1)
@@ -69,10 +71,10 @@ export default function ReservationsListPage() {
       queryClient.invalidateQueries({ queryKey: ['reservations'] })
       queryClient.invalidateQueries({ queryKey: ['reservation', String(rid)] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      toast.success('Payment status updated')
+      toast.success(t('page.reservations.toastPaymentOk'))
     },
     onError: (err) => {
-      toast.error(err.response?.data?.error || 'Could not update payment status')
+      toast.error(err.response?.data?.error || t('page.reservations.toastPaymentErr'))
     },
   })
 
@@ -81,10 +83,10 @@ export default function ReservationsListPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reservations'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      toast.success('Reservation confirmed')
+      toast.success(t('page.reservations.toastConfirmOk'))
     },
     onError: (err) => {
-      toast.error(err.response?.data?.error || 'Could not confirm')
+      toast.error(err.response?.data?.error || t('page.reservations.toastConfirmErr'))
     },
   })
 
@@ -94,10 +96,10 @@ export default function ReservationsListPage() {
       queryClient.invalidateQueries({ queryKey: ['reservations'] })
       queryClient.invalidateQueries({ queryKey: ['reservation', String(id)] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      toast.success('Booking status updated')
+      toast.success(t('page.reservations.toastStatusOk'))
     },
     onError: (err) => {
-      toast.error(err.response?.data?.error || 'Could not update booking status')
+      toast.error(err.response?.data?.error || t('page.reservations.toastStatusErr'))
     },
   })
 
@@ -122,168 +124,172 @@ export default function ReservationsListPage() {
     }
   }, [data?.meta])
 
-  const columns = [
-    {
-      key: 'guest',
-      label: 'Guest & Reference',
-      render: (r) => (
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 font-bold text-gray-600">
-            {r.customer
-              ? `${r.customer.first_name[0]}${r.customer.last_name[0]}`
-              : '—'}
-          </div>
-          <div>
-            <p className="font-bold text-secondary">
+  const columns = useMemo(
+    () => [
+      {
+        key: 'guest',
+        label: t('page.reservations.guestRef'),
+        render: (r) => (
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-200 font-bold text-gray-600">
               {r.customer
-                ? `${r.customer.first_name} ${r.customer.last_name}`
-                : 'Guest'}
-            </p>
-            <p className="font-mono text-xs text-gray-500">
-              REF: #WAK-{r.id.toString().padStart(4, '0')}
-            </p>
+                ? `${r.customer.first_name[0]}${r.customer.last_name[0]}`
+                : '—'}
+            </div>
+            <div>
+              <p className="font-bold text-secondary">
+                {r.customer
+                  ? `${r.customer.first_name} ${r.customer.last_name}`
+                  : t('dashboard.guest')}
+              </p>
+              <p className="font-mono text-xs text-gray-500">
+                {t('page.reservations.refPrefix')} #WAK-{r.id.toString().padStart(4, '0')}
+              </p>
+            </div>
           </div>
-        </div>
-      ),
-    },
-    {
-      key: 'vehicle',
-      label: 'Vehicle Details',
-      render: (r) => (
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-16 flex-shrink-0 overflow-hidden rounded bg-gray-100">
-            {r.car?.images?.[0]?.url && (
-              <img src={r.car.images[0].url} alt="" className="h-full w-full object-cover" />
+        ),
+      },
+      {
+        key: 'vehicle',
+        label: t('page.reservations.vehicleDetails'),
+        render: (r) => (
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-16 flex-shrink-0 overflow-hidden rounded bg-gray-100">
+              {r.car?.images?.[0]?.url && (
+                <img src={r.car.images[0].url} alt="" className="h-full w-full object-cover" />
+              )}
+            </div>
+            <div>
+              <p className="font-semibold text-secondary">
+                {r.car?.brand} {r.car?.model}
+              </p>
+              <p className="text-xs text-gray-500">{r.car?.category?.name_fr || '—'}</p>
+            </div>
+          </div>
+        ),
+      },
+      {
+        key: 'schedule',
+        label: t('page.reservations.schedule'),
+        render: (r) => {
+          const days = Math.ceil(
+            (new Date(r.dropoff_date) - new Date(r.pickup_date)) / (1000 * 60 * 60 * 24)
+          )
+          return (
+            <div>
+              <p className="font-medium text-gray-700">
+                {format(new Date(r.pickup_date), 'MMM dd')} -{' '}
+                {format(new Date(r.dropoff_date), 'MMM dd')}
+              </p>
+              <p className="text-xs text-gray-500">
+                {t('page.reservations.daysTotal', { count: days })}
+              </p>
+            </div>
+          )
+        },
+      },
+      {
+        key: 'booking_source',
+        label: t('page.reservations.source'),
+        render: (r) => (
+          <span className="text-xs font-semibold uppercase tracking-wide text-gray-600">
+            {r.booking_source || '—'}
+          </span>
+        ),
+      },
+      {
+        key: 'booking_status',
+        label: t('page.reservations.bookingStatus'),
+        render: (r) => (
+          <select
+            className={cn(
+              'max-w-[160px] rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs font-semibold text-secondary',
+              'focus:outline-none focus:ring-2 focus:ring-primary/25'
             )}
-          </div>
-          <div>
-            <p className="font-semibold text-secondary">
-              {r.car?.brand} {r.car?.model}
-            </p>
-            <p className="text-xs text-gray-500">{r.car?.category?.name_fr || '—'}</p>
-          </div>
-        </div>
-      ),
-    },
-    {
-      key: 'schedule',
-      label: 'Schedule',
-      render: (r) => (
-        <div>
-          <p className="font-medium text-gray-700">
-            {format(new Date(r.pickup_date), 'MMM dd')} -{' '}
-            {format(new Date(r.dropoff_date), 'MMM dd')}
-          </p>
-          <p className="text-xs text-gray-500">
-            {Math.ceil(
-              (new Date(r.dropoff_date) - new Date(r.pickup_date)) /
-                (1000 * 60 * 60 * 24)
-            )}{' '}
-            Days Total
-          </p>
-        </div>
-      ),
-    },
-    {
-      key: 'booking_source',
-      label: 'Source',
-      render: (r) => (
-        <span className="text-xs font-semibold uppercase tracking-wide text-gray-600">
-          {r.booking_source || '—'}
-        </span>
-      ),
-    },
-    {
-      key: 'booking_status',
-      label: 'Booking status',
-      render: (r) => (
-        <select
-          className={cn(
-            'max-w-[160px] rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs font-semibold text-secondary',
-            'focus:outline-none focus:ring-2 focus:ring-primary/25'
-          )}
-          value={r.status}
-          onChange={(e) =>
-            statusMutation.mutate({
-              id: r.id,
-              status: e.target.value,
-            })
-          }
-          disabled={
-            statusMutation.isPending && statusMutation.variables?.id === r.id
-          }
-        >
-          {RESERVATION_STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {s.replace(/_/g, ' ')}
-            </option>
-          ))}
-        </select>
-      ),
-    },
-    {
-      key: 'payment',
-      label: 'Payment Status',
-      render: (r) => (
-        <select
-          className={cn(
-            'max-w-[150px] rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs font-semibold text-secondary',
-            'focus:outline-none focus:ring-2 focus:ring-primary/25'
-          )}
-          value={r.payment_status}
-          onChange={(e) =>
-            paymentMutation.mutate({
-              id: r.id,
-              payment_status: e.target.value,
-            })
-          }
-          disabled={
-            paymentMutation.isPending &&
-            paymentMutation.variables?.id === r.id
-          }
-        >
-          {PAYMENT_STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {s.replace('_', ' ')}
-            </option>
-          ))}
-        </select>
-      ),
-    },
-    {
-      key: 'actions',
-      label: 'Actions',
-      headerClassName: 'text-left',
-      cellClassName: 'text-left',
-      render: (r) => (
-        <div className="flex flex-wrap items-center gap-2">
-          {r.status === 'PENDING' && (
+            value={r.status}
+            onChange={(e) =>
+              statusMutation.mutate({
+                id: r.id,
+                status: e.target.value,
+              })
+            }
+            disabled={
+              statusMutation.isPending && statusMutation.variables?.id === r.id
+            }
+          >
+            {RESERVATION_STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {t(`status.${s}`, { defaultValue: s.replace(/_/g, ' ') })}
+              </option>
+            ))}
+          </select>
+        ),
+      },
+      {
+        key: 'payment',
+        label: t('page.reservations.paymentStatus'),
+        render: (r) => (
+          <select
+            className={cn(
+              'max-w-[150px] rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs font-semibold text-secondary',
+              'focus:outline-none focus:ring-2 focus:ring-primary/25'
+            )}
+            value={r.payment_status}
+            onChange={(e) =>
+              paymentMutation.mutate({
+                id: r.id,
+                payment_status: e.target.value,
+              })
+            }
+            disabled={
+              paymentMutation.isPending &&
+              paymentMutation.variables?.id === r.id
+            }
+          >
+            {PAYMENT_STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {t(`status.${s}`, { defaultValue: s.replace('_', ' ') })}
+              </option>
+            ))}
+          </select>
+        ),
+      },
+      {
+        key: 'actions',
+        label: t('common.actions'),
+        headerClassName: 'text-left',
+        cellClassName: 'text-left',
+        render: (r) => (
+          <div className="flex flex-wrap items-center gap-2">
+            {r.status === 'PENDING' && (
+              <Button
+                size="sm"
+                variant="primary"
+                className="h-8"
+                type="button"
+                isLoading={
+                  confirmMutation.isPending && confirmMutation.variables === r.id
+                }
+                onClick={() => confirmMutation.mutate(r.id)}
+              >
+                {t('page.reservations.confirm')}
+              </Button>
+            )}
             <Button
               size="sm"
-              variant="primary"
-              className="h-8"
+              variant="ghost"
               type="button"
-              isLoading={
-                confirmMutation.isPending && confirmMutation.variables === r.id
-              }
-              onClick={() => confirmMutation.mutate(r.id)}
+              className="h-8"
+              onClick={() => navigate(adminPath(`/reservations/${r.id}/edit`))}
             >
-              Confirm
+              {t('page.reservations.edit')}
             </Button>
-          )}
-          <Button
-            size="sm"
-            variant="ghost"
-            type="button"
-            className="h-8"
-            onClick={() => navigate(adminPath(`/reservations/${r.id}/edit`))}
-          >
-            Edit
-          </Button>
-        </div>
-      ),
-    },
-  ]
+          </div>
+        ),
+      },
+    ],
+    [t, navigate, statusMutation, paymentMutation, confirmMutation]
+  )
 
   return (
     <motion.div
@@ -295,30 +301,36 @@ export default function ReservationsListPage() {
     >
       <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
         <StatsCard
-          title="Active Bookings"
+          title={t('page.reservations.activeBookings')}
           value={dashLoading ? '…' : stats.active}
           icon={CalendarIcon}
-          badgeText={dashLoading ? '…' : `${stats.pending} pending`}
+          badgeText={dashLoading ? '…' : t('page.reservations.pendingBadge', { count: stats.pending })}
           badgeVariant="neutral"
         />
         <StatsCard
-          title="Pending Conf."
+          title={t('page.reservations.pendingConf')}
           value={dashLoading ? '…' : stats.pending}
           icon={Clock}
           badgeText={
-            stats.pending > 5 ? 'High' : stats.pending > 0 ? 'Open' : 'Clear'
+            stats.pending > 5
+              ? t('page.reservations.badgeHigh')
+              : stats.pending > 0
+                ? t('page.reservations.badgeOpen')
+                : t('page.reservations.badgeClear')
           }
           badgeVariant={stats.pending > 5 ? 'danger' : 'warning'}
         />
         <StatsCard
-          title="New (24H)"
+          title={t('page.reservations.new24h')}
           value={dashLoading ? '…' : stats.new}
           icon={CheckCircle}
-          badgeText="Created"
+          badgeText={t('page.reservations.badgeCreated')}
           badgeVariant="neutral"
         />
         <StatsCard
-          title={`Revenue (${rev.monthLabel || 'MTD'})`}
+          title={t('page.reservations.revenue', {
+            label: rev.monthLabel || t('page.reservations.revenueMonthFallback'),
+          })}
           value={dashLoading ? '…' : formatCurrency(stats.revenue)}
           icon={TrendingUp}
           badgeText={dashLoading ? '…' : revBadge}
@@ -329,11 +341,9 @@ export default function ReservationsListPage() {
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-xl font-bold text-secondary">Reservations</h2>
+            <h2 className="text-xl font-bold text-secondary">{t('page.reservations.sectionTitle')}</h2>
             <p className="text-sm text-gray-400">
-              {view === 'list'
-                ? 'Manage bookings (10 per page).'
-                : 'Calendar of pickups by month.'}
+              {view === 'list' ? t('page.reservations.listHelp') : t('page.reservations.calHelp')}
             </p>
           </div>
           <div className="flex w-full rounded-lg bg-gray-100 p-1 text-sm font-semibold sm:w-auto">
@@ -347,7 +357,7 @@ export default function ReservationsListPage() {
                   : 'text-gray-500 hover:text-gray-800'
               )}
             >
-              List view
+              {t('page.reservations.listView')}
             </button>
             <button
               type="button"
@@ -359,7 +369,7 @@ export default function ReservationsListPage() {
                   : 'text-gray-500 hover:text-gray-800'
               )}
             >
-              Calendar
+              {t('page.reservations.calendarView')}
             </button>
           </div>
         </div>
@@ -384,7 +394,7 @@ export default function ReservationsListPage() {
 
       <div className="w-full rounded-xl border border-gray-200 bg-white p-6">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-lg font-bold">Arrival timeline</h3>
+          <h3 className="text-lg font-bold">{t('page.reservations.arrivalTimeline')}</h3>
           <button
             type="button"
             className="text-sm font-semibold text-primary hover:underline"
@@ -393,17 +403,15 @@ export default function ReservationsListPage() {
               setCalMonth(new Date())
             }}
           >
-            Full calendar
+            {t('page.reservations.fullCalendar')}
           </button>
         </div>
 
         <div className="relative space-y-6 before:absolute before:inset-0 before:ml-12 before:h-full before:w-0.5 before:-translate-x-px before:bg-gray-100 md:before:mx-auto md:before:translate-x-0">
           {dashLoading ? (
-            <p className="pl-14 text-sm text-gray-400">Loading timeline…</p>
+            <p className="pl-14 text-sm text-gray-400">{t('page.reservations.loadingTimeline')}</p>
           ) : timeline.length === 0 ? (
-            <p className="pl-14 text-sm text-gray-400">
-              No pickups scheduled in the next 7 days.
-            </p>
+            <p className="pl-14 text-sm text-gray-400">{t('page.reservations.noPickups')}</p>
           ) : (
             timeline.map((item, i) => {
               const urgent = item.badge === 'URGENT'

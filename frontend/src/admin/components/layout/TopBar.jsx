@@ -62,7 +62,7 @@ export function TopBar() {
           <button
             type="button"
             className="hidden rounded-sm p-1.5 transition-colors hover:bg-gray-100 hover:text-text-primary sm:inline-flex"
-            aria-label="Aide"
+            aria-label={t('common.helpAria')}
           >
             <HelpCircle size={20} />
           </button>

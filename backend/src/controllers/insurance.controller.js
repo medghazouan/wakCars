@@ -1,5 +1,20 @@
 const prisma = require('../utils/prisma');
+const { attachCarsToReservations } = require('../utils/attachCarsToReservations');
 const { success, created, noContent, notFound } = require('../utils/apiResponse');
+
+const CAR_SELECT = {
+  id: true,
+  brand: true,
+  model: true,
+  license_plate: true,
+  category_id: true,
+};
+const placeholderCar = (carId) => ({
+  id: carId,
+  brand: '—',
+  model: 'Vehicle removed',
+  license_plate: '',
+});
 
 const list = async (req, res, next) => {
   try {
@@ -14,27 +29,27 @@ const list = async (req, res, next) => {
     }
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    const [policies, total] = await Promise.all([
+    const [rows, total] = await Promise.all([
       prisma.insurance_policies.findMany({
         where,
-        include: { car: { select: { id: true, brand: true, model: true, license_plate: true } } },
         skip,
         take: parseInt(limit),
         orderBy: { expiry_date: 'asc' },
       }),
       prisma.insurance_policies.count({ where }),
     ]);
+    const policies = await attachCarsToReservations(rows, CAR_SELECT, placeholderCar);
     return success(res, policies, 200, { total, page: parseInt(page), limit: parseInt(limit) });
   } catch (err) { next(err); }
 };
 
 const getById = async (req, res, next) => {
   try {
-    const policy = await prisma.insurance_policies.findUnique({
+    const row = await prisma.insurance_policies.findUnique({
       where: { id: parseInt(req.params.id) },
-      include: { car: true },
     });
-    if (!policy) return notFound(res, 'Insurance policy');
+    if (!row) return notFound(res, 'Insurance policy');
+    const [policy] = await attachCarsToReservations([row], CAR_SELECT, placeholderCar);
     return success(res, policy);
   } catch (err) { next(err); }
 };
@@ -46,14 +61,14 @@ const create = async (req, res, next) => {
     const expiry = new Date(expiry_date);
     const status = expiry < now ? 'expired' : 'active';
 
-    const policy = await prisma.insurance_policies.create({
+    const row = await prisma.insurance_policies.create({
       data: {
         car_id: parseInt(car_id), provider, policy_number,
         start_date: new Date(start_date), expiry_date: expiry,
         status, notes,
       },
-      include: { car: { select: { id: true, brand: true, model: true } } },
     });
+    const [policy] = await attachCarsToReservations([row], CAR_SELECT, placeholderCar);
     return created(res, policy);
   } catch (err) { next(err); }
 };
@@ -76,7 +91,11 @@ const update = async (req, res, next) => {
     if (status !== undefined) data.status = status;
     if (notes !== undefined) data.notes = notes;
 
-    const policy = await prisma.insurance_policies.update({ where: { id }, data });
+    const row = await prisma.insurance_policies.update({
+      where: { id },
+      data,
+    });
+    const [policy] = await attachCarsToReservations([row], CAR_SELECT, placeholderCar);
     return success(res, policy);
   } catch (err) { next(err); }
 };

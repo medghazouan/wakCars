@@ -9,11 +9,13 @@ import { Card } from '@admin/components/ui/Card'
 import { getVisibleAlertCount } from '@admin/utils/alertCounts'
 import { cn } from '@admin/utils/cn'
 import { overdueReturn, paymentIssue } from '@admin/utils/whatsappLinks'
+import { useAdminLanguage } from '@admin/hooks/useAdminLanguage'
 
 /**
  * PRD alert-style panel. Technical / maintenance visit alerts are omitted by product request.
  */
 export function DashboardAlerts() {
+  const { t } = useAdminLanguage()
   const [mobileTab, setMobileTab] = useState(0)
 
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
@@ -31,7 +33,7 @@ export function DashboardAlerts() {
   if (isLoading) {
     return (
       <Card className="p-4 sm:p-6">
-        <p className="text-sm text-gray-500">Chargement des alertes…</p>
+        <p className="text-sm text-gray-500">{t('dashboard.loadAlertsPanel')}</p>
       </Card>
     )
   }
@@ -39,7 +41,7 @@ export function DashboardAlerts() {
   if (isError || !payload) {
     return (
       <Card className="space-y-4 p-4 sm:p-6">
-        <p className="text-sm text-amber-800">Impossible de charger les alertes.</p>
+        <p className="text-sm text-amber-800">{t('alerts.loadError')}</p>
         <Button
           type="button"
           variant="outline"
@@ -48,7 +50,7 @@ export function DashboardAlerts() {
           disabled={isFetching}
         >
           <RefreshCw size={16} className={cn('me-2', isFetching && 'animate-spin')} />
-          Réessayer
+          {t('alerts.retry')}
         </Button>
       </Card>
     )
@@ -61,15 +63,15 @@ export function DashboardAlerts() {
   const damages = payload.unresolvedDamages || []
 
   const mobileTabs = [
-    { id: 'overdue', short: 'Retards', count: overdue.length },
-    { id: 'ins30', short: 'Assur. 30j', count: expiringIns.length },
-    { id: 'insexp', short: 'Assur. exp.', count: expiredIns.length },
-    { id: 'pay', short: 'Paiements', count: unpaid.length },
-    { id: 'dmg', short: 'Sinistres', count: damages.length },
+    { id: 'overdue', shortKey: 'mobileTabOverdue', count: overdue.length },
+    { id: 'ins30', shortKey: 'mobileTabIns30', count: expiringIns.length },
+    { id: 'insexp', shortKey: 'mobileTabInsExp', count: expiredIns.length },
+    { id: 'pay', shortKey: 'mobileTabPay', count: unpaid.length },
+    { id: 'dmg', shortKey: 'mobileTabDmg', count: damages.length },
   ]
 
   const overdueBlock = (
-    <AlertBlock title="Retours en retard" icon={Car} count={overdue.length} empty="Aucun retour en retard.">
+    <AlertBlock title={t('dashboard.alertsOverdueTitle')} icon={Car} count={overdue.length} empty={t('dashboard.alertsOverdueEmpty')}>
       {overdue.map((r) => (
         <li
           key={r.id}
@@ -80,7 +82,7 @@ export function DashboardAlerts() {
               to={adminPath(`/reservations/${r.id}/edit`)}
               className="font-medium text-primary hover:underline"
             >
-              Réservation #{r.id}
+              {t('dashboard.reservationNumber', { id: r.id })}
             </Link>
             <span className="text-gray-500">
               {' '}
@@ -104,24 +106,32 @@ export function DashboardAlerts() {
 
   const expiringBlock = (
     <AlertBlock
-      title="Assurance — échéance sous 30 j."
+      title={t('dashboard.alertsInsurance30Title')}
       icon={Shield}
       count={expiringIns.length}
-      empty="Aucune échéance proche."
+      empty={t('dashboard.alertsInsurance30Empty')}
     >
       {expiringIns.map((p) => (
         <li key={p.id} className="border-gray-100 border-b py-3 text-sm last:border-0 sm:py-2">
           <Link to={adminPath(`/insurance/${p.id}/edit`)} className="font-medium text-primary hover:underline">
             {p.car?.brand} {p.car?.model}
           </Link>
-          <span className="text-gray-500"> · expire {String(p.expiry_date).slice(0, 10)}</span>
+          <span className="text-gray-500">
+            {' '}
+            · {t('dashboard.expiresShort', { date: String(p.expiry_date).slice(0, 10) })}
+          </span>
         </li>
       ))}
     </AlertBlock>
   )
 
   const expiredBlock = (
-    <AlertBlock title="Assurance expirée" icon={Shield} count={expiredIns.length} empty="Aucune police expirée listée.">
+    <AlertBlock
+      title={t('dashboard.alertsInsuranceExpiredTitle')}
+      icon={Shield}
+      count={expiredIns.length}
+      empty={t('dashboard.alertsInsuranceExpiredEmpty')}
+    >
       {expiredIns.map((p) => (
         <li key={p.id} className="border-gray-100 border-b py-3 text-sm last:border-0 sm:py-2">
           <Link to={adminPath(`/insurance/${p.id}/edit`)} className="font-medium text-primary hover:underline">
@@ -134,10 +144,10 @@ export function DashboardAlerts() {
 
   const unpaidBlock = (
     <AlertBlock
-      title="Paiements en attente"
+      title={t('dashboard.alertsUnpaidTitle')}
       icon={CreditCard}
       count={unpaid.length}
-      empty="Tous les paiements sont à jour."
+      empty={t('dashboard.alertsUnpaidEmpty')}
     >
       {unpaid.map((r) => (
         <li
@@ -164,16 +174,16 @@ export function DashboardAlerts() {
 
   const damagesBlock = (
     <AlertBlock
-      title="Sinistres non résolus"
+      title={t('dashboard.alertsDamagesTitle')}
       icon={AlertTriangle}
       count={damages.length}
-      empty="Aucun sinistre ouvert."
+      empty={t('dashboard.alertsDamagesEmpty')}
       className="lg:col-span-2"
     >
       {damages.map((d) => (
         <li key={d.id} className="border-gray-100 border-b py-3 text-sm last:border-0 sm:py-2">
           <Link to={adminPath('/damages')} className="font-medium text-primary hover:underline">
-            Sinistre #{d.id}
+            {t('dashboard.damageNumber', { id: d.id })}
           </Link>
           <span className="text-gray-500">
             {' '}
@@ -191,7 +201,7 @@ export function DashboardAlerts() {
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <Bell className="shrink-0 text-primary" size={22} />
-          <h2 className="text-lg font-semibold text-secondary">Alertes opérationnelles</h2>
+          <h2 className="text-lg font-semibold text-secondary">{t('dashboard.panelAlertsTitle')}</h2>
         </div>
         <span
           className={cn(
@@ -199,11 +209,10 @@ export function DashboardAlerts() {
             visibleTotal > 0 ? 'bg-amber-100 text-amber-900' : 'bg-emerald-50 text-emerald-800'
           )}
         >
-          {visibleTotal} point{visibleTotal !== 1 ? 's' : ''} à traiter
+          {t('dashboard.pointsToResolve', { count: visibleTotal })}
         </span>
       </div>
 
-      {/* Mobile: horizontal category tabs + single panel */}
       <div className="lg:hidden">
         <div className="-mx-1 flex gap-1.5 overflow-x-auto pb-1 pt-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {mobileTabs.map((tab, i) => (
@@ -218,7 +227,7 @@ export function DashboardAlerts() {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               )}
             >
-              {tab.short}
+              {t(`dashboard.${tab.shortKey}`)}
               {tab.count > 0 ? (
                 <span className={cn('ms-1 tabular-nums', mobileTab === i ? 'text-white/90' : 'text-gray-500')}>
                   ({tab.count})

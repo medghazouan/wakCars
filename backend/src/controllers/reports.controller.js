@@ -3,6 +3,85 @@ const { stringify } = require('csv-stringify/sync');
 const pdfService = require('../services/pdf.service');
 const { success, fail } = require('../utils/apiResponse');
 
+const startOfDay = (d) => {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+};
+
+const endOfDay = (d) => {
+  const x = new Date(d);
+  x.setHours(23, 59, 59, 999);
+  return x;
+};
+
+/** GET /reports/utilization — explicit dates or full calendar year (includes future pickups in-year). */
+const getUtilizationRangeList = (from, to) => {
+  if (from && to) {
+    return { gte: startOfDay(new Date(from)), lte: endOfDay(new Date(to)) };
+  }
+  const y = new Date().getFullYear();
+  return { gte: new Date(y, 0, 1), lte: new Date(y, 11, 31, 23, 59, 59, 999) };
+};
+
+/** Export utilization — same explicit dates, or period-aligned window (month end, not “now”). */
+const getUtilizationRangeExport = (period, from, to) => {
+  if (from && to) {
+    return { gte: startOfDay(new Date(from)), lte: endOfDay(new Date(to)) };
+  }
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  const d = now.getDate();
+  switch (period) {
+    case 'daily':
+      return { gte: new Date(y, m, d), lte: endOfDay(new Date(y, m, d)) };
+    case 'annual':
+      return { gte: new Date(y, 0, 1), lte: new Date(y, 11, 31, 23, 59, 59, 999) };
+    case 'monthly':
+    default: {
+      const last = new Date(y, m + 1, 0);
+      return { gte: new Date(y, m, 1), lte: endOfDay(last) };
+    }
+  }
+};
+
+/** Rental overlaps [gte, lte]: not cancelled/no-show, and interval intersects report window. */
+const utilizationReservationWhere = (range) => ({
+  status: { notIn: ['CANCELLED', 'NO_SHOW'] },
+  AND: [{ pickup_date: { lte: range.lte } }, { dropoff_date: { gte: range.gte } }],
+});
+
+const rentedDaysInRange = (r, range) => {
+  const rawStart = new Date(r.pickup_date);
+  const rawEnd = new Date(r.actual_return_date || r.dropoff_date);
+  const clipStart = new Date(Math.max(rawStart.getTime(), range.gte.getTime()));
+  const clipEnd = new Date(Math.min(rawEnd.getTime(), range.lte.getTime()));
+  if (clipEnd <= clipStart) return 0;
+  return Math.max(0, Math.ceil((clipEnd - clipStart) / (1000 * 60 * 60 * 24)));
+};
+
+const fetchUtilizationCars = (range) =>
+  prisma.cars.findMany({
+    where: { is_active: true },
+    select: {
+      id: true,
+      brand: true,
+      model: true,
+      year: true,
+      license_plate: true,
+      reservations: {
+        where: utilizationReservationWhere(range),
+        select: {
+          pickup_date: true,
+          dropoff_date: true,
+          actual_return_date: true,
+          total_amount: true,
+        },
+      },
+    },
+  });
+
 const getDateRange = (period, from, to) => {
   const now = new Date();
   if (from && to) return { gte: new Date(from), lte: new Date(to) };
@@ -56,30 +135,11 @@ const revenue = async (req, res, next) => {
 const utilization = async (req, res, next) => {
   try {
     const { from, to } = req.query;
-    const dateRange = from && to ? { gte: new Date(from), lte: new Date(to) } : {
-      gte: new Date(new Date().getFullYear(), 0, 1), lte: new Date(),
-    };
-
-    const cars = await prisma.cars.findMany({
-      where: { is_active: true },
-      select: {
-        id: true, brand: true, model: true, year: true, license_plate: true,
-        reservations: {
-          where: {
-            status: { in: ['COMPLETED', 'ACTIVE'] },
-            pickup_date: dateRange,
-          },
-          select: { pickup_date: true, dropoff_date: true, actual_return_date: true, total_amount: true },
-        },
-      },
-    });
+    const dateRange = getUtilizationRangeList(from, to);
+    const cars = await fetchUtilizationCars(dateRange);
 
     const data = cars.map((car) => {
-      const rentedDays = car.reservations.reduce((sum, r) => {
-        const end = r.actual_return_date || r.dropoff_date;
-        const diff = Math.max(0, Math.ceil((new Date(end) - new Date(r.pickup_date)) / (1000 * 60 * 60 * 24)));
-        return sum + diff;
-      }, 0);
+      const rentedDays = car.reservations.reduce((sum, r) => sum + rentedDaysInRange(r, dateRange), 0);
       const totalRevenue = car.reservations.reduce((sum, r) => sum + Number(r.total_amount), 0);
       return {
         id: car.id,
@@ -99,7 +159,10 @@ const utilization = async (req, res, next) => {
 const reservationAnalytics = async (req, res, next) => {
   try {
     const { from, to } = req.query;
-    const where = { created_at: from && to ? { gte: new Date(from), lte: new Date(to) } : undefined };
+    const where = {};
+    if (from && to) {
+      where.created_at = { gte: new Date(from), lte: new Date(to) };
+    }
 
     const [byStatus, byPaymentStatus, total] = await Promise.all([
       prisma.reservations.groupBy({ by: ['status'], where, _count: { id: true } }),
@@ -180,22 +243,11 @@ const exportReport = async (req, res, next) => {
     }
 
     if (type === 'utilization') {
-      const cars = await prisma.cars.findMany({
-        where: { is_active: true },
-        select: {
-          id: true, brand: true, model: true, year: true, license_plate: true,
-          reservations: {
-            where: { status: { in: ['COMPLETED', 'ACTIVE'] }, pickup_date: dateRange },
-            select: { pickup_date: true, dropoff_date: true, actual_return_date: true, total_amount: true },
-          },
-        },
-      });
+      const utilRange = getUtilizationRangeExport(period, from, to);
+      const cars = await fetchUtilizationCars(utilRange);
 
       const rows = cars.map((car) => {
-        const rentedDays = car.reservations.reduce((sum, r) => {
-          const end = r.actual_return_date || r.dropoff_date;
-          return sum + Math.max(0, Math.ceil((new Date(end) - new Date(r.pickup_date)) / (1000 * 60 * 60 * 24)));
-        }, 0);
+        const rentedDays = car.reservations.reduce((sum, r) => sum + rentedDaysInRange(r, utilRange), 0);
         const totalRevenue = car.reservations.reduce((sum, r) => sum + Number(r.total_amount), 0);
         return {
           ID: car.id,

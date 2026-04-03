@@ -13,10 +13,12 @@ import { StatsCard } from '@admin/components/ui/StatsCard'
 import { DataTable } from '@admin/components/ui/DataTable'
 import { formatDate } from '@admin/utils/formatters'
 import { cn } from '@admin/utils/cn'
+import { useAdminLanguage } from '@admin/hooks/useAdminLanguage'
 
 const CAR_STATUSES = ['AVAILABLE', 'RENTED', 'MAINTENANCE', 'INACTIVE']
 
 export default function FleetListPage() {
+  const { t } = useAdminLanguage()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [page, setPage] = useState(1)
@@ -43,10 +45,10 @@ export default function FleetListPage() {
       queryClient.invalidateQueries({ queryKey: ['cars'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       queryClient.invalidateQueries({ queryKey: ['car', String(carId)] })
-      toast.success('Status updated')
+      toast.success(t('page.fleet.toastStatusOk'))
     },
     onError: (err) => {
-      toast.error(err.response?.data?.error || 'Could not update status')
+      toast.error(err.response?.data?.error || t('page.fleet.toastStatusErr'))
     },
   })
 
@@ -60,7 +62,8 @@ export default function FleetListPage() {
   const growth = fleet.monthOverMonthPct ?? 0
   const totalBadge = growth > 0 ? `+${growth}%` : growth < 0 ? `${growth}%` : '—'
   const availRatio = stats.total > 0 ? stats.available / stats.total : 0
-  const availableBadge = availRatio >= 0.35 ? 'Optimal' : availRatio > 0 ? 'Low' : '—'
+  const availableBadge =
+    availRatio >= 0.35 ? t('page.fleet.optimal') : availRatio > 0 ? t('page.fleet.low') : '—'
 
   const pagination = useMemo(() => {
     const m = data?.meta
@@ -71,99 +74,102 @@ export default function FleetListPage() {
     }
   }, [data?.meta])
 
-  const columns = [
-    {
-      key: 'vehicle',
-      label: 'Vehicle Details',
-      render: (car) => (
-        <Link
-          to={adminPath(`/fleet/${car.id}`)}
-          className="group -m-2 flex max-w-max items-center gap-4 rounded-lg p-2 text-left transition-colors hover:bg-gray-50"
-        >
-          <div className="h-12 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-            {car.images?.[0]?.url && (
-              <img src={car.images[0].url} alt={car.brand} className="h-full w-full object-cover" />
-            )}
-          </div>
-          <div>
-            <p className="font-bold text-secondary group-hover:text-primary">
-              {car.brand} {car.model}
-            </p>
-            <p className="text-xs text-gray-500">
-              {car.category?.name_fr || '—'} • {car.year}
-            </p>
-          </div>
-        </Link>
-      ),
-    },
-    {
-      key: 'license_plate',
-      label: 'Plate Number',
-      render: (car) => <span className="font-mono text-gray-600">{car.license_plate}</span>,
-    },
-    {
-      key: 'status',
-      label: 'Status',
-      render: (car) => (
-        <select
-          className={cn(
-            'max-w-[140px] rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs font-semibold text-secondary',
-            'focus:outline-none focus:ring-2 focus:ring-primary/25'
-          )}
-          value={car.status}
-          onChange={(e) =>
-            statusMutation.mutate({ id: car.id, status: e.target.value })
-          }
-          disabled={
-            statusMutation.isPending && statusMutation.variables?.id === car.id
-          }
-        >
-          {CAR_STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {s.replace('_', ' ')}
-            </option>
-          ))}
-        </select>
-      ),
-    },
-    {
-      key: 'last_rental',
-      label: 'Last rental',
-      render: (car) => {
-        if (car.status === 'RENTED') {
-          return <span className="font-medium text-primary">En cours</span>
-        }
-        if (car.last_rental_pickup_at) {
-          return (
-            <span className="text-gray-600">
-              {formatDate(car.last_rental_pickup_at)}
-            </span>
-          )
-        }
-        return <span className="text-gray-400">—</span>
-      },
-    },
-    {
-      key: 'actions',
-      label: 'Actions',
-      headerClassName: 'text-left',
-      cellClassName: 'text-left align-middle',
-      render: (car) => (
-        <div className="flex flex-wrap items-center justify-start">
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            className="h-8 gap-1 px-3"
-            onClick={() => navigate(adminPath(`/fleet/${car.id}`))}
+  const columns = useMemo(
+    () => [
+      {
+        key: 'vehicle',
+        label: t('page.fleet.vehicleDetails'),
+        render: (car) => (
+          <Link
+            to={adminPath(`/fleet/${car.id}`)}
+            className="group -m-2 flex max-w-max items-center gap-4 rounded-lg p-2 text-left transition-colors hover:bg-gray-50"
           >
-            <Eye size={14} />
-            See
-          </Button>
-        </div>
-      ),
-    },
-  ]
+            <div className="h-12 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+              {car.images?.[0]?.url && (
+                <img src={car.images[0].url} alt={car.brand} className="h-full w-full object-cover" />
+              )}
+            </div>
+            <div>
+              <p className="font-bold text-secondary group-hover:text-primary">
+                {car.brand} {car.model}
+              </p>
+              <p className="text-xs text-gray-500">
+                {car.category?.name_fr || '—'} • {car.year}
+              </p>
+            </div>
+          </Link>
+        ),
+      },
+      {
+        key: 'license_plate',
+        label: t('page.fleet.plateNumber'),
+        render: (car) => <span className="font-mono text-gray-600">{car.license_plate}</span>,
+      },
+      {
+        key: 'status',
+        label: t('page.fleet.status'),
+        render: (car) => (
+          <select
+            className={cn(
+              'max-w-[140px] rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-xs font-semibold text-secondary',
+              'focus:outline-none focus:ring-2 focus:ring-primary/25'
+            )}
+            value={car.status}
+            onChange={(e) =>
+              statusMutation.mutate({ id: car.id, status: e.target.value })
+            }
+            disabled={
+              statusMutation.isPending && statusMutation.variables?.id === car.id
+            }
+          >
+            {CAR_STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {t(`status.${s}`, { defaultValue: s.replace('_', ' ') })}
+              </option>
+            ))}
+          </select>
+        ),
+      },
+      {
+        key: 'last_rental',
+        label: t('page.fleet.lastRental'),
+        render: (car) => {
+          if (car.status === 'RENTED') {
+            return <span className="font-medium text-primary">{t('page.fleet.inProgress')}</span>
+          }
+          if (car.last_rental_pickup_at) {
+            return (
+              <span className="text-gray-600">
+                {formatDate(car.last_rental_pickup_at)}
+              </span>
+            )
+          }
+          return <span className="text-gray-400">—</span>
+        },
+      },
+      {
+        key: 'actions',
+        label: t('common.actions'),
+        headerClassName: 'text-left',
+        cellClassName: 'text-left align-middle',
+        render: (car) => (
+          <div className="flex flex-wrap items-center justify-start">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="h-8 gap-1 px-3"
+              onClick={() => navigate(adminPath(`/fleet/${car.id}`))}
+            >
+              <Eye size={14} />
+              {t('common.see')}
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    [t, navigate, statusMutation]
+  )
 
   return (
     <motion.div
@@ -175,42 +181,45 @@ export default function FleetListPage() {
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h1 className="mb-2 text-2xl font-bold text-secondary sm:text-3xl">Vehicle Fleet</h1>
+          <h1 className="mb-2 text-2xl font-bold text-secondary sm:text-3xl">{t('page.fleet.title')}</h1>
           <p className="text-sm text-gray-400 sm:text-base">
-            Managing {dashLoading ? '…' : stats.total} active units
-            {fleet.locationsCount != null
-              ? ` across ${fleet.locationsCount} location${fleet.locationsCount === 1 ? '' : 's'}.`
-              : ' across regions.'}
+            {dashLoading
+              ? t('page.fleet.subtitle', { total: '…' })
+              : t('page.fleet.subtitle', { total: stats.total })}
+            {!dashLoading &&
+              (fleet.locationsCount != null
+                ? t('page.fleet.subtitleLocations', { count: fleet.locationsCount })
+                : t('page.fleet.subtitleRegions'))}
           </p>
         </div>
         <Button className="w-full shrink-0 sm:w-auto" onClick={() => navigate(adminPath('/fleet/new'))}>
-          + Add New Vehicle
+          + {t('page.fleet.addVehicle')}
         </Button>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
-          title="Total Fleet"
+          title={t('page.fleet.totalFleet')}
           value={dashLoading ? '…' : stats.total}
           icon={Car}
           badgeText={dashLoading ? undefined : totalBadge}
           badgeVariant={growth >= 0 ? 'success' : 'warning'}
         />
         <StatsCard
-          title="Available"
+          title={t('page.fleet.available')}
           value={dashLoading ? '…' : stats.available}
           icon={TrendingUp}
           badgeText={dashLoading ? undefined : availableBadge}
           badgeVariant="success"
         />
         <StatsCard
-          title="Rented"
+          title={t('page.fleet.rented')}
           value={dashLoading ? '…' : stats.rented}
           icon={KeyRound}
           badgeVariant="neutral"
         />
         <StatsCard
-          title="Inactive"
+          title={t('page.fleet.inactive')}
           value={dashLoading ? '…' : stats.inactive}
           icon={CircleSlash}
           badgeVariant="neutral"
@@ -232,7 +241,7 @@ export default function FleetListPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-800'
               }`}
             >
-              All Vehicles
+              {t('page.fleet.allVehicles')}
             </button>
             <button
               type="button"
@@ -246,7 +255,7 @@ export default function FleetListPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-800'
               }`}
             >
-              Available Only
+              {t('page.fleet.availableOnly')}
             </button>
             <button
               type="button"
@@ -260,7 +269,7 @@ export default function FleetListPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-800'
               }`}
             >
-              Rented
+              {t('page.fleet.rentedTab')}
             </button>
             <button
               type="button"
@@ -274,7 +283,7 @@ export default function FleetListPage() {
                   : 'border-transparent text-gray-500 hover:text-gray-800'
               }`}
             >
-              Inactive
+              {t('page.fleet.inactiveTab')}
             </button>
           </div>
           <button
@@ -282,7 +291,7 @@ export default function FleetListPage() {
             className="flex shrink-0 items-center gap-2 self-start pb-4 text-sm text-gray-500 hover:text-secondary sm:self-auto"
           >
             <Filter size={16} />
-            Filter
+            {t('common.filter')}
           </button>
         </div>
 

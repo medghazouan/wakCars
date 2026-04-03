@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Badge } from './Badge'
 
 export const statusMap = {
@@ -13,6 +14,7 @@ export const statusMap = {
   ACTIVE: { label: 'In Progress', variant: 'info' },
   COMPLETED: { label: 'Completed', variant: 'default' },
   CANCELLED: { label: 'Cancelled', variant: 'danger' },
+  NO_SHOW: { label: 'No-show', variant: 'default' },
   // Payments
   UNPAID: { label: 'Unpaid', variant: 'danger' },
   PARTIAL: { label: 'Deposit Paid', variant: 'warning' },
@@ -28,11 +30,16 @@ export const statusMap = {
 }
 
 export function StatusBadge({ status, type = 'default' }) {
+  const { t } = useTranslation('admin')
   const config = statusMap[status] || { label: status, variant: 'default' }
-  
+  const label =
+    status != null && String(status).length
+      ? t(`status.${status}`, { defaultValue: config.label })
+      : config.label
+
   return (
     <Badge variant={config.variant}>
-      {config.label}
+      {label}
     </Badge>
   )
 }

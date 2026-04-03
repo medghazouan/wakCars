@@ -96,7 +96,7 @@ function buildRevenueChart(payments, reservations, today) {
     const d = addDays(today, -i);
     const label = d.toLocaleDateString('en-US', { weekday: 'short' });
     const amount = map.get(dateKeyLocal(d)) || 0;
-    dailyPoints.push({ label, amount });
+    dailyPoints.push({ label, amount, date: d.toISOString() });
   }
   const dailyTotal = dailyPoints.reduce((a, p) => a + p.amount, 0);
   const dailyStart = addDays(today, -6);
@@ -130,8 +130,9 @@ function buildRevenueChart(payments, reservations, today) {
     const weekEnd = addDays(today, -w * 7);
     const weekStart = addDays(weekEnd, -6);
     const amount = sumPaymentsBetween(map, weekStart, weekEnd);
-    const label = `W${4 - w}`;
-    weeklyPoints.push({ label, amount });
+    const weekNum = 4 - w;
+    const label = `W${weekNum}`;
+    weeklyPoints.push({ label, amount, weekStart: weekStart.toISOString(), weekIndex: weekNum });
   }
   const weeklyRangeStart = addDays(today, -27);
   const last4Total = sumPaymentsBetween(map, weeklyRangeStart, today);
@@ -165,7 +166,7 @@ function buildRevenueChart(payments, reservations, today) {
     const mEnd = new Date(ref.getFullYear(), ref.getMonth() + 1, 0);
     const amount = sumPaymentsBetween(map, mStart, mEnd);
     const label = mStart.toLocaleDateString('en-US', { month: 'short' });
-    monthlyPoints.push({ label, amount });
+    monthlyPoints.push({ label, amount, monthStart: mStart.toISOString() });
   }
   const monthlyTotal = monthlyPoints.reduce((a, p) => a + p.amount, 0);
   const sixMoStart = new Date(today.getFullYear(), today.getMonth() - 5, 1);

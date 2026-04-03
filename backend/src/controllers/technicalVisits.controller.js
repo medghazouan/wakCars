@@ -1,5 +1,20 @@
 const prisma = require('../utils/prisma');
+const { attachCarsToReservations } = require('../utils/attachCarsToReservations');
 const { success, created, noContent, notFound } = require('../utils/apiResponse');
+
+const CAR_SELECT = {
+  id: true,
+  brand: true,
+  model: true,
+  license_plate: true,
+  category_id: true,
+};
+const placeholderCar = (carId) => ({
+  id: carId,
+  brand: '—',
+  model: 'Vehicle removed',
+  license_plate: '',
+});
 
 const list = async (req, res, next) => {
   try {
@@ -13,27 +28,27 @@ const list = async (req, res, next) => {
     }
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    const [visits, total] = await Promise.all([
+    const [rows, total] = await Promise.all([
       prisma.technical_visits.findMany({
         where,
-        include: { car: { select: { id: true, brand: true, model: true, license_plate: true } } },
         skip,
         take: parseInt(limit),
         orderBy: { visit_date: 'desc' },
       }),
       prisma.technical_visits.count({ where }),
     ]);
+    const visits = await attachCarsToReservations(rows, CAR_SELECT, placeholderCar);
     return success(res, visits, 200, { total, page: parseInt(page), limit: parseInt(limit) });
   } catch (err) { next(err); }
 };
 
 const getById = async (req, res, next) => {
   try {
-    const visit = await prisma.technical_visits.findUnique({
+    const row = await prisma.technical_visits.findUnique({
       where: { id: parseInt(req.params.id) },
-      include: { car: true },
     });
-    if (!visit) return notFound(res, 'Technical visit');
+    if (!row) return notFound(res, 'Technical visit');
+    const [visit] = await attachCarsToReservations([row], CAR_SELECT, placeholderCar);
     return success(res, visit);
   } catch (err) { next(err); }
 };
@@ -41,15 +56,15 @@ const getById = async (req, res, next) => {
 const create = async (req, res, next) => {
   try {
     const { car_id, cost, visit_date, expiration_date } = req.body;
-    const visit = await prisma.technical_visits.create({
+    const row = await prisma.technical_visits.create({
       data: {
         car_id: parseInt(car_id),
         cost: cost ? parseFloat(cost) : undefined,
         visit_date: new Date(visit_date),
         expiration_date: expiration_date ? new Date(expiration_date) : undefined,
       },
-      include: { car: { select: { id: true, brand: true, model: true } } },
     });
+    const [visit] = await attachCarsToReservations([row], CAR_SELECT, placeholderCar);
     return created(res, visit);
   } catch (err) { next(err); }
 };
@@ -66,7 +81,11 @@ const update = async (req, res, next) => {
     if (visit_date !== undefined) data.visit_date = new Date(visit_date);
     if (expiration_date !== undefined) data.expiration_date = new Date(expiration_date);
 
-    const visit = await prisma.technical_visits.update({ where: { id }, data });
+    const row = await prisma.technical_visits.update({
+      where: { id },
+      data,
+    });
+    const [visit] = await attachCarsToReservations([row], CAR_SELECT, placeholderCar);
     return success(res, visit);
   } catch (err) { next(err); }
 };

@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import {
+  Car,
   LayoutDashboard,
-  LayoutGrid,
   Tags,
   MapPin,
   CalendarCheck,
@@ -27,7 +27,7 @@ import { useAdminMobileNav } from './AdminMobileNavContext'
 
 const navItems = [
   { nameKey: 'dashboard', path: adminPath('/dashboard'), icon: LayoutDashboard },
-  { nameKey: 'fleet', path: adminPath('/fleet'), icon: LayoutGrid },
+  { nameKey: 'fleet', path: adminPath('/fleet'), icon: Car },
   { nameKey: 'reservations', path: adminPath('/reservations'), icon: CalendarCheck },
   { nameKey: 'technicalReviews', path: adminPath('/technical-reviews'), icon: Wrench },
   { nameKey: 'insurance', path: adminPath('/insurance'), icon: Shield },

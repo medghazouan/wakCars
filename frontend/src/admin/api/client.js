@@ -8,6 +8,28 @@ import { useAuth } from '@admin/hooks/useAuth'
  */
 const apiBase = import.meta.env.VITE_API_URL ?? ''
 
+/** One in-flight refresh so parallel 401s don’t rotate the refresh cookie multiple times. */
+let refreshPromise = null
+
+async function refreshAccessToken() {
+  if (!refreshPromise) {
+    refreshPromise = axios
+      .post(`${apiBase}/api/auth/refresh`, {}, { withCredentials: true })
+      .then((res) => {
+        const accessToken = res.data?.data?.accessToken
+        if (!accessToken) {
+          throw new Error('Refresh response missing accessToken')
+        }
+        useAuth.getState().setToken(accessToken)
+        return accessToken
+      })
+      .finally(() => {
+        refreshPromise = null
+      })
+  }
+  return refreshPromise
+}
+
 export const apiClient = axios.create({
   baseURL: apiBase,
   withCredentials: true,
@@ -30,14 +52,9 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true
 
       try {
-        const { data } = await axios.post(
-          `${apiBase}/api/auth/refresh`,
-          {},
-          { withCredentials: true }
-        )
-        
-        useAuth.getState().setToken(data.accessToken)
-        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
+        const accessToken = await refreshAccessToken()
+        originalRequest.headers = originalRequest.headers ?? {}
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`
         return apiClient(originalRequest)
       } catch (refreshError) {
         useAuth.getState().clearAuth()
