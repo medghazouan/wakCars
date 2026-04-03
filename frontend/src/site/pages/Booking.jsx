@@ -484,11 +484,11 @@ const Booking = () => {
                       animate={{ opacity: 1 }}
                       className="w-full"
                     >
-                       <div className="aspect-[4/3] bg-background-light border border-gray-100 p-4 mb-6 relative group flex items-center justify-center rounded-sm">
+                       <div className="aspect-[4/3] bg-background-light border border-gray-100 mb-6 relative group overflow-hidden rounded-sm">
                           <img 
-                            src={car.image || car.primary_image || '/placeholder-car.jpg'} 
+                            src={car.images?.[0]?.url || car.image || car.primary_image || '/placeholder-car.jpg'} 
                             alt={`${car.brand} ${car.model}`}
-                            className="w-full h-full object-contain mix-blend-multiply" 
+                            className="w-full h-full object-cover" 
                           />
                           <div className="absolute top-4 right-4 px-3 py-1 bg-white/60 backdrop-blur-md text-text-primary text-xs font-bold font-ui rounded">
                             {car.year}

@@ -1,19 +1,28 @@
-import { useRef } from 'react'
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { useFeaturedCars } from '../../hooks/useCars'
+import { useCars } from '../../hooks/useCars'
 import { useLanguage } from '../../hooks/useLanguage'
 import { useInView } from '../../hooks/useInView'
 import CarCard from '../ui/CarCard'
 import { CarCardSkeleton } from '../ui/Skeleton'
-import Button from '../ui/Button'
 
 const FleetGrid = () => {
   const { t } = useLanguage()
-  const { data, isLoading, error } = useFeaturedCars()
+  const { data, isLoading, error } = useCars()
   const { ref, isInView } = useInView({ threshold: 0.1 })
 
-  const cars = data?.data || []
+  const allCars = data?.data || []
+
+  const displayCars = useMemo(() => {
+    const byCategory = {}
+    for (const car of allCars) {
+      const key = car.category_id || car.category?.id || 'other'
+      if (!byCategory[key]) byCategory[key] = []
+      if (byCategory[key].length < 2) byCategory[key].push(car)
+    }
+    return Object.values(byCategory).flat()
+  }, [allCars])
 
   return (
     <section ref={ref} className="section-padding bg-background-warm">
@@ -46,7 +55,7 @@ const FleetGrid = () => {
               <p className="text-text-secondary">{t('common.error')}</p>
             </div>
           ) : (
-            cars.map((car, index) => (
+            displayCars.map((car, index) => (
               <motion.div
                 key={car.id}
                 initial={{ opacity: 0, y: 30 }}
@@ -58,6 +67,25 @@ const FleetGrid = () => {
             ))
           )}
         </div>
+
+        {/* View All Button */}
+        <motion.div
+          className="flex justify-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.4, duration: 0.5 }}
+        >
+          <Link
+            to="/voitures"
+            className="inline-flex items-center gap-3 px-10 py-4 bg-primary text-white text-sm font-bold uppercase tracking-widest hover:bg-primary-dark transition-colors duration-300"
+          >
+            {t('fleet.viewAll', 'Voir toute la flotte')}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="rtl:rotate-180">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </Link>
+        </motion.div>
 
       </div>
     </section>
