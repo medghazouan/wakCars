@@ -1,3 +1,4 @@
+const { Prisma } = require('@prisma/client');
 const prisma = require('../utils/prisma');
 const cloudinary = require('../services/cloudinary.service');
 const { success, created, noContent, notFound, fail } = require('../utils/apiResponse');
@@ -60,7 +61,7 @@ const update = async (req, res, next) => {
     if (city !== undefined) data.city = city;
     if (images !== undefined) {
       const parsed = parseImagesField(images);
-      data.images = parsed !== null && parsed.length > 0 ? parsed : null;
+      data.images = parsed !== null && parsed.length > 0 ? parsed : Prisma.DbNull;
     }
 
     const location = await prisma.locations.update({ where: { id }, data });
@@ -114,7 +115,7 @@ const removeImage = async (req, res, next) => {
     const nextUrls = prev.filter((u) => u !== url.trim());
     const location = await prisma.locations.update({
       where: { id },
-      data: { images: nextUrls.length > 0 ? nextUrls : null },
+      data: { images: nextUrls.length > 0 ? nextUrls : Prisma.DbNull },
     });
     return success(res, location);
   } catch (err) { next(err); }

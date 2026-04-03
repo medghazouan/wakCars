@@ -35,7 +35,7 @@ const CarCard = ({ car }) => {
     ? (car.category_name_ar || car.category?.name_ar || car.category_name_fr || car.category?.name_fr || car.category)
     : (car.category_name_fr || car.category?.name_fr || car.category);
 
-  const isLuxury = car.category_slug === 'luxe'
+  const isLuxury = car.category_slug === 'luxe' || car.category?.slug === 'luxe'
   
   return (
     <Link to={`/voitures/${car.slug}`}>
@@ -44,13 +44,13 @@ const CarCard = ({ car }) => {
         whileHover={{ y: -8 }}
       >
         {/* Image Container */}
-        <div className="relative aspect-[4/3] overflow-hidden bg-gray-50 p-4">
+        <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
           <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-transparent z-10" />
           
           <img
-            src={car.image || car.primary_image || '/placeholder-car.jpg'}
+            src={car.images?.[0]?.url || car.image || car.primary_image || '/placeholder-car.jpg'}
             alt={`${car.brand} ${car.model}`}
-            className="w-full h-full object-contain object-center transition-transform duration-700 group-hover:scale-110 drop-shadow-xl"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
             loading="lazy"
           />
           

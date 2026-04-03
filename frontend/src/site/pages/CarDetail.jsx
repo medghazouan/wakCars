@@ -92,11 +92,13 @@ const CarDetail = () => {
                <motion.div 
                  initial={{ opacity: 0, scale: 0.98 }} 
                  animate={{ opacity: 1, scale: 1 }} 
-                 className="aspect-[4/3] lg:aspect-[21/9] bg-white border border-gray-100 shadow-2xl overflow-hidden relative group p-8 lg:p-16 flex items-center justify-center"
+                 className="aspect-[4/3] lg:aspect-[21/9] bg-white border border-gray-100 shadow-2xl overflow-hidden relative group"
                >
-                  <img src={images[0]?.url} alt={`${car.brand} ${car.model}`} className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-700" />
+                  <img src={images[0]?.url} alt={`${car.brand} ${car.model}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                   {car.category && (
-                     <div className="absolute top-6 left-6 px-4 py-1.5 bg-primary text-white text-xs font-bold font-ui rounded uppercase tracking-widest shadow-lg">
+                     <div className={`absolute top-6 left-6 px-4 py-1.5 text-white text-xs font-bold font-ui rounded uppercase tracking-widest shadow-lg ${
+                       car.category?.slug === 'luxe' ? 'bg-accent-gold' : 'bg-primary'
+                     }`}>
                         {getLocalizedField(car.category, 'name')}
                      </div>
                   )}
