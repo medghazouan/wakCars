@@ -6,6 +6,7 @@
   "scripts": {
     "test": "node --test src/services/whatsapp.service.test.js src/services/pdf.service.test.js",
     "start": "node src/server.js",
+    "postinstall": "prisma generate",
     "dev": "nodemon src/server.js",
     "prisma:generate": "prisma generate",
     "prisma:pull": "prisma db pull",
@@ -30,11 +31,11 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^8.0.4",
     "pdfkit": "^0.15.2",
+    "prisma": "^5.22.0",
     "winston": "^3.17.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9",
-    "prisma": "^5.22.0"
+    "nodemon": "^3.1.9"
   },
   "engines": {
     "node": ">=18.0.0"

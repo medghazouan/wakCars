@@ -17,6 +17,8 @@ module.exports = {
   JWT_EXPIRES_IN: optional('JWT_EXPIRES_IN', '15m'),
   JWT_REFRESH_EXPIRES_IN: optional('JWT_REFRESH_EXPIRES_IN', '7d'),
   CORS_ORIGIN: optional('CORS_ORIGIN', 'http://localhost:5173'),
+  /** Refresh cookie SameSite: use `none` when the admin UI is on a different origin than the API (e.g. Vercel + Hostinger). Requires HTTPS. */
+  COOKIE_SAMESITE: optional('COOKIE_SAMESITE', process.env.NODE_ENV === 'production' ? 'none' : 'lax'),
   CLOUDINARY_CLOUD_NAME: required('CLOUDINARY_CLOUD_NAME'),
   CLOUDINARY_API_KEY: required('CLOUDINARY_API_KEY'),
   CLOUDINARY_API_SECRET: required('CLOUDINARY_API_SECRET'),

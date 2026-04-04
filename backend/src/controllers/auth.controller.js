@@ -1,13 +1,17 @@
 const bcrypt = require('bcryptjs');
 const prisma = require('../utils/prisma');
+const env = require('../config/env');
 const { signAccess, signRefresh, verifyRefresh } = require('../utils/jwt');
 const { success, fail, unauthorized } = require('../utils/apiResponse');
 const logger = require('../utils/logger');
 
+const sameSite = env.COOKIE_SAMESITE === 'strict' || env.COOKIE_SAMESITE === 'lax' || env.COOKIE_SAMESITE === 'none'
+  ? env.COOKIE_SAMESITE
+  : 'lax';
 const COOKIE_OPTS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict',
+  secure: process.env.NODE_ENV === 'production' || sameSite === 'none',
+  sameSite,
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
@@ -96,7 +100,7 @@ const logout = async (req, res, next) => {
         // Token invalid — still clear cookie
       }
     }
-    res.clearCookie('refreshToken');
+    res.clearCookie('refreshToken', { path: '/', sameSite: COOKIE_OPTS.sameSite, secure: COOKIE_OPTS.secure });
     return success(res, { message: 'Logged out successfully' });
   } catch (err) {
     next(err);
