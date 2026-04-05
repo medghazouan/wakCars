@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { useState } from 'react'
 import { useLanguage } from '../hooks/useLanguage'
 import { generateAutoRentalSchema } from '../utils/seo.utils'
 import MetaTags from '../components/seo/MetaTags'
@@ -18,15 +17,10 @@ import FinalCTA from '../components/sections/FinalCTA'
 
 const Home = () => {
   const { t } = useLanguage()
-  const [showLoader, setShowLoader] = useState(() => {
-    return !sessionStorage.getItem('wak_home_loaded')
-  })
-  const [contentReady, setContentReady] = useState(!showLoader)
+  const [showLoader, setShowLoader] = useState(true)
 
   const handleLoaderComplete = () => {
-    sessionStorage.setItem('wak_home_loaded', 'true')
     setShowLoader(false)
-    setContentReady(true)
   }
 
   return (
@@ -40,11 +34,7 @@ const Home = () => {
 
       {showLoader && <HomeLoader onComplete={handleLoaderComplete} />}
 
-      <motion.div
-        initial={!contentReady ? { opacity: 0 } : false}
-        animate={contentReady ? { opacity: 1 } : false}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-      >
+      <div>
         <HeroSection />
         <TrustBar />
         <CategoriesSection />
@@ -56,7 +46,7 @@ const Home = () => {
         <ReviewsSection />
         <BlogTeaser />
         <FinalCTA />
-      </motion.div>
+      </div>
     </>
   )
 }
