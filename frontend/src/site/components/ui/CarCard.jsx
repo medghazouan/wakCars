@@ -40,8 +40,8 @@ const CarCard = ({ car }) => {
   return (
     <Link to={`/voitures/${car.slug}`}>
       <motion.article
-        className="group relative bg-white border border-gray-100 overflow-hidden hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 flex flex-col h-full"
-        whileHover={{ y: -8 }}
+        className="group relative bg-white border border-gray-100 overflow-hidden hover:shadow-2xl hover:shadow-primary/5 transition-shadow duration-500 flex flex-col h-full"
+        whileHover={{ y: -8, transition: { type: 'spring', stiffness: 300, damping: 20 } }}
       >
         {/* Image Container */}
         <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
@@ -120,12 +120,16 @@ const CarCard = ({ car }) => {
               </div>
             </div>
             
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300 rtl:rotate-180">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <motion.div
+              className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300 rtl:rotate-180"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-0.5 transition-transform duration-300">
                 <path d="M5 12h14" />
                 <path d="m12 5 7 7-7 7" />
               </svg>
-            </div>
+            </motion.div>
           </div>
         </div>
       </motion.article>

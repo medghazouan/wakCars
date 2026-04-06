@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { motion } from 'framer-motion'
 import { useLanguage } from '../hooks/useLanguage'
+import { fadeLeft, fadeRight, accentGrow, fadeUp } from '../utils/motion'
 import MetaTags from '../components/seo/MetaTags'
 import Breadcrumbs from '../components/seo/Breadcrumbs'
 import Button from '../components/ui/Button'
@@ -111,11 +112,16 @@ const Contact = () => {
           {/* Header */}
           <div className="mb-14 relative">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
+              variants={fadeLeft}
+              initial="hidden"
+              animate="visible"
             >
-              <div className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block" />
+              <motion.div
+                className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block origin-top"
+                variants={accentGrow}
+                initial="hidden"
+                animate="visible"
+              />
               <h1 className="text-display text-4xl md:text-5xl lg:text-6xl text-text-primary mb-4 uppercase leading-[1.1]">
                 {t('contact.title')}
               </h1>
@@ -129,9 +135,9 @@ const Contact = () => {
             {/* Contact Form */}
             <motion.div
               className="lg:col-span-7 flex flex-col"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
+              variants={fadeLeft}
+              initial="hidden"
+              animate="visible"
             >
               <div className="bg-white p-8 md:p-12 border border-gray-100 shadow-xl shadow-primary/5 flex-grow group relative overflow-hidden">
                 {/* Decorative subtle gradient */}
@@ -171,9 +177,9 @@ const Contact = () => {
             {/* Contact Info & Map */}
             <motion.div
               className="lg:col-span-5 flex flex-col"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
+              variants={fadeRight}
+              initial="hidden"
+              animate="visible"
             >
               {/* Info Cards */}
               <div className="bg-background-dark p-8 md:p-12 text-white relative overflow-hidden group">
@@ -222,9 +228,9 @@ const Contact = () => {
           {/* Map Embed — Full Width Below */}
           <motion.div
             className="mt-12 relative h-[350px] bg-gray-100 border border-gray-100 overflow-hidden group"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
           >
             <div className="absolute top-0 left-0 w-full h-1 bg-primary transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 z-10" />
             <iframe

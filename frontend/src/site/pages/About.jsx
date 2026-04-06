@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useLanguage } from '../hooks/useLanguage'
 import { useInView } from '../hooks/useInView'
+import { fadeLeft, accentGrow, fadeUp, scaleUp, staggerContainer } from '../utils/motion'
 import MetaTags from '../components/seo/MetaTags'
 import Breadcrumbs from '../components/seo/Breadcrumbs'
 import StatsCounter from '../components/sections/StatsCounter'
@@ -24,11 +25,16 @@ const About = () => {
           {/* Header synced with Fleet/Booking */}
           <div className="mb-16 relative">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
+              variants={fadeLeft}
+              initial="hidden"
+              animate="visible"
             >
-              <div className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block" />
+              <motion.div
+                className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block origin-top"
+                variants={accentGrow}
+                initial="hidden"
+                animate="visible"
+              />
               <h1 className="text-display text-4xl md:text-5xl lg:text-6xl text-text-primary mb-4 uppercase leading-[1.1]">
                 {t('nav.about')}
               </h1>
@@ -41,9 +47,9 @@ const About = () => {
           {/* Image */}
           <motion.div
             className="aspect-video max-w-5xl mx-auto mb-16"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
+            variants={scaleUp}
+            initial="hidden"
+            animate="visible"
           >
             <img
               src="https://images.unsplash.com/photo-1489824904134-891ab64532f1?w=1200"
@@ -55,8 +61,9 @@ const About = () => {
           {/* Story */}
           <div ref={ref} className="max-w-7xl mx-auto mt-20">
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              variants={fadeUp}
+              initial="hidden"
+              animate={isInView ? 'visible' : 'hidden'}
             >
                {/* Histoire Grid */}
                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24 items-center">

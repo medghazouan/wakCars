@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useLanguage } from '../hooks/useLanguage'
+import { staggerContainer, fadeUp } from '../utils/motion'
 import MetaTags from '../components/seo/MetaTags'
 import Button from '../components/ui/Button'
 
@@ -17,31 +18,42 @@ const NotFound = () => {
       <div className="min-h-screen flex items-center justify-center bg-background-dark">
         <div className="container-wak text-center py-20">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
+            variants={staggerContainer(0.12)}
+            initial="hidden"
+            animate="visible"
           >
             {/* 404 */}
-            <h1 className="text-[150px] md:text-[200px] font-display font-black text-primary leading-none mb-4">
+            <motion.h1
+              className="text-[150px] md:text-[200px] font-display font-black text-primary leading-none mb-4"
+              variants={fadeUp}
+            >
               404
-            </h1>
+            </motion.h1>
 
             {/* Title */}
-            <h2 className="text-display text-3xl md:text-4xl text-text-on-dark mb-4">
+            <motion.h2
+              className="text-display text-3xl md:text-4xl text-text-on-dark mb-4"
+              variants={fadeUp}
+            >
               {t('notFound.title')}
-            </h2>
+            </motion.h2>
 
             {/* Subtitle */}
-            <p className="text-gray-400 text-lg max-w-md mx-auto mb-10">
+            <motion.p
+              className="text-gray-400 text-lg max-w-md mx-auto mb-10"
+              variants={fadeUp}
+            >
               {t('notFound.subtitle')}
-            </p>
+            </motion.p>
 
             {/* CTA */}
-            <Link to="/">
-              <Button variant="primary" size="lg">
-                {t('notFound.backHome')}
-              </Button>
-            </Link>
+            <motion.div variants={fadeUp}>
+              <Link to="/">
+                <Button variant="primary" size="lg">
+                  {t('notFound.backHome')}
+                </Button>
+              </Link>
+            </motion.div>
           </motion.div>
         </div>
       </div>

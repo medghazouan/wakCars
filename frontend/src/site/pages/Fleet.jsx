@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useCars, useCategories } from '../hooks/useCars'
 import { useLanguage } from '../hooks/useLanguage'
+import { fadeLeft, accentGrow, staggerContainer, fadeUp } from '../utils/motion'
 import MetaTags from '../components/seo/MetaTags'
 import Breadcrumbs from '../components/seo/Breadcrumbs'
 import CarCard from '../components/ui/CarCard'
@@ -78,11 +79,16 @@ const Fleet = () => {
           {/* Header */}
           <div className="mb-14 relative">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
+              variants={fadeLeft}
+              initial="hidden"
+              animate="visible"
             >
-              <div className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block" />
+              <motion.div
+                className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block origin-top"
+                variants={accentGrow}
+                initial="hidden"
+                animate="visible"
+              />
               <h1 className="text-display text-4xl md:text-5xl lg:text-6xl text-text-primary mb-4 uppercase leading-[1.1]">
                 {t('fleet.heading')}
               </h1>
@@ -99,9 +105,9 @@ const Fleet = () => {
             <div className="lg:col-span-4 xl:col-span-3 lg:sticky lg:top-[100px] z-10">
               <motion.div 
                 className="bg-white/95 backdrop-blur-xl shadow-2xl shadow-primary/5 border border-gray-100 p-5 md:p-6"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5 }}
+                variants={fadeLeft}
+                initial="hidden"
+                animate="visible"
               >
                 {/* Filter Label */}
                 <div className="flex w-full items-center gap-4 text-sm font-ui font-bold uppercase tracking-widest text-primary border-b border-gray-100 pb-5 mb-5">
@@ -215,7 +221,7 @@ const Fleet = () => {
                       key={car.id}
                       initial={{ opacity: 0, y: 30 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: (index % 6) * 0.1, ease: 'easeOut' }}
+                      transition={{ delay: Math.min((index % 6) * 0.08, 0.4), duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
                     >
                       <CarCard car={car} />
                     </motion.div>

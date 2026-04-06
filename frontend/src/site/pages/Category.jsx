@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useCars, useCategories } from '../hooks/useCars'
 import { useLanguage } from '../hooks/useLanguage'
+import { fadeLeft, accentGrow, staggerContainer, fadeUp } from '../utils/motion'
 import MetaTags from '../components/seo/MetaTags'
 import Breadcrumbs from '../components/seo/Breadcrumbs'
 import CarCard from '../components/ui/CarCard'
@@ -39,17 +40,34 @@ const Category = () => {
           />
 
           {/* Header */}
-          <div className="mb-12">
-            <h1 className="text-display text-4xl md:text-5xl text-text-primary mb-4">
-              {categoryName}
-            </h1>
-            {categoryDesc && (
-              <p className="text-text-secondary text-lg max-w-2xl">{categoryDesc}</p>
-            )}
+          <div className="mb-12 relative">
+            <motion.div
+              variants={fadeLeft}
+              initial="hidden"
+              animate="visible"
+            >
+              <motion.div
+                className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block origin-top"
+                variants={accentGrow}
+                initial="hidden"
+                animate="visible"
+              />
+              <h1 className="text-display text-4xl md:text-5xl text-text-primary mb-4">
+                {categoryName}
+              </h1>
+              {categoryDesc && (
+                <p className="text-text-secondary text-lg max-w-2xl">{categoryDesc}</p>
+              )}
+            </motion.div>
           </div>
 
           {/* Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            variants={staggerContainer(0.08)}
+            initial="hidden"
+            animate="visible"
+          >
             {isLoading ? (
               Array(6).fill(0).map((_, i) => <CarCardSkeleton key={i} />)
             ) : cars.length === 0 ? (
@@ -57,18 +75,16 @@ const Category = () => {
                 <p className="text-text-secondary">{t('common.error')}</p>
               </div>
             ) : (
-              cars.map((car, index) => (
+              cars.map((car) => (
                 <motion.div
                   key={car.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
+                  variants={fadeUp}
                 >
                   <CarCard car={car} />
                 </motion.div>
               ))
             )}
-          </div>
+          </motion.div>
         </div>
       </div>
     </>

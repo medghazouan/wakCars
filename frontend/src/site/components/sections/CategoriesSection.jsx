@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useInView } from '../../hooks/useInView'
 import { useLanguage } from '../../hooks/useLanguage'
 import { categoriesService } from '../../services/cars.service'
+import { staggerContainer, fadeUp, fadeLeft, accentGrow } from '../../utils/motion'
 
 const categoryImages = {
   'economique': 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&q=80',
@@ -15,17 +16,13 @@ const categoryImages = {
   'utilitaire': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
 }
 
-const CategoryCard = ({ category, index, isInView, getLocalizedField }) => {
+const CategoryCard = ({ category, getLocalizedField }) => {
   const name = getLocalizedField(category, 'name')
   const slug = category.slug
   const image = categoryImages[slug] || categoryImages['economique']
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ delay: index * 0.1, duration: 0.5 }}
-    >
+    <motion.div variants={fadeUp}>
       <Link
         to={`/voitures?category=${slug}`}
         className="group relative block h-[420px] md:h-[500px] overflow-hidden"
@@ -118,11 +115,16 @@ const CategoriesSection = () => {
         {/* Header */}
         <div className="mb-14 relative">
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6 }}
+            variants={fadeLeft}
+            initial="hidden"
+            animate={isInView ? 'visible' : 'hidden'}
           >
-            <div className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block" />
+            <motion.div
+              className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block origin-top"
+              variants={accentGrow}
+              initial="hidden"
+              animate={isInView ? 'visible' : 'hidden'}
+            />
             <h2 className="text-display text-4xl md:text-5xl lg:text-6xl text-text-primary mb-4 uppercase leading-[1.1]">
               {t('categories.title')}
             </h2>
@@ -133,17 +135,20 @@ const CategoriesSection = () => {
         </div>
 
         {/* Categories Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {categories.map((category, index) => (
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          variants={staggerContainer(0.1)}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+        >
+          {categories.map((category) => (
             <CategoryCard
               key={category.id}
               category={category}
-              index={index}
-              isInView={isInView}
               getLocalizedField={getLocalizedField}
             />
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   )

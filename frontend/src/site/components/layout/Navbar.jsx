@@ -56,7 +56,7 @@ const Navbar = () => {
         }`}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       >
         <nav className="container-wak">
           <div className="flex items-center justify-between h-20">
@@ -136,19 +136,19 @@ const Navbar = () => {
         {isMobileMenuOpen && (
           <motion.div
             className="fixed inset-0 z-40 bg-background-dark lg:hidden"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, clipPath: 'circle(0% at top right)' }}
+            animate={{ opacity: 1, clipPath: 'circle(150% at top right)' }}
+            exit={{ opacity: 0, clipPath: 'circle(0% at top right)' }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className="flex flex-col items-center justify-center h-full gap-8 pt-20">
               {navLinks.map((link, index) => (
                 <motion.div
                   key={link.to}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 20 }}
-                  transition={{ delay: index * 0.1 }}
+                  transition={{ delay: 0.15 + index * 0.07, duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
                 >
                   <Link
                     to={link.to}
@@ -167,7 +167,7 @@ const Navbar = () => {
                 className="flex flex-col items-center gap-4 mt-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
+                transition={{ delay: 0.5 + navLinks.length * 0.07, duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
               >
                 <button
                   onClick={toggleLanguage}

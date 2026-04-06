@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { useQuery } from '@tanstack/react-query'
 import { useInView } from '../../hooks/useInView'
 import { useLanguage } from '../../hooks/useLanguage'
+import { staggerContainer, fadeLeft, accentGrow, scaleUp } from '../../utils/motion'
 import api from '../../services/api'
 import Badge from '../ui/Badge'
 import Skeleton from '../ui/Skeleton'
@@ -30,11 +31,16 @@ const PickupPoints = () => {
         {/* Header - Reverted to original */}
         <div className="mb-14 relative">
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6 }}
+            variants={fadeLeft}
+            initial="hidden"
+            animate={isInView ? 'visible' : 'hidden'}
           >
-            <div className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block" />
+            <motion.div
+              className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block origin-top"
+              variants={accentGrow}
+              initial="hidden"
+              animate={isInView ? 'visible' : 'hidden'}
+            />
             <h2 className="text-display text-4xl md:text-5xl lg:text-6xl text-text-primary mb-4 uppercase leading-[1.1]">
               {t('locations.heading')}
             </h2>
@@ -45,7 +51,12 @@ const PickupPoints = () => {
         </div>
 
         {/* Locations Creative Grid (Dynamic based on count without gaps) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 auto-rows-[240px]">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 auto-rows-[240px]"
+          variants={staggerContainer(0.1)}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+        >
           {isLoading ? (
             Array(5).fill(0).map((_, i) => (
               <Skeleton key={`skel-${i}`} className="h-full w-full col-span-1 md:col-span-1 lg:col-span-2" />
@@ -89,9 +100,7 @@ const PickupPoints = () => {
                       ? 'bg-gradient-to-br from-white to-primary/5 shadow-xl shadow-primary/10 border-primary/40' 
                       : 'bg-white border-gray-100 hover:border-primary/20 hover:shadow-primary/10'
                   } ${gridClass}`}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                  transition={{ delay: index * 0.1, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  variants={scaleUp}
                 >
                   {/* Background Image */}
                   {heroImage && (
@@ -156,7 +165,7 @@ const PickupPoints = () => {
               )
             })
           )}
-        </div>
+        </motion.div>
       </div>
     </section>
   )

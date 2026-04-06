@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useQuery } from '@tanstack/react-query'
 import { useLanguage } from '../hooks/useLanguage'
 import { generateFAQSchema } from '../utils/seo.utils'
+import { fadeLeft, accentGrow, fadeUp } from '../utils/motion'
 import api from '../services/api'
 import MetaTags from '../components/seo/MetaTags'
 import Breadcrumbs from '../components/seo/Breadcrumbs'
@@ -50,7 +51,7 @@ const FAQItem = ({ question, answer, isOpen, onClick }) => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
+            transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             <div className="px-6 pb-6 pt-2 border-t border-gray-50 mx-4">
               <p className="text-text-secondary text-[16px] md:text-[17px] leading-relaxed">
@@ -114,10 +115,16 @@ const FAQ = () => {
               {/* Header Title Block */}
               <motion.div 
                 className="mb-10 relative"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
+                variants={fadeLeft}
+                initial="hidden"
+                animate="visible"
               >
-                <div className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block" />
+                <motion.div
+                  className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block origin-top"
+                  variants={accentGrow}
+                  initial="hidden"
+                  animate="visible"
+                />
                 <h1 className="text-display text-4xl md:text-5xl lg:text-6xl text-text-primary mb-6 leading-[1.1] uppercase">
                   {t('faq.heading')}
                 </h1>
@@ -129,9 +136,9 @@ const FAQ = () => {
               {/* Category Tabs */}
               <motion.div 
                 className="flex flex-row flex-wrap lg:flex-col gap-3"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+                variants={fadeUp}
+                initial="hidden"
+                animate="visible"
               >
                 {categories.map((cat) => (
                   <button

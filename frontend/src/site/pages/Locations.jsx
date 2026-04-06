@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useQuery } from '@tanstack/react-query'
 import { useLanguage } from '../hooks/useLanguage'
+import { fadeLeft, accentGrow, staggerContainer, scaleUp } from '../utils/motion'
 import api from '../services/api'
 import MetaTags from '../components/seo/MetaTags'
 import Breadcrumbs from '../components/seo/Breadcrumbs'
@@ -39,11 +40,16 @@ const Locations = () => {
           {/* Header */}
           <div className="mb-14 relative">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
+              variants={fadeLeft}
+              initial="hidden"
+              animate="visible"
             >
-              <div className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block" />
+              <motion.div
+                className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block origin-top"
+                variants={accentGrow}
+                initial="hidden"
+                animate="visible"
+              />
               <h1 className="text-display text-4xl md:text-5xl lg:text-6xl text-text-primary mb-4 uppercase leading-[1.1]">
                 {t('locations.heading')}
               </h1>
@@ -54,7 +60,12 @@ const Locations = () => {
           </div>
 
           {/* Locations Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 md:gap-10 grid-flow-row-dense">
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 md:gap-10 grid-flow-row-dense"
+            variants={staggerContainer(0.1)}
+            initial="hidden"
+            animate="visible"
+          >
             {isLoading ? (
               Array(6).fill(0).map((_, i) => (
                 <Skeleton key={i} className="h-72 rounded-none" />
@@ -73,9 +84,7 @@ const Locations = () => {
                         ? 'md:col-span-2 xl:col-span-2 border-primary/40 bg-gradient-to-br from-white to-primary/5 shadow-xl shadow-primary/10' 
                         : 'bg-white border-gray-100 hover:border-primary/20 hover:shadow-primary/10'
                     }`}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1, duration: 0.6 }}
+                    variants={scaleUp}
                   >
                     {/* Background Image */}
                     {heroImage && (
@@ -160,7 +169,7 @@ const Locations = () => {
                 )
               })
             )}
-          </div>
+          </motion.div>
         </div>
       </div>
     </>

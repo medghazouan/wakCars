@@ -9,6 +9,7 @@ import 'swiper/css/pagination'
 import { useCarBySlug } from '../hooks/useCars'
 import { useLanguage } from '../hooks/useLanguage'
 import { generateCarSchema } from '../utils/seo.utils'
+import { scaleUp, fadeUp, fadeLeft, fadeRight, staggerContainer } from '../utils/motion'
 import MetaTags from '../components/seo/MetaTags'
 import Breadcrumbs from '../components/seo/Breadcrumbs'
 import Button from '../components/ui/Button'
@@ -90,8 +91,9 @@ const CarDetail = () => {
             {/* LEFT MAIN COL: Hero Image & Info */}
             <div className="flex-1 w-full relative z-10">
                <motion.div 
-                 initial={{ opacity: 0, scale: 0.98 }} 
-                 animate={{ opacity: 1, scale: 1 }} 
+                 variants={scaleUp}
+                 initial="hidden"
+                 animate="visible"
                  className="aspect-[4/3] lg:aspect-[21/9] bg-white border border-gray-100 shadow-2xl overflow-hidden relative group"
                >
                   <img src={images[0]?.url} alt={`${car.brand} ${car.model}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -187,14 +189,26 @@ const CarDetail = () => {
           {/* Similar Cars */}
           {similarCars.length > 0 && (
             <section className="mt-20">
-              <h2 className="text-display text-3xl text-text-primary mb-8">
+              <motion.h2
+                className="text-display text-3xl text-text-primary mb-8"
+                variants={fadeLeft}
+                initial="hidden"
+                animate="visible"
+              >
                 {t('car.similar')}
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              </motion.h2>
+              <motion.div
+                className="grid grid-cols-1 md:grid-cols-3 gap-8"
+                variants={staggerContainer(0.1)}
+                initial="hidden"
+                animate="visible"
+              >
                 {similarCars.slice(0, 3).map((similar) => (
-                  <CarCard key={similar.id} car={similar} />
+                  <motion.div key={similar.id} variants={fadeUp}>
+                    <CarCard car={similar} />
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </section>
           )}
         </div>
