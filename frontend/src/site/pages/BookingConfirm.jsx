@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { useLanguage } from '../hooks/useLanguage'
 import { formatPrice } from '../utils/formatPrice'
 import { generateBookingWhatsAppLink } from '../utils/generateWhatsAppLink'
+import { scaleUp } from '../utils/motion'
 import MetaTags from '../components/seo/MetaTags'
 import Button from '../components/ui/Button'
 
@@ -50,9 +51,9 @@ const BookingConfirm = () => {
         <div className="container-wak px-4">
           <motion.div
             className="max-w-3xl mx-auto w-full"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            variants={scaleUp}
+            initial="hidden"
+            animate="visible"
           >
             {/* Main Receipt Card */}
             <div className="bg-white rounded-sm shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden relative">

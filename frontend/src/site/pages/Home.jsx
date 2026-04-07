@@ -1,8 +1,6 @@
-import { useState } from 'react'
 import { useLanguage } from '../hooks/useLanguage'
 import { generateAutoRentalSchema } from '../utils/seo.utils'
 import MetaTags from '../components/seo/MetaTags'
-import HomeLoader from '../components/ui/HomeLoader'
 import HeroSection from '../components/sections/HeroSection'
 import TrustBar from '../components/ui/TrustBar'
 import CategoriesSection from '../components/sections/CategoriesSection'
@@ -17,11 +15,6 @@ import FinalCTA from '../components/sections/FinalCTA'
 
 const Home = () => {
   const { t } = useLanguage()
-  const [showLoader, setShowLoader] = useState(true)
-
-  const handleLoaderComplete = () => {
-    setShowLoader(false)
-  }
 
   return (
     <>
@@ -31,8 +24,6 @@ const Home = () => {
         url="/"
         schema={generateAutoRentalSchema()}
       />
-
-      {showLoader && <HomeLoader onComplete={handleLoaderComplete} />}
 
       <div>
         <HeroSection />

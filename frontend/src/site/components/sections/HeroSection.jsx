@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLanguage } from '../../hooks/useLanguage'
+import { staggerContainer, fadeUp } from '../../utils/motion'
 import Button from '../ui/Button'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -11,7 +12,6 @@ gsap.registerPlugin(ScrollTrigger)
 const HeroSection = () => {
   const { t, isRTL } = useLanguage()
   const heroRef = useRef(null)
-  const titleRef = useRef(null)
   const overlayRef = useRef(null)
 
   useEffect(() => {
@@ -19,7 +19,6 @@ const HeroSection = () => {
     if (prefersReducedMotion) return
 
     const ctx = gsap.context(() => {
-      // Parallax background (removed pinning to fix scroll gap)
       gsap.to('.hero-bg', {
         yPercent: 30,
         ease: 'none',
@@ -31,7 +30,6 @@ const HeroSection = () => {
         },
       })
 
-      // Fade overlay on scroll
       gsap.to(overlayRef.current, {
         opacity: 0.9,
         scrollTrigger: {
@@ -72,32 +70,32 @@ const HeroSection = () => {
 
       {/* Content */}
       <div className="relative h-full container-wak flex items-center pt-20">
-        <div className="max-w-3xl">
+        <motion.div
+          className="max-w-3xl"
+          variants={staggerContainer(0.12)}
+          initial="hidden"
+          animate="visible"
+        >
           {/* Tagline */}
           <motion.p
             className="text-primary font-semibold text-sm md:text-base uppercase tracking-widest mb-4"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
+            variants={fadeUp}
           >
             {t('hero.tagline')}
           </motion.p>
 
           {/* Animated Title */}
-          <h1
-            ref={titleRef}
-            className="text-5xl md:text-6xl lg:text-7xl font-display font-black text-text-on-dark mb-6 leading-tight"
-          >
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-black text-text-on-dark mb-6 leading-tight">
             {titleWords.map((word, index) => (
               <motion.span
                 key={index}
                 className="inline-block mr-4"
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 60, rotateX: -40 }}
+                animate={{ opacity: 1, y: 0, rotateX: 0 }}
                 transition={{
-                  delay: 0.3 + index * 0.1,
-                  duration: 0.6,
-                  ease: [0.25, 0.46, 0.45, 0.94],
+                  delay: 0.3 + index * 0.08,
+                  duration: 0.7,
+                  ease: [0.16, 1, 0.3, 1],
                 }}
               >
                 {index === titleWords.length - 1 ? (
@@ -112,9 +110,7 @@ const HeroSection = () => {
           {/* Subtitle */}
           <motion.p
             className="text-lg md:text-xl text-gray-300 max-w-xl mb-10 leading-relaxed"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
+            variants={fadeUp}
           >
             {t('hero.subtitle')}
           </motion.p>
@@ -122,9 +118,7 @@ const HeroSection = () => {
           {/* CTAs */}
           <motion.div
             className="flex flex-wrap gap-4"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1, duration: 0.6 }}
+            variants={fadeUp}
           >
             <Link to="/voitures">
               <Button variant="primary" size="lg" className="text-base px-8 py-4">
@@ -137,8 +131,28 @@ const HeroSection = () => {
               </Button>
             </Link>
           </motion.div>
-        </div>
+        </motion.div>
       </div>
+
+      {/* Scroll Indicator */}
+      <motion.div
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5, duration: 0.8 }}
+      >
+        <motion.div
+          className="w-5 h-8 border-2 border-white/30 rounded-full flex justify-center pt-1.5"
+          animate={{ borderColor: ['rgba(255,255,255,0.3)', 'rgba(255,255,255,0.6)', 'rgba(255,255,255,0.3)'] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <motion.div
+            className="w-1 h-2 bg-white/60 rounded-full"
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        </motion.div>
+      </motion.div>
     </section>
   )
 }

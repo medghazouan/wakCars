@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useInView } from '../../hooks/useInView'
 import { useLanguage } from '../../hooks/useLanguage'
+import { staggerContainer, fadeUp } from '../../utils/motion'
 import Button from '../ui/Button'
 
 const FinalCTA = () => {
@@ -27,22 +28,31 @@ const FinalCTA = () => {
       <div className="container-wak relative z-10">
         <motion.div
           className="text-center max-w-3xl mx-auto"
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7 }}
+          variants={staggerContainer(0.15)}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
         >
           {/* Title */}
-          <h2 className="text-display text-5xl md:text-6xl lg:text-7xl text-white mb-6">
+          <motion.h2
+            className="text-display text-5xl md:text-6xl lg:text-7xl text-white mb-6"
+            variants={fadeUp}
+          >
             {t('cta.title')}
-          </h2>
+          </motion.h2>
 
           {/* Subtitle */}
-          <p className="text-white/80 text-lg md:text-xl mb-10 max-w-xl mx-auto">
+          <motion.p
+            className="text-white/80 text-lg md:text-xl mb-10 max-w-xl mx-auto"
+            variants={fadeUp}
+          >
             {t('cta.subtitle')}
-          </p>
+          </motion.p>
 
           {/* CTAs */}
-          <div className="flex flex-wrap justify-center gap-4">
+          <motion.div
+            className="flex flex-wrap justify-center gap-4"
+            variants={fadeUp}
+          >
             <Link to="/reservation">
               <Button
                 variant="ghost"
@@ -61,7 +71,7 @@ const FinalCTA = () => {
                 {t('cta.secondary')}
               </Button>
             </Link>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
     </section>

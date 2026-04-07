@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
@@ -10,10 +10,12 @@ import CustomCursor from './components/layout/CustomCursor'
 import ScrollProgress from './components/layout/ScrollProgress'
 import PageTransition from './components/layout/PageTransition'
 import LoadingSpinner from './components/ui/LoadingSpinner'
+import HomeLoader from './components/ui/HomeLoader'
 
 export default function SiteLayout() {
   const location = useLocation()
   const { i18n } = useTranslation()
+  const [showHomeLoader, setShowHomeLoader] = useState(location.pathname === '/')
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -34,6 +36,7 @@ export default function SiteLayout() {
 
   return (
     <>
+      {showHomeLoader && <HomeLoader onComplete={() => setShowHomeLoader(false)} />}
       <CustomCursor />
       <ScrollProgress />
       <Navbar />

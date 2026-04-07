@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { useQuery } from '@tanstack/react-query'
 import { useInView } from '../../hooks/useInView'
 import { useLanguage } from '../../hooks/useLanguage'
+import { staggerContainer, fadeUp, fadeLeft, accentGrow } from '../../utils/motion'
 import api from '../../services/api'
 import Skeleton from '../ui/Skeleton'
 import Button from '../ui/Button'
@@ -31,11 +32,16 @@ const BlogTeaser = () => {
         {/* Header */}
         <div className="mb-14 relative">
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6 }}
+            variants={fadeLeft}
+            initial="hidden"
+            animate={isInView ? 'visible' : 'hidden'}
           >
-            <div className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block" />
+            <motion.div
+              className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block origin-top"
+              variants={accentGrow}
+              initial="hidden"
+              animate={isInView ? 'visible' : 'hidden'}
+            />
             <h2 className="text-display text-4xl md:text-5xl lg:text-6xl text-text-primary mb-4 uppercase leading-[1.1]">
               {t('blog.title')}
             </h2>
@@ -46,7 +52,12 @@ const BlogTeaser = () => {
         </div>
 
         {/* Posts Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12"
+          variants={staggerContainer(0.12)}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+        >
           {isLoading ? (
             Array(3).fill(0).map((_, i) => (
               <div key={i}>
@@ -60,9 +71,7 @@ const BlogTeaser = () => {
               <motion.article
                 key={post.id}
                 className="group"
-                initial={{ opacity: 0, y: 30 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ delay: index * 0.15, duration: 0.5 }}
+                variants={fadeUp}
               >
                 <Link to={`/blog/${getLocalizedField(post, 'slug')}`}>
                   {/* Image */}
@@ -97,14 +106,14 @@ const BlogTeaser = () => {
               </motion.article>
             ))
           )}
-        </div>
+        </motion.div>
 
         {/* CTA */}
         <motion.div
           className="text-center"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.6, duration: 0.5 }}
+          transition={{ delay: 0.5, duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           <Link to="/blog">
             <Button variant="secondary">

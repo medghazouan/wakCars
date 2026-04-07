@@ -3,22 +3,25 @@ import { motion } from 'framer-motion'
 const pageVariants = {
   initial: {
     opacity: 0,
-    y: 20,
+    y: 30,
+    filter: 'blur(4px)',
   },
   animate: {
     opacity: 1,
     y: 0,
+    filter: 'blur(0px)',
     transition: {
-      duration: 0.4,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      duration: 0.5,
+      ease: [0.16, 1, 0.3, 1],
     },
   },
   exit: {
     opacity: 0,
-    y: -20,
+    y: -15,
+    filter: 'blur(4px)',
     transition: {
       duration: 0.3,
-      ease: [0.25, 0.46, 0.45, 0.94],
+      ease: [0.55, 0.055, 0.675, 0.19],
     },
   },
 }

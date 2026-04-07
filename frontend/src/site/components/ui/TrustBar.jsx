@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useInView } from '../../hooks/useInView'
 import { useLanguage } from '../../hooks/useLanguage'
+import { staggerContainer, fadeUp } from '../../utils/motion'
 
 const icons = {
   transparent: (
@@ -33,12 +34,10 @@ const icons = {
   ),
 }
 
-const TrustItem = ({ icon, title, description, index, isInView }) => (
+const TrustItem = ({ icon, title, description }) => (
   <motion.div 
     className="group flex items-center gap-4 py-6 px-4 hover:bg-white/[0.02] transition-colors rounded-xl cursor-default"
-    initial={{ opacity: 0, y: 20 }}
-    animate={isInView ? { opacity: 1, y: 0 } : {}}
-    transition={{ delay: index * 0.1, duration: 0.5 }}
+    variants={fadeUp}
   >
     <div className="flex-shrink-0 w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white group-hover:border-primary group-hover:text-primary group-hover:shadow-[0_0_15px_rgba(204,0,0,0.3)] transition-all duration-300">
       {icon}
@@ -70,19 +69,22 @@ const TrustBar = () => {
     <section className="bg-background-dark border-b border-white/5 relative z-10">
       <div className="container-wak" ref={ref}>
         {/* Responsive Grid Layout */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 divide-y lg:divide-y-0 lg:divide-x divide-white/5 py-2">
+        <motion.div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 divide-y lg:divide-y-0 lg:divide-x divide-white/5 py-2"
+          variants={staggerContainer(0.08)}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+        >
           {items.map((item, index) => (
             <div key={index} className="py-2 lg:py-0">
               <TrustItem
                 icon={item.icon}
                 title={item.title}
                 description={item.description}
-                index={index}
-                isInView={isInView}
               />
             </div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   )

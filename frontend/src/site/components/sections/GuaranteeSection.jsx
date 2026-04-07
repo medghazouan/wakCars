@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useInView } from '../../hooks/useInView'
 import { useLanguage } from '../../hooks/useLanguage'
+import { staggerContainer, fadeUp, fadeLeft, accentGrow } from '../../utils/motion'
 
 const PriceIcon = () => (
   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -61,11 +62,16 @@ const GuaranteeSection = () => {
         {/* Header */}
         <div className="mb-14 relative">
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6 }}
+            variants={fadeLeft}
+            initial="hidden"
+            animate={isInView ? 'visible' : 'hidden'}
           >
-            <div className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block" />
+            <motion.div
+              className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block origin-top"
+              variants={accentGrow}
+              initial="hidden"
+              animate={isInView ? 'visible' : 'hidden'}
+            />
             <h2 className="text-display text-4xl md:text-5xl lg:text-6xl text-text-primary mb-4 uppercase leading-[1.1]">
               {t('guarantee.title')}
             </h2>
@@ -76,14 +82,17 @@ const GuaranteeSection = () => {
         </div>
 
         {/* Normal Grid - Modern Sharp Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <motion.div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          variants={staggerContainer(0.1)}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+        >
           {guarantees.map((item, index) => (
             <motion.div
               key={index}
               className="group relative flex flex-col p-8 bg-white border border-gray-100 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-500 overflow-hidden min-h-[280px]"
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: index * 0.1, duration: 0.5 }}
+              variants={fadeUp}
             >
               {/* Modern subtle accent line on hover */}
               <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-primary-light transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
@@ -107,7 +116,7 @@ const GuaranteeSection = () => {
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   )

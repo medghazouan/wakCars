@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { useLanguage } from '../hooks/useLanguage'
+import { fadeLeft, accentGrow, scaleUp, fadeUp } from '../utils/motion'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Pagination } from 'swiper/modules'
 import 'swiper/css'
@@ -100,12 +101,17 @@ const BlogPost = () => {
               {/* Header */}
               <motion.header
                 className="mb-10 relative"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6 }}
+                variants={fadeLeft}
+                initial="hidden"
+                animate="visible"
               >
                 {/* Decorative line */}
-                <div className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-full bg-primary rounded-full hidden md:block" />
+                <motion.div
+                  className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-full bg-primary rounded-full hidden md:block origin-top"
+                  variants={accentGrow}
+                  initial="hidden"
+                  animate="visible"
+                />
 
                 {/* Category */}
                 {post.category && (
@@ -141,9 +147,9 @@ const BlogPost = () => {
               {post.cover_image && (
                 <motion.div
                   className="mb-12 relative w-full rounded-2xl overflow-hidden shadow-2xl shadow-primary/10 group"
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2, duration: 0.6 }}
+                  variants={scaleUp}
+                  initial="hidden"
+                  animate="visible"
                 >
                   <div className="absolute inset-0 bg-primary/5 group-hover:bg-transparent transition-colors duration-500 z-10 pointer-events-none" />
                   <img
@@ -157,9 +163,9 @@ const BlogPost = () => {
               {/* Content */}
               <motion.div
                 className="blog-content-rich relative w-full"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
+                variants={fadeUp}
+                initial="hidden"
+                animate="visible"
               >
                 <div dangerouslySetInnerHTML={{ __html: getLocalizedField(post, 'content') }} className="w-full" />
               </motion.div>

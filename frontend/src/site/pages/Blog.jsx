@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useQuery } from '@tanstack/react-query'
 import { useLanguage } from '../hooks/useLanguage'
+import { fadeLeft, accentGrow, staggerContainer, fadeUp } from '../utils/motion'
 import api from '../services/api'
 import MetaTags from '../components/seo/MetaTags'
 import Breadcrumbs from '../components/seo/Breadcrumbs'
@@ -43,11 +44,16 @@ const Blog = () => {
           {/* Header */}
           <div className="mb-14 relative">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
+              variants={fadeLeft}
+              initial="hidden"
+              animate="visible"
             >
-              <div className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block" />
+              <motion.div
+                className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block origin-top"
+                variants={accentGrow}
+                initial="hidden"
+                animate="visible"
+              />
               <h1 className="text-display text-4xl md:text-5xl lg:text-6xl text-text-primary mb-4 uppercase leading-[1.1]">
                 {t('blog.title')}
               </h1>
@@ -58,7 +64,12 @@ const Blog = () => {
           </div>
 
           {/* Posts Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12"
+            variants={staggerContainer(0.08)}
+            initial="hidden"
+            animate="visible"
+          >
             {isLoading ? (
               Array(6).fill(0).map((_, i) => (
                 <div key={i}>
@@ -72,9 +83,7 @@ const Blog = () => {
                 <motion.article
                   key={post.id}
                   className="group"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
+                  variants={fadeUp}
                 >
                   <Link to={`/blog/${getLocalizedField(post, 'slug')}`}>
                     {/* Image */}
@@ -121,7 +130,7 @@ const Blog = () => {
                 </motion.article>
               ))
             )}
-          </div>
+          </motion.div>
 
           {/* Pagination */}
           {totalPages > 1 && (

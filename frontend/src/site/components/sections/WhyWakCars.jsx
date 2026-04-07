@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useInView } from '../../hooks/useInView'
 import { useLanguage } from '../../hooks/useLanguage'
+import { staggerContainer, fadeUp, fadeLeft, accentGrow, scaleUp } from '../../utils/motion'
 
 const PriceIcon = () => (
   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -53,11 +54,16 @@ const WhyWakCars = () => {
         {/* Header */}
         <div className="mb-14 relative">
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6 }}
+            variants={fadeLeft}
+            initial="hidden"
+            animate={isInView ? 'visible' : 'hidden'}
           >
-            <div className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block" />
+            <motion.div
+              className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block origin-top"
+              variants={accentGrow}
+              initial="hidden"
+              animate={isInView ? 'visible' : 'hidden'}
+            />
             <h2 className="text-display text-4xl md:text-5xl lg:text-6xl text-white mb-4 uppercase leading-[1.1]">
               {t('whyUs.title')}
             </h2>
@@ -68,15 +74,18 @@ const WhyWakCars = () => {
         </div>
 
         {/* Creative Sharp-Corner Grid - Adjusted to fill space properly */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-3 gap-1"
+          variants={staggerContainer(0.12)}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+        >
           {reasons.map((reason, index) => {
             return (
               <motion.div
                 key={index}
                 className="group relative bg-[#1c1c1c] border border-white/5 p-10 flex flex-col hover:bg-[#222] transition-colors duration-500 overflow-hidden min-h-[300px]"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                transition={{ delay: index * 0.15, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+                variants={scaleUp}
               >
                 {/* Accent line on hover */}
                 <div className="absolute bottom-0 right-0 w-1 h-full bg-gradient-to-b from-primary to-primary-light transform origin-bottom scale-y-0 group-hover:scale-y-100 transition-transform duration-500" />
@@ -104,7 +113,7 @@ const WhyWakCars = () => {
               </motion.div>
             )
           })}
-        </div>
+        </motion.div>
       </div>
     </section>
   )

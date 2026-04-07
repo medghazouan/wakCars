@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useInView } from '../../hooks/useInView'
 import { useLanguage } from '../../hooks/useLanguage'
+import { staggerContainer, fadeUp } from '../../utils/motion'
+
+const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4)
 
 const CountUp = ({ end, duration = 2, suffix = '' }) => {
   const [count, setCount] = useState(0)
@@ -14,8 +17,9 @@ const CountUp = ({ end, duration = 2, suffix = '' }) => {
     const animate = (timestamp) => {
       if (!startTime) startTime = timestamp
       const progress = Math.min((timestamp - startTime) / (duration * 1000), 1)
+      const eased = easeOutQuart(progress)
       
-      setCount(Math.floor(progress * end))
+      setCount(Math.floor(eased * end))
       
       if (progress < 1) {
         requestAnimationFrame(animate)
@@ -50,14 +54,17 @@ const StatsCounter = () => {
       <div className="absolute top-1/2 left-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[100px] pointer-events-none -translate-x-1/2 -translate-y-1/2" />
 
       <div className="container-wak relative z-10">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+        <motion.div
+          className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12"
+          variants={staggerContainer(0.12)}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+        >
           {stats.map((stat, index) => (
             <motion.div
               key={index}
               className="text-center"
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: index * 0.1, duration: 0.5 }}
+              variants={fadeUp}
             >
               <div className="text-4xl md:text-5xl lg:text-6xl font-display font-black text-primary mb-2">
                 {stat.isDecimal ? (
@@ -71,7 +78,7 @@ const StatsCounter = () => {
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   )

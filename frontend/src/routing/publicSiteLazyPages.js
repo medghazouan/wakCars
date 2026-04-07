@@ -1,0 +1,17 @@
+import { lazy } from 'react'
+
+export const Home = lazy(() => import('../site/pages/Home'))
+export const Fleet = lazy(() => import('../site/pages/Fleet'))
+export const CarDetail = lazy(() => import('../site/pages/CarDetail'))
+export const Category = lazy(() => import('../site/pages/Category'))
+export const Booking = lazy(() => import('../site/pages/Booking'))
+export const BookingConfirm = lazy(() => import('../site/pages/BookingConfirm'))
+export const Locations = lazy(() => import('../site/pages/Locations'))
+export const FAQ = lazy(() => import('../site/pages/FAQ'))
+export const Blog = lazy(() => import('../site/pages/Blog'))
+export const BlogPost = lazy(() => import('../site/pages/BlogPost'))
+export const About = lazy(() => import('../site/pages/About'))
+export const Contact = lazy(() => import('../site/pages/Contact'))
+export const Terms = lazy(() => import('../site/pages/Terms'))
+export const Privacy = lazy(() => import('../site/pages/Privacy'))
+export const NotFound = lazy(() => import('../site/pages/NotFound'))

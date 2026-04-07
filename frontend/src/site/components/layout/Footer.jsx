@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { useLanguage } from '../../hooks/useLanguage'
+import { useInView } from '../../hooks/useInView'
+import { staggerContainer, fadeUp } from '../../utils/motion'
 import wakCarsLogo from '../../assets/images/wak-cars-bl.png'
 
 const FacebookIcon = () => (
@@ -43,14 +46,20 @@ const ClockIcon = () => (
 
 const Footer = () => {
   const { t } = useLanguage()
+  const { ref, isInView } = useInView({ threshold: 0.1 })
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-background-dark text-text-on-dark">
+    <footer ref={ref} className="bg-background-dark text-text-on-dark">
       <div className="container-wak py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12"
+          variants={staggerContainer(0.1)}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+        >
           {/* Brand Column */}
-          <div className="lg:col-span-1">
+          <motion.div className="lg:col-span-1" variants={fadeUp}>
             <Link to="/" className="inline-flex items-center gap-2 mb-6">
               <img 
                 src={wakCarsLogo} 
@@ -81,10 +90,10 @@ const Footer = () => {
                 <InstagramIcon />
               </a>
             </div>
-          </div>
+          </motion.div>
 
           {/* Quick Links */}
-          <div>
+          <motion.div variants={fadeUp}>
             <h3 className="text-ui-label text-white mb-6">{t('footer.quickLinks')}</h3>
             <ul className="space-y-3">
               <li>
@@ -108,10 +117,10 @@ const Footer = () => {
                 </Link>
               </li>
             </ul>
-          </div>
+          </motion.div>
 
           {/* Legal */}
-          <div>
+          <motion.div variants={fadeUp}>
             <h3 className="text-ui-label text-white mb-6">{t('footer.legal')}</h3>
             <ul className="space-y-3">
               <li>
@@ -130,10 +139,10 @@ const Footer = () => {
                 </Link>
               </li>
             </ul>
-          </div>
+          </motion.div>
 
           {/* Contact */}
-          <div>
+          <motion.div variants={fadeUp}>
             <h3 className="text-ui-label text-white mb-6">{t('nav.contact')}</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
@@ -170,12 +179,17 @@ const Footer = () => {
                 </div>
               </li>
             </ul>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-white/10">
+      <motion.div
+        className="border-t border-white/10"
+        initial={{ opacity: 0 }}
+        animate={isInView ? { opacity: 1 } : {}}
+        transition={{ delay: 0.6, duration: 0.5 }}
+      >
         <div className="container-wak py-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-gray-500 text-sm">
             {t('footer.copyright', { year: currentYear })}
@@ -184,7 +198,7 @@ const Footer = () => {
             {t('footer.craftedBy')} <a href="https://www.bidayalab.com" target="_blank" rel="noopener noreferrer" className="text-primary font-bold hover:text-white transition-colors">BIDAYALAB</a>
           </p>
         </div>
-      </div>
+      </motion.div>
     </footer>
   )
 }
