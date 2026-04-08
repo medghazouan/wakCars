@@ -1,9 +1,25 @@
+import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { motion } from 'framer-motion'
+import { motion as Motion } from 'framer-motion'
 import { useLanguage } from '../hooks/useLanguage'
+import { usePublicSiteSettings } from '../hooks/usePublicSiteSettings'
 import { fadeLeft, fadeRight, accentGrow, fadeUp } from '../utils/motion'
+import {
+  SITE_SETTING_KEYS as SK,
+  normalizeGoogleMapsIframeSrc,
+  telHref,
+  waMeDigits,
+  waMeHref,
+  pickFirstNonEmpty,
+  PHONE_SETTING_KEYS,
+  EMAIL_SETTING_KEYS,
+  WHATSAPP_SETTING_KEYS,
+  OPENING_HOURS_SETTING_KEYS,
+  MAP_EMBED_SETTING_KEYS,
+  addressSettingKeys,
+} from '../utils/siteContactLinks'
 import MetaTags from '../components/seo/MetaTags'
 import Breadcrumbs from '../components/seo/Breadcrumbs'
 import Button from '../components/ui/Button'
@@ -45,8 +61,16 @@ const contactSchema = z.object({
   message: z.string().min(10, 'Message trop court'),
 })
 
+/** Fallback when `footer_whatsapp_phone` is not set in Paramètres */
+const WHATSAPP_DISPLAY_FALLBACK = '+212 661 234 567'
+
+/** Must be iframe-safe (embed path or output=embed); not a /maps/place share link. */
+const DEFAULT_MAP_IFRAME_SRC =
+  'https://www.google.com/maps?q=A%C3%A9roport+Marrakech+Menara&output=embed&z=14'
+
 const Contact = () => {
-  const { t } = useLanguage()
+  const { t, currentLanguage } = useLanguage()
+  const { settings: s, pick } = usePublicSiteSettings()
 
   const {
     register,
@@ -57,45 +81,65 @@ const Contact = () => {
     resolver: zodResolver(contactSchema),
   })
 
+  const phone = pickFirstNonEmpty(s, PHONE_SETTING_KEYS) || pick(SK.phone, t('footer.phone'))
+  const whatsappDisplay =
+    pickFirstNonEmpty(s, WHATSAPP_SETTING_KEYS) || pick(SK.whatsapp, WHATSAPP_DISPLAY_FALLBACK)
+  const whatsappWaDigits =
+    waMeDigits(whatsappDisplay) || waMeDigits(WHATSAPP_DISPLAY_FALLBACK)
+
   const onSubmit = (data) => {
-    const phone = '212661234567'
     const text = encodeURIComponent(data.message)
-    window.open(`https://wa.me/${phone}?text=${text}`, '_blank')
+    window.open(`https://wa.me/${whatsappWaDigits}?text=${text}`, '_blank')
     reset()
   }
 
-  const contactInfo = [
-    {
-      icon: <PhoneIcon />,
-      label: t('contact.info.phone'),
-      value: '+212 524 123 456',
-      href: 'tel:+212524123456',
-      ltr: true,
-    },
-    {
-      icon: <WhatsAppIcon />,
-      label: t('contact.info.whatsapp'),
-      value: '+212 661 234 567',
-      href: 'https://wa.me/212661234567',
-      ltr: true,
-    },
-    {
-      icon: <MailIcon />,
-      label: t('contact.info.email'),
-      value: 'contact@wakcars.ma',
-      href: 'mailto:contact@wakcars.ma',
-    },
-    {
-      icon: <MapPinIcon />,
-      label: t('contact.info.address'),
-      value: t('footer.address'),
-    },
-    {
-      icon: <ClockIcon />,
-      label: t('contact.info.hours'),
-      value: t('footer.openingHours'),
-    },
-  ]
+  const contactInfo = useMemo(() => {
+    const email = pickFirstNonEmpty(s, EMAIL_SETTING_KEYS) || pick(SK.email, t('footer.email'))
+    const address =
+      pickFirstNonEmpty(s, addressSettingKeys(currentLanguage)) ||
+      pick(SK.address, t('footer.address'))
+    const openingHours =
+      pickFirstNonEmpty(s, OPENING_HOURS_SETTING_KEYS) ||
+      pick(SK.openingHours, t('footer.openingHours'))
+    const waHref = waMeHref(whatsappDisplay) || waMeHref(WHATSAPP_DISPLAY_FALLBACK)
+
+    return [
+      {
+        icon: <PhoneIcon />,
+        label: t('contact.info.phone'),
+        value: phone,
+        href: telHref(phone),
+        ltr: true,
+      },
+      {
+        icon: <WhatsAppIcon />,
+        label: t('contact.info.whatsapp'),
+        value: whatsappDisplay,
+        href: waHref,
+        ltr: true,
+      },
+      {
+        icon: <MailIcon />,
+        label: t('contact.info.email'),
+        value: email,
+        href: `mailto:${email}`,
+      },
+      {
+        icon: <MapPinIcon />,
+        label: t('contact.info.address'),
+        value: address,
+      },
+      {
+        icon: <ClockIcon />,
+        label: t('contact.info.hours'),
+        value: openingHours,
+      },
+    ]
+  }, [t, pick, s, currentLanguage, phone, whatsappDisplay])
+
+  const mapSrc =
+    normalizeGoogleMapsIframeSrc(pickFirstNonEmpty(s, MAP_EMBED_SETTING_KEYS)) ||
+    DEFAULT_MAP_IFRAME_SRC
 
   return (
     <>
@@ -111,12 +155,12 @@ const Contact = () => {
 
           {/* Header */}
           <div className="mb-14 relative">
-            <motion.div
+            <Motion.div
               variants={fadeLeft}
               initial="hidden"
               animate="visible"
             >
-              <motion.div
+              <Motion.div
                 className="absolute top-0 -left-6 rtl:left-auto rtl:-right-6 w-1 h-3/4 bg-primary rounded-full hidden md:block origin-top"
                 variants={accentGrow}
                 initial="hidden"
@@ -128,12 +172,12 @@ const Contact = () => {
               <p className="text-text-secondary text-lg max-w-2xl leading-relaxed">
                 {t('contact.subtitle')}
               </p>
-            </motion.div>
+            </Motion.div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-stretch">
             {/* Contact Form */}
-            <motion.div
+            <Motion.div
               className="lg:col-span-7 flex flex-col"
               variants={fadeLeft}
               initial="hidden"
@@ -172,10 +216,10 @@ const Contact = () => {
                   </div>
                 </form>
               </div>
-            </motion.div>
+            </Motion.div>
 
             {/* Contact Info & Map */}
-            <motion.div
+            <Motion.div
               className="lg:col-span-5 flex flex-col"
               variants={fadeRight}
               initial="hidden"
@@ -222,11 +266,11 @@ const Contact = () => {
                 </div>
               </div>
 
-            </motion.div>
+            </Motion.div>
           </div>
 
           {/* Map Embed — Full Width Below */}
-          <motion.div
+          <Motion.div
             className="mt-12 relative h-[350px] bg-gray-100 border border-gray-100 overflow-hidden group"
             variants={fadeUp}
             initial="hidden"
@@ -234,17 +278,16 @@ const Contact = () => {
           >
             <div className="absolute top-0 left-0 w-full h-1 bg-primary transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 z-10" />
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3397.0!2d-7.9811!3d31.6295!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sGu%C3%A9liz%2C%20Marrakech!5e0!3m2!1sfr!2sma!4v1234567890"
+              src={mapSrc}
               width="100%"
               height="100%"
               style={{ border: 0, filter: 'grayscale(0.2) contrast(1.1) opacity(0.9)' }}
               className="transition-all duration-700 group-hover:filter-none"
               allowFullScreen=""
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
+              loading="eager"
               title="WAK Cars - Localisation"
             />
-          </motion.div>
+          </Motion.div>
         </div>
       </div>
     </>

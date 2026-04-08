@@ -1,8 +1,20 @@
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion as Motion } from 'framer-motion'
 import { useLanguage } from '../../hooks/useLanguage'
+import { usePublicSiteSettings } from '../../hooks/usePublicSiteSettings'
 import { useInView } from '../../hooks/useInView'
 import { staggerContainer, fadeUp } from '../../utils/motion'
+import {
+  SITE_SETTING_KEYS as SK,
+  safeHttpUrl,
+  telHref,
+  pickFirstNonEmpty,
+  PHONE_SETTING_KEYS,
+  EMAIL_SETTING_KEYS,
+  OPENING_HOURS_SETTING_KEYS,
+  DESCRIPTION_SETTING_KEYS,
+  addressSettingKeys,
+} from '../../utils/siteContactLinks'
 import wakCarsLogo from '../../assets/images/wak-cars-bl.png'
 
 const FacebookIcon = () => (
@@ -45,21 +57,33 @@ const ClockIcon = () => (
 )
 
 const Footer = () => {
-  const { t } = useLanguage()
+  const { t, currentLanguage } = useLanguage()
+  const { settings: s, pick } = usePublicSiteSettings()
   const { ref, isInView } = useInView({ threshold: 0.1 })
   const currentYear = new Date().getFullYear()
+
+  const facebookUrl = safeHttpUrl(s[SK.facebook] || '')
+  const instagramUrl = safeHttpUrl(s[SK.instagram] || '')
+  const phone = pickFirstNonEmpty(s, PHONE_SETTING_KEYS) || pick(SK.phone, t('footer.phone'))
+  const email = pickFirstNonEmpty(s, EMAIL_SETTING_KEYS) || pick(SK.email, t('footer.email'))
+  const address =
+    pickFirstNonEmpty(s, addressSettingKeys(currentLanguage)) || pick(SK.address, t('footer.address'))
+  const openingHours =
+    pickFirstNonEmpty(s, OPENING_HOURS_SETTING_KEYS) || pick(SK.openingHours, t('footer.openingHours'))
+  const description =
+    pickFirstNonEmpty(s, DESCRIPTION_SETTING_KEYS) || pick(SK.description, t('footer.description'))
 
   return (
     <footer ref={ref} className="bg-background-dark text-text-on-dark">
       <div className="container-wak py-16">
-        <motion.div
+        <Motion.div
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12"
           variants={staggerContainer(0.1)}
           initial="hidden"
           animate={isInView ? 'visible' : 'hidden'}
         >
           {/* Brand Column */}
-          <motion.div className="lg:col-span-1" variants={fadeUp}>
+          <Motion.div className="lg:col-span-1" variants={fadeUp}>
             <Link to="/" className="inline-flex items-center gap-2 mb-6">
               <img 
                 src={wakCarsLogo} 
@@ -68,32 +92,38 @@ const Footer = () => {
               />
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed mb-6">
-              {t('footer.description')}
+              {description}
             </p>
-            <div className="flex gap-4">
-              <a
-                href="https://facebook.com/wakcars"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-primary transition-colors"
-                aria-label="Facebook"
-              >
-                <FacebookIcon />
-              </a>
-              <a
-                href="https://instagram.com/wakcars"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-primary transition-colors"
-                aria-label="Instagram"
-              >
-                <InstagramIcon />
-              </a>
-            </div>
-          </motion.div>
+            {(facebookUrl || instagramUrl) ? (
+              <div className="flex gap-4">
+                {facebookUrl ? (
+                  <a
+                    href={facebookUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-primary transition-colors"
+                    aria-label="Facebook"
+                  >
+                    <FacebookIcon />
+                  </a>
+                ) : null}
+                {instagramUrl ? (
+                  <a
+                    href={instagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-primary transition-colors"
+                    aria-label="Instagram"
+                  >
+                    <InstagramIcon />
+                  </a>
+                ) : null}
+              </div>
+            ) : null}
+          </Motion.div>
 
           {/* Quick Links */}
-          <motion.div variants={fadeUp}>
+          <Motion.div variants={fadeUp}>
             <h3 className="text-ui-label text-white mb-6">{t('footer.quickLinks')}</h3>
             <ul className="space-y-3">
               <li>
@@ -117,10 +147,10 @@ const Footer = () => {
                 </Link>
               </li>
             </ul>
-          </motion.div>
+          </Motion.div>
 
           {/* Legal */}
-          <motion.div variants={fadeUp}>
+          <Motion.div variants={fadeUp}>
             <h3 className="text-ui-label text-white mb-6">{t('footer.legal')}</h3>
             <ul className="space-y-3">
               <li>
@@ -139,34 +169,34 @@ const Footer = () => {
                 </Link>
               </li>
             </ul>
-          </motion.div>
+          </Motion.div>
 
           {/* Contact */}
-          <motion.div variants={fadeUp}>
+          <Motion.div variants={fadeUp}>
             <h3 className="text-ui-label text-white mb-6">{t('nav.contact')}</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPinIcon />
                 <span className="text-gray-400 text-sm whitespace-pre-line">
-                  {t('footer.address')}
+                  {address}
                 </span>
               </li>
               <li>
                 <a
-                  href="tel:+212524123456"
+                  href={telHref(phone)}
                   className="flex items-center gap-3 text-gray-400 hover:text-primary transition-colors"
                 >
                   <PhoneIcon />
-                  <span dir="ltr">{t('footer.phone')}</span>
+                  <span dir="ltr">{phone}</span>
                 </a>
               </li>
               <li>
                 <a
-                  href="mailto:contact@wakcars.ma"
+                  href={`mailto:${email}`}
                   className="flex items-center gap-3 text-gray-400 hover:text-primary transition-colors"
                 >
                   <MailIcon />
-                  <span dir="ltr">{t('footer.email')}</span>
+                  <span dir="ltr">{email}</span>
                 </a>
               </li>
               <li className="flex items-start gap-3">
@@ -174,17 +204,17 @@ const Footer = () => {
                 <div>
                   <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">{t('footer.openingHoursLabel')}</p>
                   <span className="text-gray-400 text-sm whitespace-pre-line">
-                    {t('footer.openingHours')}
+                    {openingHours}
                   </span>
                 </div>
               </li>
             </ul>
-          </motion.div>
-        </motion.div>
+          </Motion.div>
+        </Motion.div>
       </div>
 
       {/* Bottom Bar */}
-      <motion.div
+      <Motion.div
         className="border-t border-white/10"
         initial={{ opacity: 0 }}
         animate={isInView ? { opacity: 1 } : {}}
@@ -198,7 +228,7 @@ const Footer = () => {
             {t('footer.craftedBy')} <a href="https://www.bidayalab.com" target="_blank" rel="noopener noreferrer" className="text-primary font-bold hover:text-white transition-colors">BIDAYALAB</a>
           </p>
         </div>
-      </motion.div>
+      </Motion.div>
     </footer>
   )
 }

@@ -226,13 +226,28 @@ const listFaqs = async (req, res, next) => {
   }
 };
 
-/** Flat settings map for the marketing site (numeric strings from value_fr). */
+/**
+ * Flat settings map for the marketing site.
+ * Without `lang`: uses value_fr, then value_ar (stable for prices / booking).
+ * With `lang=fr|ar`: prefers that locale, then falls back to the other.
+ */
 const publicSettings = async (req, res, next) => {
   try {
+    const lang = String(req.query.lang || '').toLowerCase();
+    const preferAr = lang === 'ar';
+    const preferFr = lang === 'fr';
     const rows = await prisma.site_settings.findMany();
     const flat = {};
     for (const s of rows) {
-      flat[s.settingKey] = s.value_fr ?? s.value_ar ?? '';
+      let v;
+      if (preferAr) {
+        v = s.value_ar != null && s.value_ar !== '' ? s.value_ar : (s.value_fr ?? '');
+      } else if (preferFr) {
+        v = s.value_fr != null && s.value_fr !== '' ? s.value_fr : (s.value_ar ?? '');
+      } else {
+        v = s.value_fr ?? s.value_ar ?? '';
+      }
+      flat[s.settingKey] = v;
     }
     return success(res, flat);
   } catch (err) {

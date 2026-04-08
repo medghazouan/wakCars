@@ -1,5 +1,11 @@
-import { motion } from 'framer-motion'
-import { generateWhatsAppLink } from '../../utils/generateWhatsAppLink'
+import { useMemo } from 'react'
+import { motion as Motion } from 'framer-motion'
+import { usePublicSiteSettings } from '../../hooks/usePublicSiteSettings'
+import { pickFirstNonEmpty, WHATSAPP_SETTING_KEYS, waMeDigits } from '../../utils/siteContactLinks'
+
+const DEFAULT_WA_MESSAGE = 'Bonjour WAK Cars, je souhaite louer une voiture.'
+/** Same digits as legacy `generateWhatsAppLink` when settings are empty */
+const FALLBACK_WA_DIGITS = '212661234567'
 
 const WhatsAppIcon = () => (
   <svg
@@ -14,10 +20,15 @@ const WhatsAppIcon = () => (
 )
 
 const WhatsAppButton = () => {
-  const whatsappLink = generateWhatsAppLink()
+  const { settings: s } = usePublicSiteSettings()
+  const whatsappLink = useMemo(() => {
+    const raw = pickFirstNonEmpty(s, WHATSAPP_SETTING_KEYS)
+    const digits = waMeDigits(raw) || FALLBACK_WA_DIGITS
+    return `https://wa.me/${digits}?text=${encodeURIComponent(DEFAULT_WA_MESSAGE)}`
+  }, [s])
 
   return (
-    <motion.a
+    <Motion.a
       href={whatsappLink}
       target="_blank"
       rel="noopener noreferrer"
@@ -32,7 +43,7 @@ const WhatsAppButton = () => {
       <span className="text-white">
         <WhatsAppIcon />
       </span>
-    </motion.a>
+    </Motion.a>
   )
 }
 

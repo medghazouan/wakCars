@@ -99,7 +99,20 @@ export default function SettingsPage() {
 
       <p className="text-xs text-gray-400">
         Les modifications des tarifs GPS / siège enfant sont utilisées par le site public et le calcul des
-        réservations.
+        réservations. Le site public lit aussi (FR/AR)&nbsp;:{' '}
+        <span className="font-mono">
+          contact_phone, contact_whatsapp, contact_email, contact_address_fr, contact_address_ar,
+          business_hours, site_tagline, google_maps_embed
+        </span>{' '}
+        ou les alias&nbsp;{' '}
+        <span className="font-mono">
+          footer_description, footer_facebook_url, footer_instagram_url, footer_phone, footer_whatsapp_phone,
+          footer_email, footer_address, footer_opening_hours, footer_map_embed_url
+        </span>
+        . Pour <span className="font-mono">google_maps_embed</span>&nbsp;: lien
+        <span className="font-mono"> /maps/place/…</span> (Partager) ou
+        <span className="font-mono"> …/maps/embed?pb=…</span> — créez-les via POST{' '}
+        <span className="font-mono">/api/settings</span> si absentes.
       </p>
     </motion.div>
   )
