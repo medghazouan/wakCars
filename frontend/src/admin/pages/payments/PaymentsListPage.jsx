@@ -68,13 +68,7 @@ export default function PaymentsListPage() {
       variants={pageTransition}
       className="mx-auto w-full min-w-0 max-w-7xl space-y-6 sm:space-y-8"
     >
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="mb-2 text-2xl font-bold text-secondary sm:text-3xl">{t('page.payments.title')}</h1>
-          <p className="text-sm text-gray-400 sm:text-base">{t('page.payments.subtitle')}</p>
-        </div>
-        <Button className="w-full shrink-0 sm:w-auto">+ {t('page.payments.recordPayment')}</Button>
-      </div>
+     
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <StatsCard title={t('page.payments.totalTransactions')} value={data?.meta?.total || 0} icon={CreditCard} />

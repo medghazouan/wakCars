@@ -1,5 +1,6 @@
 const prisma = require('../utils/prisma');
-const { success, created, noContent, notFound } = require('../utils/apiResponse');
+const cloudinary = require('../services/cloudinary.service');
+const { success, created, noContent, notFound, fail } = require('../utils/apiResponse');
 
 const list = async (req, res, next) => {
   try {
@@ -114,4 +115,21 @@ const remove = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { list, getById, create, update, togglePublish, remove };
+const uploadCover = async (req, res, next) => {
+  try {
+    const id = parseInt(req.params.id);
+    const exists = await prisma.blog_posts.findUnique({ where: { id } });
+    if (!exists) return notFound(res, 'Blog post');
+    if (!req.file?.buffer) return fail(res, 'Cover image file required', 400);
+
+    const { url } = await cloudinary.uploadImage(req.file.buffer, 'blog');
+    const post = await prisma.blog_posts.update({
+      where: { id },
+      data: { cover_image: url },
+      include: { author: { select: { id: true, name: true } } },
+    });
+    return success(res, post);
+  } catch (err) { next(err); }
+};
+
+module.exports = { list, getById, create, update, togglePublish, remove, uploadCover };

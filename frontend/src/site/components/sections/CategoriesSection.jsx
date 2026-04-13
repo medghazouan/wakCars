@@ -7,19 +7,18 @@ import { categoriesService } from '../../services/cars.service'
 import { staggerContainer, fadeUp, fadeLeft, accentGrow } from '../../utils/motion'
 
 const categoryImages = {
-  'economique': 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&q=80',
-  'compacte': 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=800&q=80',
-  'berline': 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&q=80',
-  'suv': 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&q=80',
-  '4x4': 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&q=80',
-  'luxe': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80',
-  'utilitaire': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
-}
+  citadine:   'https://res.cloudinary.com/dbsgzwmf6/image/upload/q_auto/f_auto/v1776075907/citadine_oc8bkl.jpg', // small, simple city car
+  berline:     'https://images.unsplash.com/photo-1657459562745-77cc871421cf?q=80&w=627&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',    // sedan / berline
+  'suv-4x4':       'https://res.cloudinary.com/dbsgzwmf6/image/upload/q_auto/f_auto/v1775841046/audi_qwqcur.jpg',  // off-road 4x4
+  luxe:        'https://res.cloudinary.com/dbsgzwmf6/image/upload/q_auto/f_auto/v1775840844/porche_bcjsqp.jpg',  // luxury car
+  utilitaire:  'https://res.cloudinary.com/dbsgzwmf6/image/upload/q_auto/f_auto/v1775840956/big_awmv1n.jpg',    // minivan
+};
 
 const CategoryCard = ({ category, getLocalizedField }) => {
   const name = getLocalizedField(category, 'name')
   const slug = category.slug
-  const image = categoryImages[slug] || categoryImages['economique']
+  console.log(slug)
+  const image = categoryImages[slug]
 
   return (
     <motion.div variants={fadeUp}>

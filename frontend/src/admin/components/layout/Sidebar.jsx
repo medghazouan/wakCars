@@ -15,7 +15,6 @@ import {
   HelpCircle,
   BarChart3,
   LogOut,
-  Headset,
   X,
 } from 'lucide-react'
 import { useAuth } from '@admin/hooks/useAuth'
@@ -138,13 +137,6 @@ export function Sidebar() {
         </Button>
 
         <div className="space-y-1">
-          <button
-            type="button"
-            className="flex w-full items-center gap-3 rounded-sm px-2 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
-          >
-            <Headset size={20} className="shrink-0" />
-            <span className="truncate">{t('sidebar.support')}</span>
-          </button>
           <button
             type="button"
             onClick={handleLogout}

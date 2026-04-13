@@ -29,6 +29,12 @@
   },
   "topbar": {
     "searchPlaceholder": "ابحث عن مركبة أو حجز أو عميل…",
+    "searchMinChars": "أدخل حرفين على الأقل.",
+    "searchLoading": "جاري البحث…",
+    "searchNoResults": "لا توجد نتائج.",
+    "searchSectionCustomers": "العملاء",
+    "searchSectionCars": "المركبات",
+    "searchSectionReservations": "الحجوزات",
     "profile": "ملف المشرف",
     "roleSuper": "صلاحيات المشرف الرئيسي",
     "roleStaff": "صلاحيات الموظف",

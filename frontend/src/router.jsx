@@ -33,10 +33,17 @@ import TechnicalVisitsFormPage from '@admin/pages/technical-reviews/TechnicalVis
 import CustomersListPage from '@admin/pages/customers/CustomersListPage'
 import PaymentsListPage from '@admin/pages/payments/PaymentsListPage'
 import DamagesListPage from '@admin/pages/damages/DamagesListPage'
+import DamageFormPage from '@admin/pages/damages/DamageFormPage'
 import BlogListPage from '@admin/pages/blog/BlogListPage'
+import BlogFormPage from '@admin/pages/blog/BlogFormPage'
 import FaqsListPage from '@admin/pages/faqs/FaqsListPage'
+import FaqFormPage from '@admin/pages/faqs/FaqFormPage'
 import SettingsPage from '@admin/pages/settings/SettingsPage'
 import ReportsPage from '@admin/pages/reports/ReportsPage'
+import CategoriesListPage from '@admin/pages/categories/CategoriesListPage'
+import CategoryFormPage from '@admin/pages/categories/CategoryFormPage'
+import LocationsListPage from '@admin/pages/locations/LocationsListPage'
+import LocationFormPage from '@admin/pages/locations/LocationFormPage'
 import AdminNotFound from '@admin/pages/AdminNotFound'
 
 export const router = createBrowserRouter([
@@ -88,10 +95,22 @@ export const router = createBrowserRouter([
           { path: 'technical-reviews/new', element: <TechnicalVisitsFormPage /> },
           { path: 'technical-reviews/:id/edit', element: <TechnicalVisitsFormPage /> },
           { path: 'customers', element: <CustomersListPage /> },
+          { path: 'categories', element: <CategoriesListPage /> },
+          { path: 'categories/new', element: <CategoryFormPage /> },
+          { path: 'categories/:id', element: <CategoryFormPage /> },
+          { path: 'locations', element: <LocationsListPage /> },
+          { path: 'locations/new', element: <LocationFormPage /> },
+          { path: 'locations/:id', element: <LocationFormPage /> },
           { path: 'payments', element: <PaymentsListPage /> },
           { path: 'damages', element: <DamagesListPage /> },
+          { path: 'damages/new', element: <DamageFormPage /> },
+          { path: 'damages/:id/edit', element: <DamageFormPage /> },
           { path: 'blog', element: <BlogListPage /> },
+          { path: 'blog/new', element: <BlogFormPage /> },
+          { path: 'blog/:id/edit', element: <BlogFormPage /> },
           { path: 'faqs', element: <FaqsListPage /> },
+          { path: 'faqs/new', element: <FaqFormPage /> },
+          { path: 'faqs/:id/edit', element: <FaqFormPage /> },
           { path: 'settings', element: <SettingsPage /> },
           { path: 'reports', element: <ReportsPage /> },
           { path: '*', element: <AdminNotFound /> },

@@ -29,6 +29,12 @@
   },
   "topbar": {
     "searchPlaceholder": "Rechercher véhicule, réservation ou client…",
+    "searchMinChars": "Au moins 2 caractères.",
+    "searchLoading": "Recherche…",
+    "searchNoResults": "Aucun résultat.",
+    "searchSectionCustomers": "Clients",
+    "searchSectionCars": "Véhicules",
+    "searchSectionReservations": "Réservations",
     "profile": "Profil administrateur",
     "roleSuper": "Accès super administrateur",
     "roleStaff": "Accès personnel",

@@ -1,21 +1,26 @@
 import { useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { motion } from 'framer-motion'
+import { motion as Motion } from 'framer-motion'
 import { Users, Filter } from 'lucide-react'
 import { customersApi } from '@admin/api/customers.api'
 import { pageTransition } from '@admin/animations/variants'
-import { Button } from '@admin/components/ui/Button'
 import { DataTable } from '@admin/components/ui/DataTable'
 import { StatsCard } from '@admin/components/ui/StatsCard'
 import { useAdminLanguage } from '@admin/hooks/useAdminLanguage'
 
-export default function CustomersListPage() {
+function CustomersListInner({ searchFromUrl }) {
   const { t } = useAdminLanguage()
   const [page, setPage] = useState(1)
 
   const { data, isLoading } = useQuery({
-    queryKey: ['customers', page],
-    queryFn: () => customersApi.getList({ page, limit: 10 }),
+    queryKey: ['customers', page, searchFromUrl],
+    queryFn: () =>
+      customersApi.getList({
+        page,
+        limit: 10,
+        ...(searchFromUrl ? { search: searchFromUrl } : {}),
+      }),
   })
 
   const pagination = useMemo(() => {
@@ -65,21 +70,7 @@ export default function CustomersListPage() {
   )
 
   return (
-    <motion.div
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      variants={pageTransition}
-      className="mx-auto w-full min-w-0 max-w-7xl space-y-6 sm:space-y-8"
-    >
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="mb-2 text-2xl font-bold text-secondary sm:text-3xl">{t('page.customers.title')}</h1>
-          <p className="text-sm text-gray-400 sm:text-base">{t('page.customers.subtitle')}</p>
-        </div>
-        <Button className="w-full shrink-0 sm:w-auto">+ {t('page.customers.addCustomer')}</Button>
-      </div>
-
+    <>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <StatsCard
           title={t('page.customers.totalCustomers')}
@@ -108,6 +99,24 @@ export default function CustomersListPage() {
           onPageChange={setPage}
         />
       </div>
-    </motion.div>
+    </>
+  )
+}
+
+export default function CustomersListPage() {
+  const [searchParams] = useSearchParams()
+  const searchFromUrl = (searchParams.get('search') || '').trim()
+  const listKey = searchFromUrl || '__all__'
+
+  return (
+    <Motion.div
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      variants={pageTransition}
+      className="mx-auto w-full min-w-0 max-w-7xl space-y-6 sm:space-y-8"
+    >
+      <CustomersListInner key={listKey} searchFromUrl={searchFromUrl} />
+    </Motion.div>
   )
 }

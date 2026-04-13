@@ -23,6 +23,7 @@ const settingsRoutes = require('./routes/settings.routes');
 const alertsRoutes = require('./routes/alerts.routes');
 const reportsRoutes = require('./routes/reports.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
+const searchRoutes = require('./routes/search.routes');
 const cronRoutes = require('./routes/cron.routes');
 const publicRoutes = require('./routes/public.routes');
 const { publicLimiter } = require('./config/rateLimiter');
@@ -63,6 +64,7 @@ app.use('/api/settings', adminLimiter, settingsRoutes);
 app.use('/api/alerts', adminLimiter, alertsRoutes);
 app.use('/api/reports', adminLimiter, reportsRoutes);
 app.use('/api/dashboard', adminLimiter, dashboardRoutes);
+app.use('/api/search', adminLimiter, searchRoutes);
 app.use('/api/cron', cronRoutes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok', env: process.env.NODE_ENV }));

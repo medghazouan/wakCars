@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom'
-import { HelpCircle, Settings, Search, Menu } from 'lucide-react'
+import { Settings, Menu } from 'lucide-react'
 import { useAuth } from '@admin/hooks/useAuth'
 import { useAdminLanguage } from '@admin/hooks/useAdminLanguage'
 import { adminPath } from '@admin/adminPaths'
 import { NavAlertsBell } from '@admin/components/layout/NavAlertsBell'
+import { AdminSearchBar } from '@admin/components/layout/AdminSearchBar'
 import { useAdminMobileNav } from './AdminMobileNavContext'
-import { cn } from '@admin/utils/cn'
 
 export function TopBar() {
   const admin = useAuth((state) => state.admin)
@@ -30,21 +30,8 @@ export function TopBar() {
         <Menu size={22} />
       </button>
 
-      <div className="flex min-w-0 flex-1 items-center">
-        <div className="relative hidden min-w-0 flex-1 md:block md:max-w-md lg:max-w-xl">
-          <Search
-            className={cn(
-              'pointer-events-none absolute top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-400',
-              'start-3'
-            )}
-            aria-hidden
-          />
-          <input
-            type="search"
-            placeholder={t('topbar.searchPlaceholder')}
-            className="h-9 w-full rounded-full border border-gray-100 bg-white py-2 ps-10 pe-4 text-sm text-text-primary transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:h-10"
-          />
-        </div>
+      <div className="hidden min-w-0 flex-1 items-center md:flex">
+        <AdminSearchBar />
       </div>
 
       <div className="flex shrink-0 items-center gap-1.5 sm:gap-3 lg:gap-4">
@@ -59,13 +46,6 @@ export function TopBar() {
 
         <div className="flex items-center gap-0.5 text-text-secondary sm:gap-2 lg:gap-4">
           <NavAlertsBell />
-          <button
-            type="button"
-            className="hidden rounded-sm p-1.5 transition-colors hover:bg-gray-100 hover:text-text-primary sm:inline-flex"
-            aria-label={t('common.helpAria')}
-          >
-            <HelpCircle size={20} />
-          </button>
           <Link
             to={adminPath('/settings')}
             className="rounded-sm p-1.5 transition-colors hover:bg-gray-100 hover:text-text-primary"

@@ -1,8 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
+import { ImagePlus } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { adminPath } from '@admin/adminPaths'
 import { blogApi } from '@admin/api/blog.api'
@@ -10,6 +11,7 @@ import { pageTransition } from '@admin/animations/variants'
 import { Input } from '@admin/components/ui/Input'
 import { Button } from '@admin/components/ui/Button'
 import { Card } from '@admin/components/ui/Card'
+import { cn } from '@admin/utils/cn'
 
 function slugifyFr(s) {
   return String(s || '')
@@ -25,6 +27,9 @@ export default function BlogFormPage() {
   const isEdit = Boolean(id)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const coverInputRef = useRef(null)
+  const [coverFile, setCoverFile] = useState(null)
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState(null)
 
   const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm({
     defaultValues: {
@@ -44,6 +49,16 @@ export default function BlogFormPage() {
   const post = postRes?.data
 
   useEffect(() => {
+    if (!coverFile) {
+      setCoverPreviewUrl(null)
+      return
+    }
+    const url = URL.createObjectURL(coverFile)
+    setCoverPreviewUrl(url)
+    return () => URL.revokeObjectURL(url)
+  }, [coverFile])
+
+  useEffect(() => {
     if (!post) return
     reset({
       slug_fr: post.slug_fr,
@@ -54,7 +69,6 @@ export default function BlogFormPage() {
       excerpt_ar: post.excerpt_ar || '',
       content_fr: post.content_fr,
       content_ar: post.content_ar,
-      cover_image: post.cover_image || '',
       cover_alt: post.cover_alt || '',
       meta_title_fr: post.meta_title_fr || '',
       meta_title_ar: post.meta_title_ar || '',
@@ -65,11 +79,23 @@ export default function BlogFormPage() {
       is_published: post.is_published,
       is_featured: post.is_featured,
     })
+    setCoverFile(null)
   }, [post, reset])
 
   const saveMutation = useMutation({
-    mutationFn: (payload) =>
-      isEdit ? blogApi.update(id, payload) : blogApi.create(payload),
+    mutationFn: async ({ fields, file }) => {
+      if (isEdit) {
+        await blogApi.update(id, fields)
+        if (file) await blogApi.uploadCover(id, file)
+        return
+      }
+      const res = await blogApi.create(fields)
+      // apiClient interceptor returns response body: { success, data: post }
+      const newId = res?.data?.id
+      if (file != null && newId != null) {
+        await blogApi.uploadCover(newId, file)
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['blog'] })
       toast.success(isEdit ? 'Article mis à jour' : 'Article créé')
@@ -80,26 +106,40 @@ export default function BlogFormPage() {
 
   const onSubmit = (data) => {
     saveMutation.mutate({
-      slug_fr: data.slug_fr.trim(),
-      slug_ar: data.slug_ar.trim(),
-      title_fr: data.title_fr.trim(),
-      title_ar: data.title_ar.trim(),
-      excerpt_fr: data.excerpt_fr?.trim() || undefined,
-      excerpt_ar: data.excerpt_ar?.trim() || undefined,
-      content_fr: data.content_fr.trim(),
-      content_ar: data.content_ar.trim(),
-      cover_image: data.cover_image?.trim() || undefined,
-      cover_alt: data.cover_alt?.trim() || undefined,
-      meta_title_fr: data.meta_title_fr?.trim() || undefined,
-      meta_title_ar: data.meta_title_ar?.trim() || undefined,
-      meta_desc_fr: data.meta_desc_fr?.trim() || undefined,
-      meta_desc_ar: data.meta_desc_ar?.trim() || undefined,
-      category: data.category?.trim() || undefined,
-      tags: data.tags?.trim() || undefined,
-      is_published: Boolean(data.is_published),
-      is_featured: Boolean(data.is_featured),
+      file: coverFile,
+      fields: {
+        slug_fr: data.slug_fr.trim(),
+        slug_ar: data.slug_ar.trim(),
+        title_fr: data.title_fr.trim(),
+        title_ar: data.title_ar.trim(),
+        excerpt_fr: data.excerpt_fr?.trim() || undefined,
+        excerpt_ar: data.excerpt_ar?.trim() || undefined,
+        content_fr: data.content_fr.trim(),
+        content_ar: data.content_ar.trim(),
+        cover_alt: data.cover_alt?.trim() || undefined,
+        meta_title_fr: data.meta_title_fr?.trim() || undefined,
+        meta_title_ar: data.meta_title_ar?.trim() || undefined,
+        meta_desc_fr: data.meta_desc_fr?.trim() || undefined,
+        meta_desc_ar: data.meta_desc_ar?.trim() || undefined,
+        category: data.category?.trim() || undefined,
+        tags: data.tags?.trim() || undefined,
+        is_published: Boolean(data.is_published),
+        is_featured: Boolean(data.is_featured),
+      },
     })
   }
+
+  const pickCover = (fileList) => {
+    const f = fileList?.[0]
+    if (!f || !f.type.startsWith('image/')) return
+    setCoverFile(f)
+  }
+
+  const clearPendingCover = () => {
+    setCoverFile(null)
+  }
+
+  const displayCoverSrc = coverPreviewUrl || post?.cover_image || ''
 
   if (isEdit && isLoading) {
     return <div className="p-8 text-center text-gray-500">Chargement…</div>
@@ -193,9 +233,68 @@ export default function BlogFormPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-600">Image de couverture (URL)</label>
-              <Input {...register('cover_image')} placeholder="https://…" />
+            <div className="space-y-3 md:col-span-2">
+              <label className="block text-[10px] font-semibold uppercase tracking-widest text-gray-600">
+                Image de couverture
+              </label>
+              <p className="text-xs text-gray-500">JPEG, PNG ou WebP (max 5 Mo). Envoyée sur Cloudinary comme pour les véhicules.</p>
+
+              <input
+                ref={coverInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={(e) => {
+                  pickCover(e.target.files)
+                  e.target.value = ''
+                }}
+              />
+
+              {displayCoverSrc ? (
+                <div className="relative inline-block max-w-md">
+                  <div className="aspect-[16/10] max-h-52 w-full max-w-md overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
+                    <img src={displayCoverSrc} alt="" className="h-full w-full object-cover" />
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {coverFile ? (
+                      <Button type="button" variant="outline" size="sm" onClick={clearPendingCover}>
+                        Annuler le nouveau fichier
+                      </Button>
+                    ) : null}
+                    <Button type="button" variant="outline" size="sm" onClick={() => coverInputRef.current?.click()}>
+                      {displayCoverSrc && !coverFile ? 'Remplacer l’image' : 'Choisir une image'}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      coverInputRef.current?.click()
+                    }
+                  }}
+                  onClick={() => coverInputRef.current?.click()}
+                  onDragOver={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    pickCover(e.dataTransfer.files)
+                  }}
+                  className={cn(
+                    'cursor-pointer rounded-xl border-2 border-dashed border-gray-300 p-8 text-center transition-colors',
+                    'hover:border-primary/50 hover:bg-red-50/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
+                  )}
+                >
+                  <ImagePlus className="mx-auto mb-2 text-gray-400" size={32} />
+                  <p className="text-sm font-medium text-secondary">Glissez une image ou cliquez</p>
+                </div>
+              )}
             </div>
             <div className="space-y-1.5">
               <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-600">Alt image</label>
@@ -205,7 +304,7 @@ export default function BlogFormPage() {
               <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-600">Catégorie</label>
               <Input {...register('category')} />
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 md:col-span-2">
               <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-600">Tags</label>
               <Input {...register('tags')} placeholder="JSON ou texte libre" />
             </div>

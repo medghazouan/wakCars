@@ -7,4 +7,10 @@ export const blogApi = {
   update: (id, data) => apiClient.put(`/api/blog/${id}`, data),
   togglePublish: (id) => apiClient.patch(`/api/blog/${id}/publish`),
   delete: (id) => apiClient.delete(`/api/blog/${id}`),
+  /** Upload cover thumbnail to Cloudinary and set `cover_image` on the post (same flow as car photos). */
+  uploadCover: (id, file) => {
+    const fd = new FormData()
+    fd.append('cover', file)
+    return apiClient.post(`/api/blog/${id}/cover`, fd)
+  },
 }
