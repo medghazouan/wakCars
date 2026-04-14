@@ -8,8 +8,7 @@ module.exports = (err, req, res, _next) => {
   }
 
   if (err.code === 'P2002') {
-    const field = Array.isArray(err.meta?.target) ? err.meta.target.join(', ') : (err.meta?.target || 'field');
-    return res.status(409).json({ success: false, error: `A record with this ${field} already exists` });
+    return res.status(409).json({ success: false, error: 'A record with this value already exists' });
   }
 
   if (err.code === 'P2025') {

@@ -1,5 +1,5 @@
 # WAK Cars - Robots.txt
-# https://wakcars.ma
+# https://wakcars.com
 
 User-agent: *
 Allow: /
@@ -12,4 +12,4 @@ Disallow: /admin/
 Disallow: /reservation/confirmation
 
 # Sitemap
-Sitemap: https://wakcars.ma/sitemap.xml
+Sitemap: https://wakcars.com/sitemap.xml

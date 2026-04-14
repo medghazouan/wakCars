@@ -6,9 +6,9 @@ const {
   bookingSources,
   exportReport,
 } = require('../controllers/reports.controller');
-const { authenticate } = require('../middleware/auth');
+const { authenticate, requireRole } = require('../middleware/auth');
 
-router.use(authenticate);
+router.use(authenticate, requireRole('ADMIN'));
 
 router.get('/revenue', revenue);
 router.get('/utilization', utilization);

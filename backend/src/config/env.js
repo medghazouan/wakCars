@@ -29,6 +29,6 @@ module.exports = {
   EMAIL_FROM: optional('EMAIL_FROM', 'noreply@wakcars.ma'),
   EMAIL_FROM_NAME: optional('EMAIL_FROM_NAME', 'Wak Cars'),
   SENTRY_DSN: optional('SENTRY_DSN'),
-  CRON_SECRET: optional('CRON_SECRET'),
+  CRON_SECRET: process.env.NODE_ENV === 'production' ? required('CRON_SECRET') : optional('CRON_SECRET'),
   WHATSAPP_BUSINESS_PHONE: optional('WHATSAPP_BUSINESS_PHONE', '+212661234567'),
 };

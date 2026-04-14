@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
+import DOMPurify from 'dompurify'
 import { useLanguage } from '../hooks/useLanguage'
 import { fadeLeft, accentGrow, scaleUp, fadeUp } from '../utils/motion'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -167,7 +168,7 @@ const BlogPost = () => {
                 initial="hidden"
                 animate="visible"
               >
-                <div dangerouslySetInnerHTML={{ __html: getLocalizedField(post, 'content') }} className="w-full" />
+                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(getLocalizedField(post, 'content')) }} className="w-full" />
               </motion.div>
             </div>
           </div>

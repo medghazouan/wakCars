@@ -111,7 +111,7 @@ const checkAvailability = async (req, res, next) => {
         AND: [{ pickup_date: { lte: toD } }, { dropoff_date: { gte: fromD } }],
       },
     });
-    return success(res, { available: !overlap, conflict: overlap || null });
+    return success(res, { available: !overlap });
   } catch (err) {
     next(err);
   }
@@ -231,6 +231,23 @@ const listFaqs = async (req, res, next) => {
  * Without `lang`: uses value_fr, then value_ar (stable for prices / booking).
  * With `lang=fr|ar`: prefers that locale, then falls back to the other.
  */
+// Only expose settings the marketing site actually needs
+const PUBLIC_SETTINGS_WHITELIST = new Set([
+  // Footer / contact
+  'footer_facebook_url', 'footer_instagram_url', 'footer_phone', 'footer_email',
+  'footer_address', 'footer_opening_hours', 'footer_description',
+  'footer_whatsapp_phone', 'footer_map_embed_url',
+  'contact_phone', 'contact_email', 'contact_whatsapp',
+  'contact_address_fr', 'contact_address_ar',
+  'business_hours', 'site_tagline', 'google_maps_embed',
+  // Pricing / booking
+  'gps_daily_price', 'child_seat_daily_price', 'deposit_default',
+  // SEO / hero
+  'hero_title', 'hero_subtitle', 'hero_cta',
+  'meta_title', 'meta_description',
+  'working_hours', 'booking_note', 'company_name',
+]);
+
 const publicSettings = async (req, res, next) => {
   try {
     const lang = String(req.query.lang || '').toLowerCase();
@@ -239,6 +256,7 @@ const publicSettings = async (req, res, next) => {
     const rows = await prisma.site_settings.findMany();
     const flat = {};
     for (const s of rows) {
+      if (!PUBLIC_SETTINGS_WHITELIST.has(s.settingKey)) continue;
       let v;
       if (preferAr) {
         v = s.value_ar != null && s.value_ar !== '' ? s.value_ar : (s.value_fr ?? '');
