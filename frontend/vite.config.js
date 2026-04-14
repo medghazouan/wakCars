@@ -26,10 +26,17 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          animations: ['gsap', 'framer-motion'],
-          query: ['@tanstack/react-query', 'axios'],
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return
+          if (/node_modules[\\/](react|react-dom|react-router-dom)[\\/]/.test(id)) {
+            return 'vendor'
+          }
+          if (id.includes('gsap') || id.includes('framer-motion')) {
+            return 'animations'
+          }
+          if (id.includes('@tanstack/react-query') || id.includes('/axios/')) {
+            return 'query'
+          }
         },
       },
     },
